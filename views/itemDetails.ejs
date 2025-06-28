@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Item details</title>
+    </head>
+
+    <body>
+        Showing item index: <%= itemIndex %> <br> <br>
+
+         Item Name: <input typy="text" id="itemName" value="<%= items[Number(itemIndex)].name %>"></input> <br>
+
+         Quantity: <input type="text" id="itemQuantityInput" name="itemQuantityInput" 
+                          value="<%= items[Number(itemIndex)].quantity %>" size="4"></input><br>
+
+         Minimum Quantity: <input type="text" id="itemMinQuantity" 
+                                  value="<%= items[Number(itemIndex)].minimumLevel %>" size="4"></input><br>
+
+         Price: <input type="text" id="itemPrice" 
+                                  value="<%= items[Number(itemIndex)].price %>" size="4"></input><br>
+
+         <br> <br>
+         <a href="/">home</a> 
+
+         <br>
+         <button value="save" onclick="updateItem()">save</button>
+    </body>
+    <script>
+        async function updateItem() {
+
+            const itemName        = document.getElementById('itemName').value;
+            const itemQuantity    = document.getElementById('itemQuantityInput').value;
+            const itemMinQuantity = document.getElementById('itemMinQuantity').value;
+            const itemPrice       = document.getElementById('itemPrice').value;
+
+            console.log(`price ${itemPrice}`);
+
+            const request = new Request("/edit/<%= itemIndex %>", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemName: itemName,
+                    itemQuantity: itemQuantity ,
+                    itemMinQuantity: itemMinQuantity,
+                    itemPrice: itemPrice
+                }),
+            })
+            const response = await fetch(request);
+            console.log(response.status)
+        }
+    </script>
+</html>
