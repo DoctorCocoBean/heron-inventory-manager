@@ -9,8 +9,20 @@ async function getAllItems() {
 async function insertItem(name, quantity, minLevel, price) {
     console.log("inserting: ");
 
+    if (!quantity) {
+        quantity = 0;
+    }
+
+    if (!minLevel) {
+        minLevel = 0;
+    }
+
+    if (!price) {
+        price = 0;
+    }
+
     const SQL = `
-    INSERT INTO items (name, quantity, "minimumLevel")
+    INSERT INTO items (name, quantity, "minimumLevel", price)
     VALUES ('${name}', '${quantity}', '${minLevel}', '${price}');
     `;
 
