@@ -1,5 +1,7 @@
 // TODO:
 // Validate update form inputs aren't null or weird characters
+// Editing item should be in popup
+// Uploading csv should be popup
 
 const express = require('express');
 const path    = require("node:path");

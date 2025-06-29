@@ -44,6 +44,19 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
    await pool.query(SQL);
 }
 
+async function searchForItem(name) {
+    console.log("Server searching for item:", name);
+    
+    const SQL = `
+        SELECT * FROM items
+        WHERE LOWER(name) LIKE '%${name}%';
+        `;
+
+    const { rows } = await pool.query(SQL);
+    console.log("rows ", rows)
+    return rows;
+}
+
 module.exports = {
-    getAllItems, insertItem, updateItem
+    getAllItems, insertItem, updateItem, searchForItem
 };

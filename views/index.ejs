@@ -9,76 +9,180 @@
     </head>
     <style>
         .scrollable {
-            height: 100%;
+            height: 90vh;
             overflow:scroll;
         }
     </style>
     <body>
-<div class="container-fluid min-vh-100 pb-3 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
-    <div class="row flex-fill">
 
-        <!-- Side bar -->
-        <aside class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
-            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
-            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-            <span class="fs-4">Sidebar</span>
-            </a>
-            <hr>
-            <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item">
-                <a href="#" class="nav-link active" aria-current="page">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"></use></svg>
-                Home
+
+    <!-- Modal -->
+    <div class="modal" id="myModal" role="dialog">
+        <div class="modal-dialog">
+        
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+            <p>Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        
+        </div>
+    </div>
+
+    <div class="container-fluid min-vh-100 pb-3 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
+        <div class="row flex-fill">
+
+            <!-- Side bar -->
+            <aside class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
+                <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+                <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+                <span class="fs-4">Sidebar</span>
                 </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link link-dark">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"></use></svg>
-                Dashboard
-                </a>
-            </li>
-            </ul>
-            <hr>
-        </aside>
-       
-        <!-- content -->
-        <main class="col overflow-auto min-vh-100">
-            <div class="bg-light min-vh-100 rounded-3 p-3">
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" aria-current="page">
+                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"></use></svg>
+                    Home
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link link-dark">
+                    <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"></use></svg>
+                    Dashboard
+                    </a>
+                </li>
+                </ul>
+                <hr>
+            </aside>
+        
+            <!-- content -->
+            <main class="col overflow-auto min-vh-100">
+                <div class="bg-light min-vh-100 rounded-3 p-3">
 
-                <a href="/new" class="btn btn-primary">Add item</a>
-                <input type="file" id="csvFileInput" accept=".csv">
-                <button id="readCVSButton" onclick="uploadCSV()">Upload</button>
+                    <input type="text" placeholder="search" id="searchBar" "></input>
 
-                <div class="scrollable">
-                <table class="table table-hover">
+                    <a href="/new" class="btn btn-primary">Add item</a>
+                    <input type="file" id="csvFileInput" accept=".csv">
+                    <button id="readCVSButton" onclick="uploadCSV()">Upload</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+                    <div class="scrollable" >
+                        <table class="table table-hover" id="itemTable">
+                            <thead>
+                                <td>Name</td>
+                                <td>Quantity</td>
+                                <td>Minimum Level</td>
+                                <td>Price</td>
+                            </thead>
+                            <% for(var i=0; i<items.length; i++) { %>
+                            <tr onclick="gotoUpdateItem(<%= i %>)" >
+                                <td ><%= items[i].name %></td>
+                                <td ><%= items[i].quantity %></td>
+                                <td ><%= items[i].minimumLevel %></td>
+                                <td ><%= items[i].price %></td>
+                            </tr>
+                            <% } %>
+                        </table>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+         
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+
+    <script>
+        var searchBar = document.getElementById("searchBar");
+        const itemTable = document.getElementById("itemTable");
+
+        searchBar.addEventListener("keypress", function(event) {
+            if (event.key == "Enter") {
+                event.preventDefault();
+                searchForItem(searchBar.value)
+            }
+        });
+
+        function gotoUpdateItem(itemIndex) { 
+            console.log("goto item ", itemIndex);
+            $('#myModal').modal()
+
+            const popup = document.getElementById("myModal");
+            popup.innerHTML = `
+                <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                    <p>Item: ${itemIndex}</p>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                
+                </div>
+            `
+ 
+            // window.location.href = `/edit/${itemIndex}`;
+        }
+
+        async function searchForItem(name) 
+        {
+
+            if (name == "") {
+                name = "all";
+            }
+
+            const request = new Request(`/search/${name}`, {
+                method: "GET",
+                headers: { 'Content-Type': 'application/json' }
+            })
+
+            const response = await fetch(request);
+            const data = response.json().then((data) => {
+                console.log(data);
+
+                var tableHTML = `
                     <thead>
                         <td>Name</td>
                         <td>Quantity</td>
                         <td>Minimum Level</td>
                         <td>Price</td>
                     </thead>
-                    <% for(var i=0; i<items.length; i++) { %>
-                    <tr onclick="gotoUpdateItem(<%= i %>)">
-                        <td ><%= items[i].name %></td>
-                        <td ><%= items[i].quantity %></td>
-                        <td ><%= items[i].minimumLevel %></td>
-                        <td ><%= items[i].price %></td>
-                    </tr>
-                    <% } %>
-                </table>
-                </div>
+                `
 
-            </div>
-        </main>
-    </div>
-</div>
+                for (i=0; i<data.length; i++) 
+                {
+                    tableHTML += `
+                        <tr onclick="gotoUpdateItem(${data[i]['id']})">
+                            <td >${data[i]['name']}</td>
+                            <td >${data[i]['quantity']}</td>
+                            <td >${data[i]['minimumLevel']}</td>
+                            <td >${data[i]['price']}</td>
+                        </tr>
+                    `
+                }
 
-         
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-    </body>
-    <script>
-        function gotoUpdateItem(itemIndex) { 
-            window.location.href = `/edit/${itemIndex}`;
+                itemTable.innerHTML= tableHTML;
+            });
         }
 
         async function readFileAsText(file) 

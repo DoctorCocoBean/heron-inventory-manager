@@ -21,6 +21,22 @@ indexRouter.get("/edit/:itemIndex", async (req, res) =>
   res.render("itemDetails", { itemIndex: itemIndex, items: items });
 });
 
+indexRouter.get("/search/:itemName", async (req, res) => 
+{
+    var nameToSearch = req.params.itemName;
+    var items;
+
+    if (nameToSearch == "all") {
+        items = await db.getAllItems();
+    }
+    else {
+        items = await db.searchForItem(req.params.itemName);
+    }
+
+    console.log(items);
+    res.send(items);
+});
+
 indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
   console.log(`edit post: ${ req.body.itemName } ${ req.body.itemQuantity} ${req.body.itemMinQuantity} ${req.body.itemPrice} `)
