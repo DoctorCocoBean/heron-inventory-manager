@@ -17,13 +17,12 @@
 
 
     <!-- Modal -->
-    <div class="modal" id="myModal" role="dialog">
+    <div class="modal" id="editItemModal" role="dialog">
         <div class="modal-dialog">
         
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
             <h4 class="modal-title">Modal Header</h4>
             </div>
             <div class="modal-body">
@@ -73,7 +72,7 @@
                     <a href="/new" class="btn btn-primary">Add item</a>
                     <input type="file" id="csvFileInput" accept=".csv">
                     <button id="readCVSButton" onclick="uploadCSV()">Upload</button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Open Modal</button>
+                    <button id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
 
                     <div class="scrollable" >
                         <table class="table table-hover" id="itemTable">
@@ -84,7 +83,7 @@
                                 <td>Price</td>
                             </thead>
                             <% for(var i=0; i<items.length; i++) { %>
-                            <tr onclick="gotoUpdateItem(<%= i %>)" >
+                            <tr id="tableRow_<%= i %>" onclick="gotoUpdateItem(<%= i %>)" >
                                 <td ><%= items[i].name %></td>
                                 <td ><%= items[i].quantity %></td>
                                 <td ><%= items[i].minimumLevel %></td>
@@ -108,6 +107,7 @@
     <script>
         var searchBar = document.getElementById("searchBar");
         const itemTable = document.getElementById("itemTable");
+        const popup = document.getElementById("editItemModal");
 
         searchBar.addEventListener("keypress", function(event) {
             if (event.key == "Enter") {
@@ -116,37 +116,80 @@
             }
         });
 
-        function gotoUpdateItem(itemIndex) { 
-            console.log("goto item ", itemIndex);
-            $('#myModal').modal()
+        $(document).keyup(function(e) 
+        {
+            if (e.key === "Escape") { // escape key maps to keycode `27`
+                console.log('sdf');
+                $('#editItemModal').modal('hide');
+            }
 
-            const popup = document.getElementById("myModal");
-            popup.innerHTML = `
-                <div class="modal-dialog">
+            if (e.key === "/") {
+                console.log("hi");
+                searchBar.focus();
+            }
+        });
 
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Modal Header</h4>
+        async function gotoUpdateItem(itemIndex)
+        { 
+            console.log('goto item', itemIndex)
+            itemIndex = itemIndex + 1;
+
+            const request = new Request(`/itemByIndex/${itemIndex}`, {
+                method: "GET",
+                headers: { 'Content-Type': 'application/json' }
+            })
+
+            const response = await fetch(request);
+            const data = response.json().then((data) => 
+            {
+                console.log(data);
+
+                $('#editItemModal').modal()
+
+                popup.innerHTML = `
+                    <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">Modal Header</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="container">
+                            <div class="row">
+                                <div class="col-md p-3" style="line-height: 1.8">
+                                Name: <br>
+                                Quantity: <br>
+                                Minimum Level: <br>
+                                Price: <br>
+                                Value: <br>
+                                Barcode: <br>
+                                </div>
+                                <div class="col-sm">
+                                <input type="text" id="nameInput" value="${data[0]['name']}"></input> <br>
+                                <input type="text" id="quantityInput" value="${data[0]['quantity']}" ></input> <br>
+                                <input type="text" id="minQuantityInput" value="${data[0]['minimumLevel']}"></input> <br>
+                                <input type="text" id="priceInput" value="${data[0]['price']}"></input> <br>
+                                <input type="text" id="valueInput" value="${data[0]['value']}"></input> <br>
+                                <input type="text" id="barcodeInput" value="${data[0]['barcode']}"></input> <br>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default" onclick="updateItem(${data[0]['id']})">Save</button>
+
+                        </div>
                     </div>
-                    <div class="modal-body">
-                    <p>Item: ${itemIndex}</p>
+                    
                     </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-                
-                </div>
-            `
- 
-            // window.location.href = `/edit/${itemIndex}`;
+                `
+            });
         }
 
         async function searchForItem(name) 
         {
-
             if (name == "") {
                 name = "all";
             }
@@ -172,6 +215,7 @@
                 for (i=0; i<data.length; i++) 
                 {
                     tableHTML += `
+                        <tr id="tableRow_${data[i]['id']}" onclick="gotoUpdateItem(${data[i]['id']})" >
                         <tr onclick="gotoUpdateItem(${data[i]['id']})">
                             <td >${data[i]['name']}</td>
                             <td >${data[i]['quantity']}</td>
@@ -225,6 +269,87 @@
             } catch (error) {
                 console.log("error reading file: ", error);
             }
+
+            loadItemTable();
+        }
+
+        async function updateItem(itemId) 
+        {
+            const itemName        = document.getElementById('nameInput').value;
+            const itemQuantity    = document.getElementById('quantityInput').value;
+            const itemMinQuantity = document.getElementById('minQuantityInput').value;
+            const itemPrice       = document.getElementById('priceInput').value;
+
+            const request = new Request(`/edit/${itemId}`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemName: itemName,
+                    itemQuantity: itemQuantity ,
+                    itemMinQuantity: itemMinQuantity,
+                    itemPrice: itemPrice
+                }),
+            })
+
+            const response = await fetch(request);
+            $('#editItemModal').modal('hide');
+
+            const tableRow = document.getElementById(`tableRow_${itemId-1}`);
+            console.log(tableRow);
+            tableRow.innerHTML = `
+                <td>${itemName}</td>
+                <td>${itemQuantity}</td>
+                <td>${itemMinQuantity}</td>
+                <td>${itemPrice}</td>
+            `
+        }
+
+        async function loadItemTable()
+        {
+            const request = new Request(`/search/all`, {
+                method: "GET",
+                headers: { 'Content-Type': 'application/json' }
+            })
+
+            const response = await fetch(request);
+            const data = response.json().then((data) => 
+            {
+                var tableHTML = `
+                    <thead>
+                        <td>Name</td>
+                        <td>Quantity</td>
+                        <td>Minimum Level</td>
+                        <td>Price</td>
+                    </thead>
+                `
+
+                for (i=0; i<data.length; i++) 
+                {
+                    tableHTML += `
+                        <tr id="tableRow_${data[i]['id']}" onclick="gotoUpdateItem(${data[i]['id']})" >
+                            <td >${data[i]['name']}</td>
+                            <td >${data[i]['quantity']}</td>
+                            <td >${data[i]['minimumLevel']}</td>
+                            <td >${data[i]['price']}</td>
+                        </tr>
+                    `
+                }
+
+                itemTable.innerHTML= tableHTML;
+            });
+        }
+
+        async function deleteAllItems()
+        {
+            const request = new Request(`/deleteAllItems`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ }),
+            })
+
+            const response = await fetch(request).then(() => {
+                loadItemTable();
+            });
         }
     </script>
 </html>

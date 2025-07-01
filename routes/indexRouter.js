@@ -9,16 +9,18 @@ indexRouter.get("/", async (req, res) =>
     res.render("index", { title: "Inventory", items: items });
 });
 
-indexRouter.get("/new", (req, res) => 
-{
-  res.render("form", { });
-});
-
 indexRouter.get("/edit/:itemIndex", async (req, res) => 
 {
   const itemIndex = req.params.itemIndex;
   const items     = await db.getAllItems();
   res.render("itemDetails", { itemIndex: itemIndex, items: items });
+});
+
+indexRouter.get("/itemByIndex/:itemIndex" , async (req, res) => 
+{
+    const item = await db.getItemById(req.params.itemIndex);
+    console.log(item);
+    res.send(item);
 });
 
 indexRouter.get("/search/:itemName", async (req, res) => 
@@ -40,7 +42,7 @@ indexRouter.get("/search/:itemName", async (req, res) =>
 indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
   console.log(`edit post: ${ req.body.itemName } ${ req.body.itemQuantity} ${req.body.itemMinQuantity} ${req.body.itemPrice} `)
-  itemIndex = Number(req.params.itemIndex) + 1; // Database starts counting at 1. Not 0.
+  itemIndex = Number(req.params.itemIndex); // Database starts counting at 1. Not 0.
   await db.updateItem(itemIndex,
                      req.body.itemName,
                      req.body.itemQuantity,
@@ -51,36 +53,51 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
 
 indexRouter.post("/uploadCSV", (req, res) => 
 {
-  console.log('Parsing... ');
-  
-  const data = papa.parse(req.body.csvData, { 
-    header: true,
-    dynamicTyping: true,
-    complete: function(results) 
-    {
-        console.log('Parsed csv data: ');
-        for (i = 1; i<results.data.length; i++) {
-            console.log(results.data[i]['Entry Name'], results.data[i]['Quantity'],
-                        results.data[i]['Min Level'], results.data[i]['Price'],
-                        results.data[i]['Value'], results.data[i]['Notes'], results.data[i]['Tags'],
-                        results.data[i]['Barcode/QR2-Data']
-            );
+    console.log('Parsing... ');
+    
+    const data = papa.parse(req.body.csvData, 
+    { 
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) 
+        {
+            console.log('Parsed csv data: ');
+            for (i = 1; i<results.data.length; i++) {
+                console.log(results.data[i]['Entry Name'], results.data[i]['Quantity'],
+                            results.data[i]['Min Level'], results.data[i]['Price'],
+                            results.data[i]['Value'], results.data[i]['Notes'], results.data[i]['Tags'],
+                            results.data[i]['Barcode/QR2-Data']
+                );
 
-            db.insertItem(results.data[i]['Entry Name'],
-                          results.data[i]['Quantity'],
-                          results.data[i]['Min Level'],
-                          results.data[i]['Price']);
+                db.insertItem(results.data[i]['Entry Name'],
+                                results.data[i]['Quantity'],
+                                results.data[i]['Min Level'],
+                                results.data[i]['Price'],
+                                results.data[i]['Value'],
+                                results.data[i]['Barcode'],
+                                results.data[i]['Notes'],
+                                results.data[i]['Tags'],
+                            );
+            }
         }
-    }
-  });
+    });
+
+    res.redirect("/");
 });
 
 indexRouter.post("/new", async (req, res) => 
 {
-  console.log(`post ${req.body.name}`);
-  item = req.body;
-  await db.insertItem(item.itemName, item.quantity, item.minLevel, item.price);
-  res.redirect("/");
+    console.log(`post ${req.body.name}`);
+    item = req.body;
+    await db.insertItem(item.itemName, item.quantity, item.minLevel, item.price);
+    res.redirect("/");
+});
+
+indexRouter.post('/deleteAllItems', async (req, res) =>
+{
+	console.log('deleting all items');
+    await db.deleteAllItems();
+    res.redirect("/");
 });
 
 module.exports = indexRouter

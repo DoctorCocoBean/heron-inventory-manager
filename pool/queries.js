@@ -6,7 +6,13 @@ async function getAllItems() {
     return rows;
 }
 
-async function insertItem(name, quantity, minLevel, price) {
+async function getItemById(id) {
+    const { rows } = await pool.query(`SELECT * FROM items WHERE id = ${id}`);
+    return rows;
+}
+
+async function insertItem(name, quantity, minLevel, price, value, barcode, notes, tags) 
+{
     console.log("inserting: ");
 
     if (!quantity) {
@@ -22,8 +28,8 @@ async function insertItem(name, quantity, minLevel, price) {
     }
 
     const SQL = `
-    INSERT INTO items (name, quantity, "minimumLevel", price)
-    VALUES ('${name}', '${quantity}', '${minLevel}', '${price}');
+    INSERT INTO items (name, quantity, "minimumLevel", price, value, barcode, notes, tags)
+    VALUES ('${name}', '${quantity}', '${minLevel}', '${price}', '${value}', '${barcode}', '${notes}', '${tags}')
     `;
 
     await pool.query(SQL);
@@ -57,6 +63,15 @@ async function searchForItem(name) {
     return rows;
 }
 
+async function deleteAllItems()
+{
+    const SQL = `
+        DELETE FROM items;
+        `;
+
+    await pool.query(SQL);
+}
+
 module.exports = {
-    getAllItems, insertItem, updateItem, searchForItem
+    getAllItems, insertItem, updateItem, searchForItem, getItemById, deleteAllItems
 };
