@@ -35,16 +35,22 @@ async function insertItem(name, quantity, minLevel, price, value, barcode, notes
     await pool.query(SQL);
 }
 
-async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice) {
+async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
+                          itemNotes, itemTags)
+{
     console.log("updating... item:" + itemIndex + " " + itemPrice);
 
     const SQL = `
     UPDATE items
-    SET name         = '${ name }', 
-    quantity         = '${ itemQuantity }',
-    "minimumLevel"   = '${ itemMinQuantity }',
-    "price"          = '${ itemPrice }'
-    WHERE id = ${ itemIndex } ;
+    SET name           = '${ name }', 
+    quantity           = '${ itemQuantity }',
+    "minimumLevel"     = '${ itemMinQuantity }',
+    "price"            = '${ itemPrice }',
+    "value"            = '${ itemValue }',
+    "barcode"          = '${ itemBarcode }',
+    "notes"            = '${ itemNotes }',
+    "tags"             = '${ itemTags }'
+    WHERE id = ${ itemIndex };
    `;
 
    await pool.query(SQL);

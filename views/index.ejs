@@ -15,23 +15,9 @@
     </style>
     <body>
 
-
     <!-- Modal -->
     <div class="modal" id="editItemModal" role="dialog">
         <div class="modal-dialog">
-        
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-            <h4 class="modal-title">Modal Header</h4>
-            </div>
-            <div class="modal-body">
-            <p>Some text in the modal. 2</p>
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
         
         </div>
     </div>
@@ -69,7 +55,7 @@
 
                     <input type="text" placeholder="search" id="searchBar" "></input>
 
-                    <a href="/new" class="btn btn-primary">Add item</a>
+                    <button onclick="openNewItemDialog()" class="btn btn-primary">Add Item</button>
                     <input type="file" id="csvFileInput" accept=".csv">
                     <button id="readCVSButton" onclick="uploadCSV()">Upload</button>
                     <button id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
@@ -83,7 +69,7 @@
                                 <td>Price</td>
                             </thead>
                             <% for(var i=0; i<items.length; i++) { %>
-                            <tr id="tableRow_<%= i %>" onclick="gotoUpdateItem(<%= i %>)" >
+                            <tr id="tableRow_<%= items[i].id %>" onclick="gotoUpdateItem(<%= items[i].id %>)" >
                                 <td ><%= items[i].name %></td>
                                 <td ><%= items[i].quantity %></td>
                                 <td ><%= items[i].minimumLevel %></td>
@@ -129,10 +115,60 @@
             }
         });
 
+        async function openNewItemDialog()
+        {
+            console.log('New item dialog');
+
+            $('#editItemModal').modal()
+
+            popup.innerHTML = `
+                <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h4 class="modal-title">Edit Item</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="container">
+                        <div class="row">
+                            <div class="col-md p-3" style="line-height: 1.8">
+                            Name: <br>
+                            Quantity: <br>
+                            Minimum Level: <br>
+                            Price: <br>
+                            Value: <br>
+                            Barcode: <br>
+                            </div>
+                            <div class="col-sm">
+                                <input type="text" id="nameInput" ></input> <br>
+                                <input type="text" id="quantityInput"  ></input> <br>
+                                <input type="text" id="minQuantityInput" ></input> <br>
+                                <input type="text" id="priceInput" ></input> <br>
+                                <input type="text" id="valueInput" ></input> <br>
+                                <input type="text" id="barcodeInput" ></input> <br>
+                                <input type="text" id="notesInput" ></input> <br>
+                                <input type="text" id="tagsInput" ></input> <br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" onclick="addItem()">Save</button>
+
+                    </div>
+                </div>
+                
+                </div>
+            `
+
+        }
+
         async function gotoUpdateItem(itemIndex)
         { 
             console.log('goto item', itemIndex)
-            itemIndex = itemIndex + 1;
+            itemIndex = itemIndex;
 
             const request = new Request(`/itemByIndex/${itemIndex}`, {
                 method: "GET",
@@ -157,7 +193,7 @@
                     <!-- Modal content-->
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h4 class="modal-title">Modal Header</h4>
+                        <h4 class="modal-title">Edit Item</h4>
                         </div>
                         <div class="modal-body">
 
@@ -280,15 +316,53 @@
             loadItemTable();
         }
 
+        async function addItem()
+        {
+            const itemName          = document.getElementById('nameInput').value;
+            const itemQuantity      = document.getElementById('quantityInput').value;
+            const itemMinQuantity   = document.getElementById('minQuantityInput').value;
+            const itemPrice         = document.getElementById('priceInput').value;
+            const itemValue         = document.getElementById('valueInput').value;
+            const itemBarcode       = document.getElementById('barcodeInput').value;
+            const itemNotes         = document.getElementById('notesInput').value;
+            const itemTags          = document.getElementById('tagsInput').value;
+
+            console.log(itemName);
+
+            const request = new Request(`/addItem`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemName: itemName,
+                    itemQuantity: itemQuantity ,
+                    itemMinQuantity: itemMinQuantity,
+                    itemPrice: itemPrice,
+                    itemValue: itemValue,
+                    itemBarcode: itemBarcode,
+                    itemNotes: itemNotes,
+                    itemTags: itemTags,
+                }),
+            })
+
+            const response = await fetch(request);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+            }
+        }
+
         async function updateItem(itemId) 
         {
-            const itemName        = document.getElementById('nameInput').value;
-            const itemQuantity    = document.getElementById('quantityInput').value;
-            const itemMinQuantity = document.getElementById('minQuantityInput').value;
-            const itemPrice       = document.getElementById('priceInput').value;
-            const itemValue       = document.getElementById('priceInput').value;
-            const itemNotes       = document.getElementById('priceInput').value;
-            const itemTags        = document.getElementById('priceInput').value;
+            const itemName          = document.getElementById('nameInput').value;
+            const itemQuantity      = document.getElementById('quantityInput').value;
+            const itemMinQuantity   = document.getElementById('minQuantityInput').value;
+            const itemPrice         = document.getElementById('priceInput').value;
+            const itemValue         = document.getElementById('valueInput').value;
+            const itemBarcode       = document.getElementById('barcodeInput').value;
+            const itemNotes         = document.getElementById('notesInput').value;
+            const itemTags          = document.getElementById('tagsInput').value;
+
 
             const request = new Request(`/edit/${itemId}`, {
                 method: "POST",
@@ -297,14 +371,25 @@
                     itemName: itemName,
                     itemQuantity: itemQuantity ,
                     itemMinQuantity: itemMinQuantity,
-                    itemPrice: itemPrice
+                    itemPrice: itemPrice,
+                    itemValue: itemValue,
+                    itemBarcode: itemBarcode,
+                    itemNotes: itemNotes,
+                    itemTags: itemTags,
                 }),
             })
 
+            
             const response = await fetch(request);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+            }
+
             $('#editItemModal').modal('hide');
 
-            const tableRow = document.getElementById(`tableRow_${itemId-1}`);
+            const tableRow = document.getElementById(`tableRow_${itemId}`);
             console.log(tableRow);
             tableRow.innerHTML = `
                 <td>${itemName}</td>

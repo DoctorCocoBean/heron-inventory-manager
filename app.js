@@ -1,16 +1,14 @@
 // TODO:
+//Database passwood: wCBrkihVgfbs9PGV
 
-//wCBrkihVgfbs9PGV
-// Barcode isn't uploading for some reason
-// ---------------------------------------------
+// Fixed edit item popup not working on first load of index.ejs
 // Can't save barcode modification
-// Need to render table from server on first load index
+// ---------------------------------------------
 
-// Uploading csv should be popup
 // Add Item
 // Remove Item
-// Remove multiple items
-
+// Remove multiple items by selecting checkboxes?
+// Uploading csv should be popup
 
 // Editing item Finish creating the form to edit items
 // Validate update form inputs aren't null or weird characters
@@ -20,6 +18,9 @@
 // Deleting all items while creating back up
 
 // Reload table with SolidJS
+
+// ---------- Maybe ----------------- 
+// Need to render table from server on first load index is SolidJS
 
 const express = require('express');
 const path    = require("node:path");
@@ -43,7 +44,7 @@ app.use((err, req, res, next) =>
 {
     console.error('Error:', err.message);
     console.error(err.stack);
-    
+
     res.status(err.status || 500).send(err.message);
 });
 

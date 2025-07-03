@@ -11,9 +11,9 @@ indexRouter.get("/", async (req, res) =>
 
 indexRouter.get("/edit/:itemIndex", async (req, res) => 
 {
-  const itemIndex = req.params.itemIndex;
-  const items     = await db.getAllItems();
-  res.render("itemDetails", { itemIndex: itemIndex, items: items });
+    const itemIndex = req.params.itemIndex;
+    const items     = await db.getAllItems();
+    res.render("itemDetails", { itemIndex: itemIndex, items: items });
 });
 
 indexRouter.get("/itemByIndex/:itemIndex" , async (req, res) => 
@@ -43,12 +43,26 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
     console.log(`edit post: ${ req.body.itemName } ${ req.body.itemQuantity} ${req.body.itemMinQuantity} ${req.body.itemPrice} `)
     itemIndex = Number(req.params.itemIndex); // Database starts counting at 1. Not 0.
+
     await db.updateItem(itemIndex,
                         req.body.itemName,
                         req.body.itemQuantity,
                         req.body.itemMinQuantity,
-                        req.body.itemPrice);
+                        req.body.itemPrice,
+                        req.body.itemValue,
+                        req.body.itemBarcode,
+                        req.body.itemNotes,
+                        req.body.itemTags
+                    );
     res.send('Item updated');
+});
+
+indexRouter.post("/addItem", async (req, res) =>
+{
+	console.log('about to add item', req.body);
+
+    // TODO
+    // insert item into data base
 });
 
 indexRouter.post("/uploadCSV", (req, res) => 
