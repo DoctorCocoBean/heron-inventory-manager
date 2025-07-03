@@ -13,7 +13,7 @@ async function getItemById(id) {
 
 async function insertItem(name, quantity, minLevel, price, value, barcode, notes, tags) 
 {
-    console.log("inserting: ");
+    console.log("inserting: ", barcode);
 
     if (!quantity) {
         quantity = 0;

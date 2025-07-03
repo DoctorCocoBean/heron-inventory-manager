@@ -26,7 +26,7 @@
             <h4 class="modal-title">Modal Header</h4>
             </div>
             <div class="modal-body">
-            <p>Some text in the modal.</p>
+            <p>Some text in the modal. 2</p>
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -142,7 +142,12 @@
             const response = await fetch(request);
             const data = response.json().then((data) => 
             {
-                console.log(data);
+                console.log('data: ', data);
+
+                if (data.length <= 0) {
+                    console.log('Error. data is empty');
+                    return;
+                }
 
                 $('#editItemModal').modal()
 
@@ -173,6 +178,8 @@
                                 <input type="text" id="priceInput" value="${data[0]['price']}"></input> <br>
                                 <input type="text" id="valueInput" value="${data[0]['value']}"></input> <br>
                                 <input type="text" id="barcodeInput" value="${data[0]['barcode']}"></input> <br>
+                                <input type="text" id="notesInput" value="${data[0]['notes']}"></input> <br>
+                                <input type="text" id="tagsInput" value="${data[0]['tags']}"></input> <br>
                                 </div>
                             </div>
                         </div>
@@ -279,6 +286,9 @@
             const itemQuantity    = document.getElementById('quantityInput').value;
             const itemMinQuantity = document.getElementById('minQuantityInput').value;
             const itemPrice       = document.getElementById('priceInput').value;
+            const itemValue       = document.getElementById('priceInput').value;
+            const itemNotes       = document.getElementById('priceInput').value;
+            const itemTags        = document.getElementById('priceInput').value;
 
             const request = new Request(`/edit/${itemId}`, {
                 method: "POST",
@@ -306,6 +316,8 @@
 
         async function loadItemTable()
         {
+            console.log('loading item talble');
+
             const request = new Request(`/search/all`, {
                 method: "GET",
                 headers: { 'Content-Type': 'application/json' }
