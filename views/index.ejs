@@ -221,10 +221,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-default" onclick="updateItem(${data[0]['id']})">Save</button>
-
+                        <div class="d-flex justify-content-between">
+                            <div class="">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                            <div class="">
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
+                            <button type="button" class="btn btn-default" onclick="updateItem(${data[0]['id']})">Save</button>
+                            </div>
                         </div>
                     </div>
                     
@@ -356,6 +360,27 @@
             $('#editItemModal').modal('hide');
         }
 
+        async function deleteItem(itemId)
+        {
+            const request = new Request(`/deleteItem`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemId: itemId,
+                }),
+            })
+
+            const response = await fetch(request);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+            }
+
+            $('#editItemModal').modal('hide');
+            loadItemTable();
+        }
+
         async function updateItem(itemId) 
         {
             const itemName          = document.getElementById('nameInput').value;
@@ -366,7 +391,6 @@
             const itemBarcode       = document.getElementById('barcodeInput').value;
             const itemNotes         = document.getElementById('notesInput').value;
             const itemTags          = document.getElementById('tagsInput').value;
-
 
             const request = new Request(`/edit/${itemId}`, {
                 method: "POST",
@@ -382,7 +406,6 @@
                     itemTags: itemTags,
                 }),
             })
-
             
             const response = await fetch(request);
 

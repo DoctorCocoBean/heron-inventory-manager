@@ -35,7 +35,6 @@ indexRouter.get("/search/:itemName", async (req, res) =>
         items = await db.searchForItem(req.params.itemName);
     }
 
-    console.log(items);
     res.send(items);
 });
 
@@ -72,6 +71,14 @@ indexRouter.post("/addItem", async (req, res) =>
                         req.body.itemTags
     );
 
+    res.send();
+});
+
+indexRouter.post("/deleteItem", async (req, res) =>
+{
+	console.log('deleting', req.body);
+
+    await db.deleteItem(req.body.itemId);
     res.send();
 });
 

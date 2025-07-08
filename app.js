@@ -1,9 +1,9 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
+// Add Item
 // ---------------------------------------------
 
-// Add Item
 // Remove Item
 // Remove multiple items by selecting checkboxes?
 // Uploading csv should be popup
@@ -25,6 +25,7 @@
 const express = require('express');
 const path    = require("node:path");
 const app     = express();
+
 
 
 const assetsPath = path.join(__dirname, "public");

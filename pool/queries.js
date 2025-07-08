@@ -55,6 +55,15 @@ async function addItem(name, quantity, minLevel, price, value, barcode, notes, t
     await pool.query(SQL);
 }
 
+async function deleteItem(itemId) 
+{
+    const SQL = `
+    DELETE FROM items WHERE id = ${itemId};
+    `;
+
+    await pool.query(SQL);
+}
+
 async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
                           itemNotes, itemTags)
 {
@@ -99,5 +108,11 @@ async function deleteAllItems()
 }
 
 module.exports = {
-    getAllItems, addItem: addItem, updateItem, searchForItem, getItemById, deleteAllItems
+    getAllItems, 
+    addItem,
+    updateItem,
+    searchForItem,
+    getItemById,
+    deleteAllItems,
+    deleteItem
 };
