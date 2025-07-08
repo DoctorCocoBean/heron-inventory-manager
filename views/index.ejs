@@ -206,6 +206,8 @@
                                 Price: <br>
                                 Value: <br>
                                 Barcode: <br>
+                                Notes: <br>
+                                Tags: <br>
                                 </div>
                                 <div class="col-sm">
                                 <input type="text" id="nameInput" value="${data[0]['name']}"></input> <br>
@@ -350,6 +352,8 @@
                 const errorData = await response.json();
                 throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
             }
+
+            $('#editItemModal').modal('hide');
         }
 
         async function updateItem(itemId) 

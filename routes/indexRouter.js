@@ -54,15 +54,25 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
                         req.body.itemNotes,
                         req.body.itemTags
                     );
-    res.send('Item updated');
+    res.send();
 });
 
 indexRouter.post("/addItem", async (req, res) =>
 {
 	console.log('about to add item', req.body);
 
-    // TODO
-    // insert item into data base
+    await db.addItem(
+                        req.body.itemName,
+                        req.body.itemQuantity,
+                        req.body.itemMinQuantity,
+                        req.body.itemPrice,
+                        req.body.itemValue,
+                        req.body.itemBarcode,
+                        req.body.itemNotes,
+                        req.body.itemTags
+    );
+
+    res.send();
 });
 
 indexRouter.post("/uploadCSV", (req, res) => 
@@ -83,7 +93,7 @@ indexRouter.post("/uploadCSV", (req, res) =>
                             results.data[i]['Barcode/QR2-Data']
                 );
 
-                db.insertItem(results.data[i]['Entry Name'],
+                db.addItem(results.data[i]['Entry Name'],
                                 results.data[i]['Quantity'],
                                 results.data[i]['Min Level'],
                                 results.data[i]['Price'],
@@ -103,7 +113,7 @@ indexRouter.post("/new", async (req, res) =>
 {
     console.log(`post ${req.body.name}`);
     item = req.body;
-    await db.insertItem(item.itemName, item.quantity, item.minLevel, item.price);
+    await db.addItem(item.itemName, item.quantity, item.minLevel, item.price);
     res.redirect("/");
 });
 

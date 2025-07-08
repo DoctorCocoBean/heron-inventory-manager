@@ -11,9 +11,13 @@ async function getItemById(id) {
     return rows;
 }
 
-async function insertItem(name, quantity, minLevel, price, value, barcode, notes, tags) 
+async function addItem(name, quantity, minLevel, price, value, barcode, notes, tags) 
 {
-    console.log("inserting: ", barcode);
+    console.log("inserting item: ", barcode);
+
+    if (!name) {
+        name = "";
+    }
 
     if (!quantity) {
         quantity = 0;
@@ -25,6 +29,22 @@ async function insertItem(name, quantity, minLevel, price, value, barcode, notes
 
     if (!price) {
         price = 0;
+    }
+
+    if (!value) {
+        value = 0;
+    }
+
+    if (!barcode) {
+        barcode = 0;
+    }
+
+    if (!notes) {
+        notes = "";
+    }
+
+    if (!tags) {
+        tags = "";
     }
 
     const SQL = `
@@ -79,5 +99,5 @@ async function deleteAllItems()
 }
 
 module.exports = {
-    getAllItems, insertItem, updateItem, searchForItem, getItemById, deleteAllItems
+    getAllItems, addItem: addItem, updateItem, searchForItem, getItemById, deleteAllItems
 };

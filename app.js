@@ -1,8 +1,6 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Fixed edit item popup not working on first load of index.ejs
-// Can't save barcode modification
 // ---------------------------------------------
 
 // Add Item
@@ -14,6 +12,8 @@
 // Validate update form inputs aren't null or weird characters
 
 // Downloading csv
+
+// Order by date or order by name
 
 // Deleting all items while creating back up
 
