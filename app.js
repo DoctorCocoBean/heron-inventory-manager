@@ -1,14 +1,18 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Add Item
 // ---------------------------------------------
+// Organize ui
+    // Consolidate upload btns
+    // Uploading csv should be popup
 
-// Remove Item
+// Upgrade side bar
+// Dashboard and items view
+
+// Automatically calculate value
+
 // Remove multiple items by selecting checkboxes?
-// Uploading csv should be popup
 
-// Editing item Finish creating the form to edit items
 // Validate update form inputs aren't null or weird characters
 
 // Downloading csv
@@ -17,10 +21,10 @@
 
 // Deleting all items while creating back up
 
-// Reload table with SolidJS
-
-// ---------- Maybe ----------------- 
+// ---------- Later ----------------- 
+// Editing item Finish creating the form to edit items
 // Need to render table from server on first load index is SolidJS
+// Reload table with SolidJS
 
 const express = require('express');
 const path    = require("node:path");

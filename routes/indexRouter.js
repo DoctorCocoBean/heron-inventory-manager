@@ -5,8 +5,11 @@ const db          = require("../pool/queries");
 
 indexRouter.get("/", async (req, res) => 
 {
+    console.log('loading page');
     const items = await db.getAllItems();
-    res.render("index", { title: "Inventory", items: items });
+    const metaData = await db.calculateItemsMetaData();    
+
+    res.render("index", { title: "Inventory", items: items, metaData: metaData });
 });
 
 indexRouter.get("/edit/:itemIndex", async (req, res) => 
@@ -122,6 +125,11 @@ indexRouter.post("/new", async (req, res) =>
     item = req.body;
     await db.addItem(item.itemName, item.quantity, item.minLevel, item.price);
     res.redirect("/");
+});
+
+indexRouter.get("/getTableMetaData", async (req, res) => 
+{
+    await db.calculateItemsMetaData();    
 });
 
 indexRouter.post('/deleteAllItems', async (req, res) =>

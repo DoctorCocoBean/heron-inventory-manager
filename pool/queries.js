@@ -107,6 +107,36 @@ async function deleteAllItems()
     await pool.query(SQL);
 }
 
+async function calculateItemsMetaData()
+{
+    const rows = await getAllItems();
+
+    const metaData = {
+        numOfItems: 0,
+        totalQuantity: 0,
+        totalValue: 0
+    }
+
+    for (i=0; i<rows.length; i++) 
+    {
+        metaData.numOfItems += 1;
+        metaData.totalQuantity += Number(rows[i].quantity);
+        metaData.totalValue += Number(rows[i].value);
+    }
+
+    const SQL = `
+    UPDATE "itemsTableData"
+    SET "totalItems"           = ${ metaData.numOfItems }, 
+    "totalQuantity"            = ${ metaData.totalQuantity },
+    "totalValue"               = ${ metaData.totalValue }
+    WHERE id = 1;
+   `;
+
+    await pool.query(SQL);
+
+    return metaData;
+}
+
 module.exports = {
     getAllItems, 
     addItem,
@@ -114,5 +144,6 @@ module.exports = {
     searchForItem,
     getItemById,
     deleteAllItems,
-    deleteItem
+    deleteItem,
+    calculateItemsMetaData
 };

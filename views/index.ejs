@@ -53,12 +53,29 @@
             <main class="col overflow-auto min-vh-100">
                 <div class="bg-light min-vh-100 rounded-3 p-3">
 
-                    <input type="text" placeholder="search" id="searchBar" "></input>
+                    <div class="d-flex justify-content-between">
+                    <div class="">
+                        <h3>Items</h3>
+                    </div>
+                    <div class="m-1">
+                        <button onclick="openNewItemDialog()" class="btn btn-primary">Add Item</button>
+                        <button class="btn btn-primary" id="readCVSButton" onclick="showUploadDialog()">Upload</button>
+                        <button class="btn btn-primary" id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
+                    </div>
+                    </div>
 
-                    <button onclick="openNewItemDialog()" class="btn btn-primary">Add Item</button>
-                    <input type="file" id="csvFileInput" accept=".csv">
-                    <button id="readCVSButton" onclick="uploadCSV()">Upload</button>
-                    <button id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
+                    <hr>
+
+                    <div class="m-1">
+                        <input type="text" placeholder="search" id="searchBar" style="width: 300px"></input>
+                    </div>
+
+                    <div class="d-flex flow-row my-2 py-2">
+                        <div class="">Items: <%= metaData.totalQuantity %></div>
+                        <div class="px-5">Total Quantity: <%= metaData.totalQuantity %></div>
+                        <div class="px-5">Total Value: $<%= metaData.totalValue %></div>
+
+                    </div>
 
                     <div class="scrollable" >
                         <table class="table table-hover" id="itemTable">
@@ -105,12 +122,10 @@
         $(document).keyup(function(e) 
         {
             if (e.key === "Escape") { // escape key maps to keycode `27`
-                console.log('sdf');
                 $('#editItemModal').modal('hide');
             }
 
             if (e.key === "/") {
-                console.log("hi");
                 searchBar.focus();
             }
         });
@@ -296,6 +311,42 @@
             })
         }
 
+        async function showUploadDialog()
+        {
+            console.log("test");
+            $('#editItemModal').modal()
+
+            popup.innerHTML = `
+                <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h4 class="modal-title">Edit Item</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="container">
+                        <div class="row">
+                            <div class="col-md p-3" style="line-height: 1.8">
+                            <input type="file" id="csvFileInput" accept=".csv">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                        <div class="">
+                            <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>
+                        </div>
+                    </div>
+                </div>
+                
+                </div>
+            `
+        }
+
         async function uploadCSV()
         {
             const csvFileInput = document.getElementById('csvFileInput');
@@ -319,6 +370,7 @@
                 console.log("error reading file: ", error);
             }
 
+            $('#editItemModal').modal('hide');
             loadItemTable();
         }
 
