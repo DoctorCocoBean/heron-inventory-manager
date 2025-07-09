@@ -7,11 +7,7 @@
     <ul class="nav nav-pills flex-column mb-auto">
 
     <li>
-        <% if(true) { %>
-            <a href="/dashboard" class="nav-link active" aria-current="page">
-        <% } else { %>
-            <a href="#" class="nav-link link-dark">
-        <% } %>
+        <a href="/dashboard" class="nav-link link-dark">
         <svg class="bi me-2" width="16" height="16"><use xlink:href="#speedometer2"></use></svg>
         Dashboard
         </a>
@@ -29,8 +25,11 @@
     <script>
         function currentPageMatchesLink() 
         {
+            const current = window.location.href;
             document.querySelectorAll(".nav-link").forEach(function(elem) {
-                console.log(elem.href)
+                if (elem.href == current) {
+                    elem.classList.add("active");
+                }
             });
         }
 
