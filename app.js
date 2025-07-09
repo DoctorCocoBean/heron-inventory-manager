@@ -2,24 +2,31 @@
 //Database passwood: wCBrkihVgfbs9PGV
 
 // ---------------------------------------------
-// Organize ui
-    // Consolidate upload btns
-    // Uploading csv should be popup
 
-// Upgrade side bar
-// Dashboard and items view
+// Set up basic versions of dashboard and items pages
+// Make sidebar a template
+// Make side bar links active only when current page matches link
 
-// Automatically calculate value
+// Upgrade side bar so it looks better.
+// Creeate Dashboard and items view as separate pages
+
+// Automatically calculate value when items changes price or quantity. Then reload page
 
 // Remove multiple items by selecting checkboxes?
 
 // Validate update form inputs aren't null or weird characters
 
-// Downloading csv
+// Downloading/export csv
 
 // Order by date or order by name
 
+// Make quantity changes vverrrrrry easy
+
 // Deleting all items while creating back up
+
+// Record quantity change history
+
+// Get most subtracted items
 
 // ---------- Later ----------------- 
 // Editing item Finish creating the form to edit items
@@ -29,8 +36,6 @@
 const express = require('express');
 const path    = require("node:path");
 const app     = express();
-
-
 
 const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath));
