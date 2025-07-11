@@ -36,6 +36,17 @@ indexRouter.get("/itemByIndex/:itemIndex" , async (req, res) =>
     res.send(item);
 });
 
+indexRouter.get("/getItemById/:itemId", async (req, res) => 
+{
+    console.log('trying to get item', req.params.itemId);
+    
+    const itemId = req.params.itemId;
+    const row = await db.getItemById(itemId);
+    console.log('found', row);
+
+    res.send(row);
+});
+
 indexRouter.get("/search/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;

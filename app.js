@@ -1,16 +1,27 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// ---------------------------------------------
-
 // Set up basic versions of dashboard and items pages
 // Make sidebar a template
 // Make side bar links active only when current page matches link
+// ---------------------------------------------
 
-// Upgrade side bar so it looks better.
-// Creeate Dashboard and items view as separate pages
+// Press enter or escape to quit out of editing table row
+// Fix error when pressing escape
+
+// Only show up/down quanity button when mousing over quanity number
+
+// onRowLoseFocus() - need to factor out the editing of row html and make sure it includes onclick=startEditingQuantity()
+
+// Consolidate getItemById()
+
+// Make quantity changes vverrrrrry easy
+
+// Convert to typesscript
 
 // Automatically calculate value when items changes price or quantity. Then reload page
+
+// Upgrade side bar so it looks better.
 
 // Remove multiple items by selecting checkboxes?
 
@@ -19,8 +30,6 @@
 // Downloading/export csv
 
 // Order by date or order by name
-
-// Make quantity changes vverrrrrry easy
 
 // Deleting all items while creating back up
 

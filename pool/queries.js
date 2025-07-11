@@ -7,7 +7,7 @@ async function getAllItems() {
 }
 
 async function getItemById(id) {
-    const { rows } = await pool.query(`SELECT * FROM items WHERE id = ${id}`);
+    const { rows } = await pool.query(`SELECT * FROM items WHERE "id" = ${id}`);
     return rows;
 }
 
@@ -85,7 +85,8 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
    await pool.query(SQL);
 }
 
-async function searchForItem(name) {
+async function searchForItem(name) 
+{
     console.log("Server searching for item:", name);
     
     const SQL = `
