@@ -262,15 +262,18 @@
 
                 for (i=0; i<data.length; i++) 
                 {
-                    tableHTML += `
-                        <tr id="tableRow_${data[i]['id']}" onclick="gotoUpdateItem(${data[i]['id']})" >
-                        <tr onclick="gotoUpdateItem(${data[i]['id']})">
-                            <td >${data[i]['name']}</td>
-                            <td >${data[i]['quantity']}</td>
-                            <td >${data[i]['minimumLevel']}</td>
-                            <td >${data[i]['price']}</td>
-                        </tr>
-                    `
+                    // tableHTML += `
+                    //     <tr id="tableRow_${data[i]['id']}" onclick="gotoUpdateItem(${data[i]['id']})" >
+                    //     <tr onclick="gotoUpdateItem(${data[i]['id']})">
+                    //         <td >${data[i]['name']}</td>
+                    //         <td >${data[i]['quantity']}</td>
+                    //         <td >${data[i]['minimumLevel']}</td>
+                    //         <td >${data[i]['price']}</td>
+                    //     </tr>
+                    // `
+                    
+                    tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
+                                                    data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
                 }
 
                 itemTable.innerHTML= tableHTML;
@@ -497,9 +500,17 @@
         function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value)
         {
             const html = `
-                    <tr id="tableRow_${itemId}" onclick="gotoUpdateItem(${itemId})" >
+                    <tr id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="gotoUpdateItem(${itemId})" >
                         <td class="nameRow">${name}</td>
-                        <td class="quantityRow" onclick="startEditingQuantity(${itemId})">${quantity}</td>
+                        <td>
+                            <div class="container">
+                            <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary" onclick="decrementQuantity(${itemId})">-</button>
+                            <div class="quantityRow" style="display: inline" onclick="startEditingQuantity(${itemId})">
+                            ${quantity}
+                            </div>
+                            <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary" onclick="incrementQuantity(${itemId})">+</button>
+                            <div>
+                        </td>
                         <td class="minimumLevelRow">${minimumLevel}</td>
                         <td class="priceRow">${price}</td>
                         <td class="valueRow">${value}</td>
@@ -507,6 +518,100 @@
             `
 
             return html;
+        }
+
+        async function incrementQuantity(itemId)
+        {
+            event.stopPropagation();
+
+            const item         = await getItemById(itemId);
+            const tableRow     = document.getElementById(`tableRow_${itemId}`);
+            const quantity     = Number(item[0]['quantity']);
+            var newQuantity    = quantity + 1;
+
+            tableRow.getElementsByClassName("quantityRow")[0].innerHTML = newQuantity;
+
+            const request = new Request(`/edit/${itemId}`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemName: item[0]['name'],
+                    itemQuantity: newQuantity,
+                    itemMinQuantity: item[0]['minimumLevel'],
+                    itemPrice: item[0]['price'],
+                    itemValue: item[0]['value'],
+                    itemBarcode: item[0]['barcode'],
+                    itemNotes: item[0]['notes'],
+                    itemTags: item[0]['tags'],
+                }),
+            })
+            
+            const response = await fetch(request);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+            }
+        }
+
+        async function decrementQuantity(itemId)
+        {
+            event.stopPropagation();
+
+            const item      = await getItemById(itemId);
+            const tableRow  = document.getElementById(`tableRow_${itemId}`);
+            const quantity  = Number(item[0]['quantity']);
+
+            console.log(quantity);
+
+            var newQuantity = quantity - 1;
+            if (newQuantity < 0) {
+                newQuantity = 0;
+            }
+
+            tableRow.getElementsByClassName("quantityRow")[0].innerHTML = newQuantity;
+
+            const request = new Request(`/edit/${itemId}`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemName: item[0]['name'],
+                    itemQuantity: newQuantity,
+                    itemMinQuantity: item[0]['minimumLevel'],
+                    itemPrice: item[0]['price'],
+                    itemValue: item[0]['value'],
+                    itemBarcode: item[0]['barcode'],
+                    itemNotes: item[0]['notes'],
+                    itemTags: item[0]['tags'],
+                }),
+            })
+            
+            const response = await fetch(request);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+            }
+        }
+
+        function showQualityAdjustmentButtons(itemId)
+        {
+            const tableRow = document.getElementById(`tableRow_${itemId}`);
+            const buttons = tableRow.getElementsByTagName('button');
+            
+            for (i=0; i<buttons.length; i++) {
+                buttons[i].style.display = 'inline-block';
+            }
+        }
+
+        function hideQualityAdjustmentButtons(itemId) 
+        {
+            const tableRow = document.getElementById(`tableRow_${itemId}`);
+            const buttons = tableRow.getElementsByTagName('button');
+            
+            for (i=0; i<buttons.length; i++) {
+                buttons[i].style.display = 'none';
+            }
         }
 
         async function deleteAllItems()
@@ -540,6 +645,7 @@
 
         async function startEditingQuantity(itemId)
         {
+            console.log('start editing quality');
             event.stopPropagation();
             changeRowStateToEditQuantity(itemId);
         }
@@ -565,11 +671,11 @@
             const item   = await getItemById(itemId);
 
             const tableRow     = document.getElementById(`tableRow_${itemId}`);
-            const name         = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-            const quantity     = tableRow.getElementsByClassName("quantityRow")[0].innerHTML;
-            const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
-            const price        = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
-            const value        = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
+            const name         = item[0]['name'];
+            const quantity     = item[0]['quantity'];
+            const minimumLevel = item[0]['minimumLevel'];
+            const price        = item[0]['price'];
+            const value        = item[0]['value'];
 
             tableRow.innerHTML = `
                 <td class="nameRow">${name}</td>

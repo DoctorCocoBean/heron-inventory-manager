@@ -1,17 +1,12 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Set up basic versions of dashboard and items pages
-// Make sidebar a template
-// Make side bar links active only when current page matches link
+// Only show up/down quanity button when mousing over quanity number
+// after searching for items, table rows don't show buttons anymore
 // ---------------------------------------------
 
-// Press enter or escape to quit out of editing table row
-// Fix error when pressing escape
-
-// Only show up/down quanity button when mousing over quanity number
-
-// onRowLoseFocus() - need to factor out the editing of row html and make sure it includes onclick=startEditingQuantity()
+// Create separate test bed to play with bootstrap table and figure it below.
+// align quality adjustment button so they're center
 
 // Consolidate getItemById()
 
