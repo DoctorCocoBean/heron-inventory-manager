@@ -8,11 +8,33 @@ indexRouter.get("/", async (req, res) =>
     res.redirect("/items");
 });
 
+function convertNumToString(num) 
+{
+    const decimalIndex   = num.indexOf('.');
+    var beforeDecimalStr = num.substring(0, decimalIndex);
+    var afterDecimalStr  = num.substring(decimalIndex, num.length);
+
+    var arr = beforeDecimalStr.toString().split("");
+    var numWithCommas = "";
+    for (var i=0; i < arr.length; i++)
+    {
+        numWithCommas += arr[i];
+        if (((arr.length-i-1) % 3 == 0) && i < arr.length-1) {
+            numWithCommas += ",";
+        }
+    }
+    var result = numWithCommas + afterDecimalStr;
+
+    return result;
+}
+
 indexRouter.get("/items", async (req, res) => 
 {
     console.log('loading page');
     const items = await db.getAllItems();
-    const metaData = await db.calculateItemsMetaData();    
+    var metaData = await db.calculateItemsMetaData();    
+
+    metaData.totalValue = convertNumToString(metaData.totalValue);
 
     res.render("items", { title: "Inventory", items: items, metaData: metaData });
 });
@@ -29,22 +51,13 @@ indexRouter.get("/edit/:itemIndex", async (req, res) =>
     res.render("itemDetails", { itemIndex: itemIndex, items: items });
 });
 
-indexRouter.get("/itemByIndex/:itemIndex" , async (req, res) => 
-{
-    const item = await db.getItemById(req.params.itemIndex);
-    console.log('item', item);
-    res.send(item);
-});
-
 indexRouter.get("/getItemById/:itemId", async (req, res) => 
 {
     console.log('trying to get item', req.params.itemId);
     
-    const itemId = req.params.itemId;
-    const row = await db.getItemById(itemId);
-    console.log('found', row);
-
-    res.send(row);
+    const item = await db.getItemById(req.params.itemId);
+    console.log('item', item);
+    res.send(item);
 });
 
 indexRouter.get("/search/:itemName", async (req, res) => 
@@ -110,6 +123,7 @@ indexRouter.post("/uploadCSV", (req, res) =>
 {
     console.log('Parsing... ');
     
+    try {
     const data = papa.parse(req.body.csvData, 
     { 
         header: true,
@@ -124,18 +138,24 @@ indexRouter.post("/uploadCSV", (req, res) =>
                             results.data[i]['Barcode/QR2-Data']
                 );
 
-                db.addItem(results.data[i]['Entry Name'],
-                                results.data[i]['Quantity'],
-                                results.data[i]['Min Level'],
-                                results.data[i]['Price'],
-                                results.data[i]['Value'],
-                                results.data[i]['Barcode/QR2-Data'],
-                                results.data[i]['Notes'],
-                                results.data[i]['Tags'],
-                            );
+                    db.addItem(results.data[i]['Entry Name'],
+                                    results.data[i]['Quantity'],
+                                    results.data[i]['Min Level'],
+                                    results.data[i]['Price'],
+                                    results.data[i]['Value'],
+                                    results.data[i]['Barcode/QR2-Data'],
+                                    results.data[i]['Notes'],
+                                    results.data[i]['Tags'],
+                                );
             }
         }
     });
+    }
+    catch {
+        console.log('Failed to upload csv');
+        throw new Error('Missing required parameter!'); // Express will catch this
+
+    }
 
     res.redirect("/");
 });

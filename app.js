@@ -1,12 +1,11 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Improve quality adjustment buttons layout
-// On select quantity number and input box is created, selected text so it can be immediately changed
-// Automatically calculate value when items changes price or quantity. Then reload page
-// ---------------------------------------------
-
+// Can now upload full csv from Sortly
+// Can now validate apostrophes in input text
 // Consolidate getItemById()
+// Total value is now display with commas and only 2 decimals points
+// ---------------------------------------------
 
 // Convert to typesscript
 

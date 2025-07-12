@@ -11,12 +11,42 @@ async function getItemById(id) {
     return rows;
 }
 
+function sanitizeApostrophe(inputString)
+{
+    if (inputString.includes('\''))
+    {
+        console.log('Has apostrophe!');
+
+        const index = inputString.indexOf('\'');
+        const apostrophe = '\''
+        const firstHalf = inputString.substring(0, index);
+        const secondHalf = inputString.substring(index, inputString.length);
+        const newString = firstHalf + apostrophe + secondHalf;
+
+        return newString;
+    }
+    else 
+    {
+        return inputString;
+    }
+}
+
 async function addItem(name, quantity, minLevel, price, value, barcode, notes, tags) 
 {
     console.log("inserting item: ", barcode);
 
+
     if (!name) {
-        name = "";
+        name = "null";
+        return;
+    }
+    else
+    { 
+        if (name.includes('\''))
+        {
+            console.log('Has apostrophe!');
+            name = sanitizeApostrophe(name);
+        }
     }
 
     if (!quantity) {
@@ -47,12 +77,19 @@ async function addItem(name, quantity, minLevel, price, value, barcode, notes, t
         tags = "";
     }
 
+    console.log('item name is', name);
+
     const SQL = `
     INSERT INTO items (name, quantity, "minimumLevel", price, value, barcode, notes, tags)
-    VALUES ('${name}', '${quantity}', '${minLevel}', '${price}', '${value}', '${barcode}', '${notes}', '${tags}')
+    VALUES ('${name}', '${quantity}', '${minLevel}', '${price}', '${value}', '${barcode}', '${notes}', '${tags}');
     `;
 
-    await pool.query(SQL);
+    try {
+        await pool.query(SQL);
+    }
+    catch (err) {
+        throw new Error(`${err}: couldnt add item. SQL: ${SQL}`); 
+    }
 }
 
 async function deleteItem(itemId) 
@@ -87,11 +124,26 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
 
 async function searchForItem(name) 
 {
+
     console.log("Server searching for item:", name);
     
+    if (!name) {
+        name = "null";
+        return;
+    }
+    else
+    { 
+        if (name.includes('\''))
+        {
+            console.log('Has apostrophe!');
+            name = sanitizeApostrophe(name);
+        }
+    }
+
     const SQL = `
         SELECT * FROM items
-        WHERE LOWER(name) LIKE '%${name}%';
+        WHERE LOWER(name) LIKE '%${name}%'
+        ORDER BY name;
         `;
 
     const { rows } = await pool.query(SQL);
@@ -122,6 +174,7 @@ async function calculateItemsMetaData()
     {
         metaData.numOfItems += 1;
         metaData.totalQuantity += Number(rows[i].quantity);
+        console.log(rows[i].quantity, metaData.numOfItems);
 
         var value = Number(rows[i].value);
         if (isNaN(value))
@@ -129,6 +182,9 @@ async function calculateItemsMetaData()
 
         metaData.totalValue += value;
     }
+
+    metaData.totalValue = metaData.totalValue.toFixed(2);
+
 
     const SQL = `
     UPDATE "itemsTableData"

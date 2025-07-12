@@ -49,12 +49,10 @@
                         <input type="text" placeholder="search" id="searchBar" style="width: 300px"></input>
                     </div>
 
-
                     <div class="d-flex flow-row my-2 py-2">
-                        <div class="">Items: <%= metaData.totalQuantity %></div>
+                        <div class="">Items: <%= metaData.numOfItemss %></div>
                         <div class="px-5">Total Quantity: <%= metaData.totalQuantity %></div>
                         <div class="px-5">Total Value: $<%= metaData.totalValue %></div>
-
                     </div>
 
                     <div class="scrollable" >
@@ -160,16 +158,16 @@
             `
         }
 
-        async function gotoUpdateItem(itemIndex)
+        async function gotoUpdateItem(itemId)
         { 
             if (isEditingRow) {
                 return;
             }
 
-            console.log('goto item', itemIndex)
-            itemIndex = itemIndex;
+            console.log('goto item', itemId)
+            itemId = itemId;
 
-            const request = new Request(`/itemByIndex/${itemIndex}`, {
+            const request = new Request(`/getItemById/${itemId}`, {
                 method: "GET",
                 headers: { 'Content-Type': 'application/json' }
             })
@@ -757,5 +755,6 @@
         }
 
         loadItemTable();
+
     </script>
 </html>
