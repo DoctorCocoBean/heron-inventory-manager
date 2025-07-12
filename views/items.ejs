@@ -271,7 +271,7 @@
                     //         <td >${data[i]['price']}</td>
                     //     </tr>
                     // `
-                    
+
                     tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
                                                     data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
                 }
@@ -480,7 +480,7 @@
                 var tableHTML = `
                     <thead>
                         <td>Name</td>
-                        <td>Quantity</td>
+                        <td style="text-align: center;">Quantity</td>
                         <td>Minimum Level</td>
                         <td>Price</td>
                         <td>Value</td>
@@ -502,18 +502,26 @@
             const html = `
                     <tr id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="gotoUpdateItem(${itemId})" >
                         <td class="nameRow">${name}</td>
-                        <td>
+                        <td style="text-align: center;">
                             <div class="container">
+
+                            <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
                             <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary" onclick="decrementQuantity(${itemId})">-</button>
+                            </div>
+
                             <div class="quantityRow" style="display: inline" onclick="startEditingQuantity(${itemId})">
                             ${quantity}
                             </div>
+
+                            <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
                             <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary" onclick="incrementQuantity(${itemId})">+</button>
+                            </div>
+
                             <div>
                         </td>
                         <td class="minimumLevelRow">${minimumLevel}</td>
                         <td class="priceRow">${price}</td>
-                        <td class="valueRow">${value}</td>
+                        <td class="valueRow">$${value}</td>
                     </tr>
             `
 
@@ -530,6 +538,7 @@
             var newQuantity    = quantity + 1;
 
             tableRow.getElementsByClassName("quantityRow")[0].innerHTML = newQuantity;
+            tableRow.getElementsByClassName("valueRow")[0].innerHTML    = "$" + String(item[0]['value']);
 
             const request = new Request(`/edit/${itemId}`, {
                 method: "POST",
@@ -570,6 +579,7 @@
             }
 
             tableRow.getElementsByClassName("quantityRow")[0].innerHTML = newQuantity;
+            tableRow.getElementsByClassName("valueRow")[0].innerHTML    = "$" + String(item[0]['value']);
 
             const request = new Request(`/edit/${itemId}`, {
                 method: "POST",
@@ -679,7 +689,9 @@
 
             tableRow.innerHTML = `
                 <td class="nameRow">${name}</td>
-                <td><input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="onRowLoseFocus(${itemId})"></input></td>
+                <td style="text-align: center;">
+                    <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="onRowLoseFocus(${itemId})" style="text-align: center;"></input>
+                </td>
                 <td class="minimumLevelRow">${minimumLevel}</td>
                 <td class="priceRow">${price}</td>
                 <td class="valueRow">${value}</td>
@@ -701,7 +713,9 @@
                 }
             });
 
-            document.getElementById("tempInput").focus();
+            const textInput = document.getElementById("tempInput");
+            textInput.focus();
+            textInput.select();
         }
 
         async function onRowLoseFocus(itemId)

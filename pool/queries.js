@@ -67,7 +67,7 @@ async function deleteItem(itemId)
 async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
                           itemNotes, itemTags)
 {
-    console.log("updating... item:" + itemIndex + " " + itemPrice);
+    console.log("updating... item:" + itemIndex + " " + itemValue);
 
     const SQL = `
     UPDATE items
@@ -122,7 +122,12 @@ async function calculateItemsMetaData()
     {
         metaData.numOfItems += 1;
         metaData.totalQuantity += Number(rows[i].quantity);
-        metaData.totalValue += Number(rows[i].value);
+
+        var value = Number(rows[i].value);
+        if (isNaN(value))
+            value = 0;
+
+        metaData.totalValue += value;
     }
 
     const SQL = `

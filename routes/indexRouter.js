@@ -64,15 +64,15 @@ indexRouter.get("/search/:itemName", async (req, res) =>
 
 indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
-    console.log(`edit post: ${ req.body.itemName } ${ req.body.itemQuantity} ${req.body.itemMinQuantity} ${req.body.itemPrice} `)
-    itemIndex = Number(req.params.itemIndex); // Database starts counting at 1. Not 0.
+    itemIndex   = Number(req.params.itemIndex);
+    const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
 
     await db.updateItem(itemIndex,
                         req.body.itemName,
                         req.body.itemQuantity,
                         req.body.itemMinQuantity,
                         req.body.itemPrice,
-                        req.body.itemValue,
+                        value,
                         req.body.itemBarcode,
                         req.body.itemNotes,
                         req.body.itemTags

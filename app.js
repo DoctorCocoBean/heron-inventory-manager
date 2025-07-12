@@ -1,20 +1,14 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Only show up/down quanity button when mousing over quanity number
-// after searching for items, table rows don't show buttons anymore
+// Improve quality adjustment buttons layout
+// On select quantity number and input box is created, selected text so it can be immediately changed
+// Automatically calculate value when items changes price or quantity. Then reload page
 // ---------------------------------------------
-
-// Create separate test bed to play with bootstrap table and figure it below.
-// align quality adjustment button so they're center
 
 // Consolidate getItemById()
 
-// Make quantity changes vverrrrrry easy
-
 // Convert to typesscript
-
-// Automatically calculate value when items changes price or quantity. Then reload page
 
 // Upgrade side bar so it looks better.
 
