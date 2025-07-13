@@ -1,15 +1,17 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Can now upload full csv from Sortly
-// Can now validate apostrophes in input text
-// Consolidate getItemById()
-// Total value is now display with commas and only 2 decimals points
 // ---------------------------------------------
 
-// Convert to typesscript
+// Make things look good
+
+// Edit side bar links so they look better
+
+// Add icon?
 
 // Upgrade side bar so it looks better.
+
+// Convert to typesscript
 
 // Remove multiple items by selecting checkboxes?
 
@@ -38,6 +40,7 @@ const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 // Views
 app.set("views", path.join(__dirname, "views"));

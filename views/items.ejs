@@ -5,12 +5,14 @@
         <meta name=""viewport" content="width=device-width, initial-scale=1">
         <title>Inventory App</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/InventoryStyle.css">
 
     </head>
     <style>
         .scrollable {
-            height: 90vh;
+            height: 80vh;
             overflow:scroll;
+            overflow-x: hidden;
         }
     </style>
     <body>
@@ -18,45 +20,46 @@
     <!-- Modal -->
     <div class="modal" id="editItemModal" role="dialog">
         <div class="modal-dialog">
-        
         </div>
     </div>
 
-    <div class="container-fluid min-vh-100 pb-3 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
+    <div class="container-fluid min-vh-100 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
         <div class="row flex-fill">
 
             <!-- Side bar -->
             <%- include('sideBar'); %>
         
             <!-- content -->
-            <main class="col overflow-auto min-vh-100">
-                <div class="bg-light min-vh-100 rounded-3 p-3">
+            <main class="col overflow-auto min-vh-100 p-0">
+                <div class="bg-light rounded-3 p-3" style="height: 300px">
 
                     <div class="d-flex justify-content-between">
+
                     <div class="">
-                        <h3>Items</h3>
+                        <h3 style="opacity: 20%;">Inventory</h3>
                     </div>
+
                     <div class="m-1">
-                        <button onclick="openNewItemDialog()" class="btn btn-primary">Add Item</button>
-                        <button class="btn btn-primary" id="readCVSButton" onclick="showUploadDialog()">Upload</button>
-                        <button class="btn btn-primary" id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
+                        <button onclick="openNewItemDialog()" class="btn btn-primary inventoryBtn" >Add Item</button>
+                        <button class="btn btn-primary inventoryBtn" id="readCVSButton" onclick="showUploadDialog()">Upload</button>
+                        <button class="btn btn-primary inventoryBtn" id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
                     </div>
                     </div>
 
-                    <hr>
+                    <hr style="opacity: 10%;">
 
                     <div class="m-1">
-                        <input type="text" placeholder="search" id="searchBar" style="width: 300px"></input>
+                        <input type="text" placeholder="search" id="searchBar" class="searchBar" style="width: 300px"></input>
                     </div>
 
                     <div class="d-flex flow-row my-2 py-2">
-                        <div class="">Items: <%= metaData.numOfItemss %></div>
-                        <div class="px-5">Total Quantity: <%= metaData.totalQuantity %></div>
-                        <div class="px-5">Total Value: $<%= metaData.totalValue %></div>
+                        <div class="">Items: <b class="enhancedText"><%= metaData.numOfItems %></b></div>
+                        <div class="px-5">Total Quantity: <b class="enhancedText"><%= metaData.totalQuantity %></b></div>
+                        <div class="px-5">Total Value: <b class="enhancedText">$<%= metaData.totalValue %></b></div>
                     </div>
 
                     <div class="scrollable" >
-                        <table class="table table-hover" id="itemTable">
+                        <table class="table table-hover itemsTable" style=""; id="itemTable">
                             <thead>
                                 <td>Name</td>
                                 <td>Quantity</td>
@@ -260,16 +263,6 @@
 
                 for (i=0; i<data.length; i++) 
                 {
-                    // tableHTML += `
-                    //     <tr id="tableRow_${data[i]['id']}" onclick="gotoUpdateItem(${data[i]['id']})" >
-                    //     <tr onclick="gotoUpdateItem(${data[i]['id']})">
-                    //         <td >${data[i]['name']}</td>
-                    //         <td >${data[i]['quantity']}</td>
-                    //         <td >${data[i]['minimumLevel']}</td>
-                    //         <td >${data[i]['price']}</td>
-                    //     </tr>
-                    // `
-
                     tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
                                                     data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
                 }
@@ -465,8 +458,6 @@
 
         async function loadItemTable()
         {
-            console.log('loading item talble');
-
             const request = new Request(`/search/all`, {
                 method: "GET",
                 headers: { 'Content-Type': 'application/json' }
@@ -477,11 +468,11 @@
             {
                 var tableHTML = `
                     <thead>
-                        <td>Name</td>
-                        <td style="text-align: center;">Quantity</td>
-                        <td>Minimum Level</td>
-                        <td>Price</td>
-                        <td>Value</td>
+                        <td style="opacity: 50%;">Name</td>
+                        <td style="opacity: 50%; text-align: center;">Quantity</td>
+                        <td style="opacity: 50%;">Minimum Level</td>
+                        <td style="opacity: 50%;">Price</td>
+                        <td style="opacity: 50%;">Value</td>
                     </thead>
                 `
 
@@ -504,7 +495,7 @@
                             <div class="container">
 
                             <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
-                            <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary" onclick="decrementQuantity(${itemId})">-</button>
+                            <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
                             </div>
 
                             <div class="quantityRow" style="display: inline" onclick="startEditingQuantity(${itemId})">
@@ -512,7 +503,7 @@
                             </div>
 
                             <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
-                            <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary" onclick="incrementQuantity(${itemId})">+</button>
+                            <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
                             </div>
 
                             <div>
