@@ -53,11 +53,15 @@ indexRouter.get("/edit/:itemIndex", async (req, res) =>
 
 indexRouter.get("/getItemById/:itemId", async (req, res) => 
 {
-    console.log('trying to get item', req.params.itemId);
-    
-    const item = await db.getItemById(req.params.itemId);
-    console.log('item', item);
-    res.send(item);
+    try
+    {
+        const item = await db.getItemById(req.params.itemId);
+        res.send(item);
+    } 
+    catch (error) 
+    {
+        console.log("error getting item by Id: ", req.params.itemId,  error);
+    }
 });
 
 indexRouter.get("/search/:itemName", async (req, res) => 
@@ -95,8 +99,6 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
 
 indexRouter.post("/addItem", async (req, res) =>
 {
-	console.log('about to add item', req.body);
-
     await db.addItem(
                         req.body.itemName,
                         req.body.itemQuantity,

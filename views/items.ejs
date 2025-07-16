@@ -5,6 +5,7 @@
         <meta name=""viewport" content="width=device-width, initial-scale=1">
         <title>Inventory App</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <link rel="stylesheet" href="../vendor/bootstrap-tagsinput/bootstrap-tagsinput.css">
         <link rel="stylesheet" href="/stylesheets/InventoryStyle.css">
 
     </head>
@@ -67,7 +68,7 @@
                                 <td>Price</td>
                             </thead>
                             <% for(var i=0; i<items.length; i++) { %>
-                            <tr id="tableRow_<%= items[i].id %>" onclick="gotoUpdateItem(<%= items[i].id %>)" >
+                            <tr id="tableRow_<%= items[i].id %>" onclick="openEditItemDialog(<%= items[i].id %>)" >
                                 <td ><%= items[i].name %></td>
                                 <td ><%= items[i].quantity %></td>
                                 <td ><%= items[i].minimumLevel %></td>
@@ -161,7 +162,7 @@
             `
         }
 
-        async function gotoUpdateItem(itemId)
+        async function openEditItemDialog(itemId)
         { 
             if (isEditingRow) {
                 return;
@@ -197,44 +198,112 @@
                         </div>
                         <div class="modal-body">
 
-                            <div class="container">
-                            <div class="row">
-                                <div class="col-md p-3" style="line-height: 1.8">
-                                Name: <br>
-                                Quantity: <br>
-                                Minimum Level: <br>
-                                Price: <br>
-                                Value: <br>
-                                Barcode: <br>
-                                Notes: <br>
-                                Tags: <br>
+                            <div class="row" style="font-family: var(--primary-font);">
+                                <div class="col-md" style="line-height: 3;">
                                 </div>
-                                <div class="col-sm">
-                                <input type="text" id="nameInput" value="${data[0]['name']}"></input> <br>
-                                <input type="text" id="quantityInput" value="${data[0]['quantity']}" ></input> <br>
-                                <input type="text" id="minQuantityInput" value="${data[0]['minimumLevel']}"></input> <br>
-                                <input type="text" id="priceInput" value="${data[0]['price']}"></input> <br>
-                                <input type="text" id="valueInput" value="${data[0]['value']}"></input> <br>
-                                <input type="text" id="barcodeInput" value="${data[0]['barcode']}"></input> <br>
-                                <input type="text" id="notesInput" value="${data[0]['notes']}"></input> <br>
-                                <input type="text" id="tagsInput" value="${data[0]['tags']}"></input> <br>
+                                <div class="col-sm" style="line-height: 3;">
+                                </div>
+                            </div>
+
+                            <div class="row" style="font-family: var(--primary-font);">
+                                <div class="col-4"  style="line-height: 3;">
+                                    Name:  <br>
+                                    Quantity: <br>
+                                    Minimum Level: <br>
+                                    Price: <br>
+                                    Tags: <br>
+                                    Barcode: <br>
+                                    Notes:
+                                </div>
+                                <div class="col-8" style="line-height: 3;">
+                                    <input type="text" id="nameInput" value="${data[0]['name']}" class="editInput" style="height: 40px; width: 300px"></input> 
+                                    <br>
+
+                                    <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editPopUpAdjustQuantity(-1)">-</button>
+                                    <input type="text" id="quantityInput" value="${data[0]['quantity']}" class="editInput" style="height: 40px; width: 150px" autocomplete="off"></input> 
+                                    <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editPopUpAdjustQuantity(1)">+</button>
+                                    <br>
+
+                                    <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editInputFieldNum('minimumLevelInput', -1)">-</button>
+                                    <input type="text" id="minimumLevelInput" value="${data[0]['minimumLevel']}" class="editInput" style="height: 40px; width: 150px"></input> 
+                                    <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editInputFieldNum('minimumLevelInput', 1)">+</button>
+                                    <br>
+
+                                    <input type="text" id="priceInput" value="${data[0]['price']}" class="editInput" style="height: 40px; width: 150px"></input> 
+
+                                    <p style="display: inline; padding-left:20px;">Value: <b id="valueText" class="enhancedText">${data[0]['value']}</b></p>
+
+                                    <input type="text" id="tagsInput" value="${data[0]['tags']}" class="editInput" style="height: 40px; width: 300px"></input> 
+
+                                    <input type="text" id="barcodeInput" value="${data[0]['barcode']}" class="editInput" style="height: 40px; width: 300px"></input> 
+
+                                    <textarea id="notesInput" value="${data[0]['notes']} rows="5" col="100" class="editInput" style="width: 300px">${data[0]['notes']}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="row" style="font-family: var(--primary-font);">
+                                <div class="col-md"  style="line-height: 3;">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <div class="">
+                                <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>
+                                </div>
+                                <div class="">
+                                <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
+                                <button type="button" class="btn btn-primary inventoryBtn" onclick="updateItem(${data[0]['id']})">Save</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <div class="">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            </div>
-                            <div class="">
-                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
-                            <button type="button" class="btn btn-default" onclick="updateItem(${data[0]['id']})">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                    
                     </div>
                 `
+
+                // Update item value when quanity changes
+                const quantityInput = document.getElementById('quantityInput');
+                quantityInput.addEventListener('keyup', () => {
+                    const input = document.getElementById('quantityInput');
+
+                    if (typeof Number(input.value) === 'number' && !isNaN(input.value)) 
+                    {
+                        const price      = document.getElementById('priceInput').value;
+                        const quantity   = Number(input.value);
+                        const value      = Number(price) *  quantity;
+                        const valueText = document.getElementById('valueText');
+                        valueText.innerHTML = Number(value).toFixed(2);
+                        console.log('value', input.value);
+                    }
+                    else
+                    {
+                        const msg = 'Quanity isnt number';
+                        const priceInput = document.getElementById('valueText').innerHTML = msg;
+                    }
+                });
+
+                // Update item value when price changes
+                const priceInput = document.getElementById('priceInput');
+                priceInput.addEventListener('keyup', () => {
+                    const input = document.getElementById('priceInput');
+
+                    if (typeof Number(input.value) === 'number' && !isNaN(input.value)) 
+                    {
+                        const price      = Number(input.value);
+                        const quantity   = Number(document.getElementById('quantityInput').value);
+                        const value      = price *  quantity;
+                        const valueText = document.getElementById('valueText');
+                        valueText.innerHTML = Number(value).toFixed(2);
+                    }
+                    else
+                    {
+                        const msg = 'Price isnt number';
+                        const priceInput = document.getElementById('valueText').innerHTML = msg;
+                        console.log(msg);
+                    }
+                });
             });
+
+
+
         }
 
         async function searchForItem(name) 
@@ -415,9 +484,8 @@
         {
             const itemName          = document.getElementById('nameInput').value;
             const itemQuantity      = document.getElementById('quantityInput').value;
-            const itemMinQuantity   = document.getElementById('minQuantityInput').value;
+            const itemMinQuantity   = document.getElementById('minimumLevelInput').value;
             const itemPrice         = document.getElementById('priceInput').value;
-            const itemValue         = document.getElementById('valueInput').value;
             const itemBarcode       = document.getElementById('barcodeInput').value;
             const itemNotes         = document.getElementById('notesInput').value;
             const itemTags          = document.getElementById('tagsInput').value;
@@ -430,7 +498,6 @@
                     itemQuantity: itemQuantity ,
                     itemMinQuantity: itemMinQuantity,
                     itemPrice: itemPrice,
-                    itemValue: itemValue,
                     itemBarcode: itemBarcode,
                     itemNotes: itemNotes,
                     itemTags: itemTags,
@@ -447,13 +514,8 @@
             $('#editItemModal').modal('hide');
 
             const tableRow = document.getElementById(`tableRow_${itemId}`);
-            console.log(tableRow);
-            tableRow.innerHTML = `
-                <td>${itemName}</td>
-                <td>${itemQuantity}</td>
-                <td>${itemMinQuantity}</td>
-                <td>${itemPrice}</td>
-            `
+            const itemValue = Number(itemQuantity) * Number(itemPrice);
+            tableRow.innerHTML = createTableRowHTML(itemId, itemName, itemQuantity, itemMinQuantity, itemPrice, itemValue);
         }
 
         async function loadItemTable()
@@ -489,7 +551,7 @@
         function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value)
         {
             const html = `
-                    <tr id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="gotoUpdateItem(${itemId})" >
+                    <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="openEditItemDialog(${itemId})" >
                         <td class="nameRow">${name}</td>
                         <td style="text-align: center;">
                             <div class="container">
@@ -550,6 +612,34 @@
                 const errorData = await response.json();
                 throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
             }
+        }
+        
+        function editPopupDecreaseQuantity()
+        {
+            const qualityInput = document.getElementById('quantityInput');
+            console.log(qualityInput, qualityInput.value);
+
+            qualityInput.value = Number(qualityInput.value) - 1
+            if (qualityInput.value < 0)
+                qualityInput.value = 0;
+        }
+
+        function editInputFieldNum(inputId, numberAdjustment)
+        {
+            const inputField = document.getElementById(inputId);
+            inputField.value = Number(inputField.value) + numberAdjustment;
+            if (inputField.value < 0)
+                inputField.value = 0;
+        }
+
+        function editPopUpAdjustQuantity(numberAdjustment)
+        {
+            editInputFieldNum('quantityInput', numberAdjustment);
+            const price      = document.getElementById('priceInput').value;
+            const quantity   = document.getElementById('quantityInput').value;
+            const value      = Number(price) *  Number(quantity);
+            const priceInput = document.getElementById('valueText');
+            priceInput.innerHTML = Number(value).toFixed(2);
         }
 
         async function decrementQuantity(itemId)

@@ -1,17 +1,28 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
+// Fixed: Table row text isn't centered
+// Fixed: After editing row styling gets messed up
+// Fix: "minimum level get cut up into 2 lines"
+// Put try catch on line 56 of indexRouter.js
+// Update value as you type or edit quanity
 // ---------------------------------------------
 
-// Make things look good
 
-// Edit side bar links so they look better
+// Be able to put in equation in quantity input 
 
-// Add icon?
+// When in main items page, editing quantity feels slow. Maybe batch calls to database?
 
-// Upgrade side bar so it looks better.
+// Improve styling of edit item popups
+// Implemnt increment/decrement btns
 
-// Convert to typesscript
+// Delete doesn't delete the correct row. 
+
+// Succuss animated popup after certain actions are executes like saving 
+
+// Edit quantity same way Sortly does
+
+// Convert to TypeScript
 
 // Remove multiple items by selecting checkboxes?
 
@@ -27,7 +38,13 @@
 
 // Get most subtracted items
 
+// View by tag
+
+// Low items report
+
 // ---------- Later ----------------- 
+
+// Ctrl z undo
 // Editing item Finish creating the form to edit items
 // Need to render table from server on first load index is SolidJS
 // Reload table with SolidJS

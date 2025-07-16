@@ -15,8 +15,6 @@ function sanitizeApostrophe(inputString)
 {
     if (inputString.includes('\''))
     {
-        console.log('Has apostrophe!');
-
         const index = inputString.indexOf('\'');
         const apostrophe = '\''
         const firstHalf = inputString.substring(0, index);
@@ -44,7 +42,6 @@ async function addItem(name, quantity, minLevel, price, value, barcode, notes, t
     { 
         if (name.includes('\''))
         {
-            console.log('Has apostrophe!');
             name = sanitizeApostrophe(name);
         }
     }
@@ -135,7 +132,6 @@ async function searchForItem(name)
     { 
         if (name.includes('\''))
         {
-            console.log('Has apostrophe!');
             name = sanitizeApostrophe(name);
         }
     }
@@ -147,7 +143,6 @@ async function searchForItem(name)
         `;
 
     const { rows } = await pool.query(SQL);
-    console.log("rows ", rows)
     return rows;
 }
 
@@ -174,7 +169,6 @@ async function calculateItemsMetaData()
     {
         metaData.numOfItems += 1;
         metaData.totalQuantity += Number(rows[i].quantity);
-        console.log(rows[i].quantity, metaData.numOfItems);
 
         var value = Number(rows[i].value);
         if (isNaN(value))
