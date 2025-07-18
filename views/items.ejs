@@ -18,11 +18,17 @@
     </style>
     <body>
 
+    <!-- Popup -->
+    <div id='msgPopup' class="msgPopup">
+        Heeeeeeeeeeeeeellloooo owrld
+    </div>
+
     <!-- Modal -->
     <div class="modal" id="editItemModal" role="dialog">
         <div class="modal-dialog">
         </div>
     </div>
+
 
     <div class="container-fluid min-vh-100 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
         <div class="row flex-fill">
@@ -827,6 +833,7 @@
                     else // Error
                     {
                         console.log('Error: text input contains invalid input');
+                        showPopup('Error: text input contains invalid input')
                         containsNumber = true;
                         return null;
                     }
@@ -989,11 +996,18 @@
             changeRowStateToDefaultView(itemId);
         }
 
+        function showPopup(msg) 
+        {
+            const popup = document.getElementById('msgPopup');
+            popup.innerHTML = msg;
+            popup.classList.remove('msgPopup-hide');
+            popup.style.display = 'block';
+            setTimeout(() => 
+            {
+               popup.classList.add('msgPopup-hide');
+            }, 1500);
+        }
+
         loadItemTable();
-
-        var t = operation.SUBTRACT
-        console.log(t == operation.SUBTRACT);
-        
-
     </script>
 </html>

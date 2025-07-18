@@ -1,15 +1,8 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// ---------------------------------------------
-
-// Use same inline calculation logic for quality input in item edit popup
-
-// Delete doesn't delete the correct row. 
-
-// When in main items page, editing quantity feels slow. Maybe batch calls to database?
-
 // Succuss animated popup after certain actions are executes like saving 
+// ---------------------------------------------
 
 // Convert to TypeScript
 
@@ -33,10 +26,11 @@
 
 // ---------- Later ----------------- 
 
-// Ctrl z undo
+// Ctrl z undo, delete, quantity
 // Editing item Finish creating the form to edit items
 // Need to render table from server on first load index is SolidJS
 // Reload table with SolidJS
+// When in main items page, editing quantity feels slow. Maybe batch calls to database
 
 const express = require('express');
 const path    = require("node:path");

@@ -76,3 +76,25 @@
     color: rgb(58, 58, 58);
     font-size: 14px;
 }
+
+.msgPopup {
+    display: none;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+
+    font-family: var(--primary-font);
+    text-align: center;
+    align-content: center;
+
+    padding: 25px;
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+
+    transition: opacity 1s;
+    z-index: 9999;
+}
+
+.msgPopup-hide {
+    opacity: 0;
+}
