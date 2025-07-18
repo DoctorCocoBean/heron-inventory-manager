@@ -754,6 +754,12 @@
             tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
         }
 
+        const operation = Object.freeze({
+            NONE    : 0,
+            ADD     : 1,
+            SUBTRACT: 2,
+        });
+
         async function changeRowStateToEditQuantity(itemId)
         {
             isEditingRow = true;
@@ -769,7 +775,7 @@
             tableRow.innerHTML = `
                 <td class="nameRow">${name}</td>
                 <td style="text-align: center;">
-                    <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="onRowLoseFocus(${itemId})" style="text-align: center;"></input>
+                    <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="" style="text-align: center;"></input>
                 </td>
                 <td class="minimumLevelRow">${minimumLevel}</td>
                 <td class="priceRow">${price}</td>
@@ -777,17 +783,95 @@
             `
 
             const quantityInput = document.getElementById('tempInput');
+            const initialValue = quantityInput.value;
+            
             quantityInput.addEventListener('keydown', function(event) 
             {
-                if (event.key == 'Enter') {
+                if (event.key == 'Enter') 
+                {
                     console.log('enter key');
-                    onRowLoseFocus(itemId);
+                    
+                    const inputData = quantityInput.value;
+
+                    // If contains subtraction symbol do substration
+                    var op             = operation.NONE;
+                    var nextOp         = operation.NONE;
+                    var element        = '';
+                    var result         = null;
+                    
+
+                    // Check for valid input
+                    for (let i = 0; i < inputData.length; i++) 
+                    {
+                        if (isNaN(inputData[i])) // Check for operation symbol or non number
+                        {
+                            if (inputData[i] == '-') 
+                            {
+                                if (nextOp == operation.NONE) {
+                                    nextOp = operation.SUBTRACT;
+                                } else {
+                                    op = nextOp;
+                                    nextOp = operation.SUBTRACT;
+                                }
+                            }
+                            else if (inputData[i] == '+')
+                            {
+                                if (nextOp == operation.NONE) {
+                                    nextOp = operation.ADD;
+                                } else {
+                                    op = nextOp;
+                                    nextOp = operation.ADD;
+                                }
+                            }
+                            else // Error
+                            {
+                                console.log('Error: text input contains invalid input');
+                                quantityInput.value = initialValue;
+                                containsNumber = true;
+                                return;
+                            }
+
+                            if (result == null) 
+                            {
+                                result = element;
+                                element = '';
+                            }
+                            else
+                            {
+                                if (op == operation.SUBTRACT) {
+                                    result = Number(result) - Number(element);
+                                }
+                                if (op == operation.ADD) {
+                                    result = Number(result) + Number(element);
+                                }
+
+                                element = '';
+                            }
+
+                            continue;
+                        }
+
+                        element += inputData[i];
+                    }
+
+                    if (result && element != '') 
+                    {
+                        if (op == operation.SUBTRACT)
+                            result = Number(result) - Number(element);
+                        if (op == operation.ADD)
+                            result = Number(result) + Number(element);
+                    }
+
+                    // qualityInput = result;
+                    console.log(result);
+                    
+                    // onRowLoseFocus(itemId);
                     event.preventDefault();
                 }
 
                 if (event.key == "Escape") {
                     console.log('escape key');
-                    changeRowStateToDefaultView(itemId);
+                    // changeRowStateToDefaultView(itemId);
                     event.preventDefault();
                 }
             });
@@ -836,6 +920,10 @@
         }
 
         loadItemTable();
+
+        var t = operation.SUBTRACT
+        console.log(t == operation.SUBTRACT);
+        
 
     </script>
 </html>
