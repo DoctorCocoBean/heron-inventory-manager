@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "lib": ["ES2015", "ES2015.Promise", "DOM"],
+    "module": "CommonJS",
+    "resolveJsonModule": true,
+    "sourceMap": true
+  }
+}

@@ -2,9 +2,10 @@
 //Database passwood: wCBrkihVgfbs9PGV
 
 // Succuss animated popup after certain actions are executes like saving 
+// Convert to TypeScript
 // ---------------------------------------------
 
-// Convert to TypeScript
+// Refactor UpdateManually
 
 // Remove multiple items by selecting checkboxes?
 

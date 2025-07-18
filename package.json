@@ -10,10 +10,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/bootstrap": "^5.2.10",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "papaparse": "^5.5.3",
     "pg": "^8.16.2",
     "solid-js": "^1.9.7"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.32"
   }
 }
