@@ -261,7 +261,22 @@
 
                 // Update item value when quanity changes
                 const quantityInput = document.getElementById('quantityInput');
-                quantityInput.addEventListener('keyup', () => {
+                const initialValue = quantityInput.value;
+
+                // On key up
+                quantityInput.addEventListener('keyup', (event) => {
+
+                    console.log(event.keyb);
+                    if (event.key == 'Enter') 
+                    {
+                        const input  = document.getElementById('quantityInput');
+                        const result = calculateInputField(input.value);
+                        if (result == null)
+                            input.value = initialValue; 
+                        else
+                            input.value = result;
+                    }
+
                     const input = document.getElementById('quantityInput');
 
                     if (typeof Number(input.value) === 'number' && !isNaN(input.value)) 
@@ -280,9 +295,11 @@
                     }
                 });
 
+
                 // Update item value when price changes
                 const priceInput = document.getElementById('priceInput');
-                priceInput.addEventListener('keyup', () => {
+                priceInput.addEventListener('keyup', () => 
+                {
                     const input = document.getElementById('priceInput');
 
                     if (typeof Number(input.value) === 'number' && !isNaN(input.value)) 

@@ -1,8 +1,6 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Be able to put in equation in quantity input 
-// when editing quality and in the middle of equation, losing focus doesn't work
 // ---------------------------------------------
 
 // Use same inline calculation logic for quality input in item edit popup
