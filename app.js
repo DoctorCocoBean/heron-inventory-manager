@@ -1,26 +1,17 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Fixed: Table row text isn't centered
-// Fixed: After editing row styling gets messed up
-// Fix: "minimum level get cut up into 2 lines"
-// Put try catch on line 56 of indexRouter.js
-// Update value as you type or edit quanity
+// Be able to put in equation in quantity input 
+// when editing quality and in the middle of equation, losing focus doesn't work
 // ---------------------------------------------
 
-
-// Be able to put in equation in quantity input 
-
-// When in main items page, editing quantity feels slow. Maybe batch calls to database?
-
-// Improve styling of edit item popups
-// Implemnt increment/decrement btns
+// Use same inline calculation logic for quality input in item edit popup
 
 // Delete doesn't delete the correct row. 
 
-// Succuss animated popup after certain actions are executes like saving 
+// When in main items page, editing quantity feels slow. Maybe batch calls to database?
 
-// Edit quantity same way Sortly does
+// Succuss animated popup after certain actions are executes like saving 
 
 // Convert to TypeScript
 

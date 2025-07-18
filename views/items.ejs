@@ -760,6 +760,89 @@
             SUBTRACT: 2,
         });
 
+        function calculate(numA, numB, op)
+        {
+            numA = Number(numA);
+            numB = Number(numB);
+
+            if (op == operation.SUBTRACT)
+            {
+                return numA - numB;
+            }
+            else if (op == operation.ADD)
+            {
+                return numA + numB;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        function calculateInputField(inputData)
+        {
+            // If contains subtraction symbol do substration
+            var initialInputData = inputData;
+            var op             = operation.NONE;
+            var nextOp         = operation.NONE;
+            var element        = '';
+            var result         = null;
+
+            // Parse text input string
+            for (let i = 0; i < inputData.length; i++) 
+            {
+                if (isNaN(inputData[i])) // Check for operation symbol or non number
+                {
+                    if (inputData[i] == '-') 
+                    {
+                        if (op == operation.NONE)
+                            op = operation.SUBTRACT;
+                        else
+                            nextOp = operation.SUBTRACT;
+                    }
+                    else if (inputData[i] == '+')
+                    {
+                        if (op == operation.NONE)
+                            op = operation.ADD;
+                        else
+                            nextOp = operation.ADD;
+                    }
+                    else // Error
+                    {
+                        console.log('Error: text input contains invalid input');
+                        containsNumber = true;
+                        return null;
+                    }
+
+                    if (result == null) // Check if two numbers can be calcuated together
+                    {
+                        result = element;
+                        element = '';
+                    }
+                    else
+                    {
+                        result  = calculate(result, element, op);
+                        element = '';
+                        op      = nextOp;
+                        nextOp  = operation.NONE;
+                    }
+
+                    continue;
+                }
+
+                element += inputData[i];
+            }
+
+            // Done parsing so check to see if there's one more number to add to caclulation
+            if (result && element != '') {
+                result = calculate(result, element, op);
+                if (result == null)
+                    console.log("error calculating");
+            }
+
+            return result;
+        }
+
         async function changeRowStateToEditQuantity(itemId)
         {
             isEditingRow = true;
@@ -775,7 +858,7 @@
             tableRow.innerHTML = `
                 <td class="nameRow">${name}</td>
                 <td style="text-align: center;">
-                    <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="" style="text-align: center;"></input>
+                    <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="onRowLoseFocus(${itemId})" style="text-align: center;"></input>
                 </td>
                 <td class="minimumLevelRow">${minimumLevel}</td>
                 <td class="priceRow">${price}</td>
@@ -783,95 +866,38 @@
             `
 
             const quantityInput = document.getElementById('tempInput');
-            const initialValue = quantityInput.value;
+            const initialValue  = quantityInput.value;
             
             quantityInput.addEventListener('keydown', function(event) 
             {
                 if (event.key == 'Enter') 
                 {
-                    console.log('enter key');
-                    
-                    const inputData = quantityInput.value;
+                    const input  = document.getElementById('tempInput');
+                    const result = calculateInputField(input.value);
+                    if (result == null)
+                        input.value = initialValue; 
+                    else
+                        input.value = result;
 
-                    // If contains subtraction symbol do substration
-                    var op             = operation.NONE;
-                    var nextOp         = operation.NONE;
-                    var element        = '';
-                    var result         = null;
-                    
+                    const tableRow     = document.getElementById(`tableRow_${itemId}`);
+                    const name         = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
+                    const quantity     = document.getElementById('tempInput').value;
+                    const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
+                    const price        = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
+                    const value        = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
 
-                    // Check for valid input
-                    for (let i = 0; i < inputData.length; i++) 
-                    {
-                        if (isNaN(inputData[i])) // Check for operation symbol or non number
-                        {
-                            if (inputData[i] == '-') 
-                            {
-                                if (nextOp == operation.NONE) {
-                                    nextOp = operation.SUBTRACT;
-                                } else {
-                                    op = nextOp;
-                                    nextOp = operation.SUBTRACT;
-                                }
-                            }
-                            else if (inputData[i] == '+')
-                            {
-                                if (nextOp == operation.NONE) {
-                                    nextOp = operation.ADD;
-                                } else {
-                                    op = nextOp;
-                                    nextOp = operation.ADD;
-                                }
-                            }
-                            else // Error
-                            {
-                                console.log('Error: text input contains invalid input');
-                                quantityInput.value = initialValue;
-                                containsNumber = true;
-                                return;
-                            }
+                    isEditingRow = false;
 
-                            if (result == null) 
-                            {
-                                result = element;
-                                element = '';
-                            }
-                            else
-                            {
-                                if (op == operation.SUBTRACT) {
-                                    result = Number(result) - Number(element);
-                                }
-                                if (op == operation.ADD) {
-                                    result = Number(result) + Number(element);
-                                }
+                    updateItemManually(itemId, name, quantity, minimumLevel, price, value);
+                    tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
 
-                                element = '';
-                            }
-
-                            continue;
-                        }
-
-                        element += inputData[i];
-                    }
-
-                    if (result && element != '') 
-                    {
-                        if (op == operation.SUBTRACT)
-                            result = Number(result) - Number(element);
-                        if (op == operation.ADD)
-                            result = Number(result) + Number(element);
-                    }
-
-                    // qualityInput = result;
-                    console.log(result);
-                    
-                    // onRowLoseFocus(itemId);
                     event.preventDefault();
                 }
 
-                if (event.key == "Escape") {
+                if (event.key == "Escape") 
+                {
                     console.log('escape key');
-                    // changeRowStateToDefaultView(itemId);
+                    changeRowStateToDefaultView(itemId);
                     event.preventDefault();
                 }
             });
@@ -881,15 +907,42 @@
             textInput.select();
         }
 
+        async function updateItemManually(itemId, name, quantity, minimumLevel, price, value)
+        { 
+            const item    = await getItemById(itemId);
+            const request = new Request(`/edit/${itemId}`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    itemName: name,
+                    itemQuantity: quantity,
+                    itemMinQuantity: minimumLevel,
+                    itemPrice: price,
+                    itemValue: value,
+                    itemBarcode: item[0].barcode,
+                    itemNotes: item[0].notes,
+                    itemTags: item[0].tags,
+                }),
+            })
+            
+            const response = await fetch(request);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+            }
+        }
+
         async function onRowLoseFocus(itemId)
         {
-            if (isEditingRow == false)
+            if (isEditingRow == false) {
                 return;
+            }
 
             const item         = await getItemById(itemId);
             const tableRow     = document.getElementById(`tableRow_${itemId}`);
             const name         = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-            const quantity     = document.getElementById('tempInput').value;
+            const quantity     = item[0]['quantity']
             const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
             const price        = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
             const value        = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
