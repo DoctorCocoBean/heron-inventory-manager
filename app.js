@@ -1,12 +1,12 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
+// When in main items page, editing quantity feels slow. Maybe batch calls to database
 // ---------------------------------------------
 
-// When in main items page, editing quantity feels slow. Maybe batch calls to database
+// Calculate database size based on rows | activityLog
 
 // Record quantity change history
-// Make updates one on individual items and not as whole
 
 // Get most subtracted items
 

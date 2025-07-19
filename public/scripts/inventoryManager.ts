@@ -1,8 +1,11 @@
-var isEditingRow = false;
-var searchBar   = document.getElementById("searchBar");
-const itemTable = document.getElementById("itemTable");
-const popup     = document.getElementById("editItemModal");
-const editItemDialog = document.getElementById("editItemModal");
+
+class QuantityChangeTimer
+{
+    id: number = -1;
+    itemId: number = -1;
+    started: boolean = false;
+    finalQuantity: number = 0;
+};
 
 class Item 
 {
@@ -21,6 +24,14 @@ enum LogType
 {
     QUANTITY = 1,
 }
+
+// --- GLOBALS -----
+var isEditingRow = false;
+var searchBar   = document.getElementById("searchBar");
+const itemTable = document.getElementById("itemTable");
+const popup     = document.getElementById("editItemModal");
+const editItemDialog = document.getElementById("editItemModal");
+var quantityChangeTimer = new QuantityChangeTimer();
 
 function showPopup(msg) 
 {
@@ -418,32 +429,6 @@ async function getItemById(itemId)
     return data;
 }
 
-async function testUpdate(itemData: Item)
-{
-    const item    = await getItemById(itemData.itemId);
-    const request = new Request(`/edit/${itemData.itemId}`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            itemName: itemData.name,
-            itemQuantity: itemData.quantity,
-            itemMinQuantity: itemData.minimumLevel,
-            itemPrice: itemData.price,
-            itemValue: itemData.value,
-            itemBarcode: item[0].barcode,
-            itemNotes: item[0].notes,
-            itemTags: item[0].tags,
-        }),
-    })
-    
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-    }
-}
-
 async function updateItem(itemData: Item)
 {
     const item    = await getItemById(itemData.itemId);
@@ -508,40 +493,6 @@ async function editItemDialogUpdate(itemId)
     tableRow.innerHTML = createTableRowHTML(itemId, itemName, itemQuantity, itemMinQuantity, itemPrice, itemValue);
 }
 
-async function incrementQuantity(itemId)
-{
-    event.stopPropagation();
-
-    const item         = await getItemById(itemId);
-    const tableRow     = document.getElementById(`tableRow_${itemId}`);
-    const quantity     = Number(item[0]['quantity']);
-    var newQuantity    = quantity + 1;
-
-    tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
-    tableRow.getElementsByClassName("valueRow")[0].innerHTML    = "$" + String(item[0]['value']);
-
-    const request = new Request(`/edit/${itemId}`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            itemName: item[0]['name'],
-            itemQuantity: newQuantity,
-            itemMinQuantity: item[0]['minimumLevel'],
-            itemPrice: item[0]['price'],
-            itemValue: item[0]['value'],
-            itemBarcode: item[0]['barcode'],
-            itemNotes: item[0]['notes'],
-            itemTags: item[0]['tags'],
-        }),
-    })
-    
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-    }
-}
 
 function editPopupDecreaseQuantity()
 {
@@ -571,47 +522,88 @@ function editPopUpAdjustQuantity(numberAdjustment)
     priceInput.innerHTML = Number(value).toFixed(2);
 }
 
+async function incrementQuantity(itemId)
+{
+    event.stopPropagation();
+
+    const tableRow = document.getElementById(`tableRow_${itemId}`);
+    const quantity = Number(tableRow.getElementsByClassName('quantityRow')[0].innerHTML);
+    const price    = Number(tableRow.getElementsByClassName('priceRow')[0].innerHTML);
+
+    var newQuantity   = quantity + 1;
+    let value: number = Number(price * quantity);
+
+    tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
+    tableRow.getElementsByClassName("valueRow")[0].innerHTML    = "$" + value.toFixed(2);
+
+    sendQuantityChangeToTimer(itemId, newQuantity);
+}
+
 async function decrementQuantity(itemId)
 {
     event.stopPropagation();
 
-    const item      = await getItemById(itemId);
-    const tableRow  = document.getElementById(`tableRow_${itemId}`);
-    const quantity  = Number(item[0]['quantity']);
-
-    console.log(quantity);
+    const tableRow = document.getElementById(`tableRow_${itemId}`);
+    const quantity = Number(tableRow.getElementsByClassName('quantityRow')[0].innerHTML);
+    const price    = Number(tableRow.getElementsByClassName('priceRow')[0].innerHTML);
 
     var newQuantity = quantity - 1;
     if (newQuantity < 0) {
         newQuantity = 0;
     }
 
+    let value: number = Number(price * quantity);
+
     tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
-    tableRow.getElementsByClassName("valueRow")[0].innerHTML    = "$" + String(item[0]['value']);
+    tableRow.getElementsByClassName("valueRow")[0].innerHTML    = "$" + value.toFixed(2);
 
-    const request = new Request(`/edit/${itemId}`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            itemName: item[0]['name'],
-            itemQuantity: newQuantity,
-            itemMinQuantity: item[0]['minimumLevel'],
-            itemPrice: item[0]['price'],
-            itemValue: item[0]['value'],
-            itemBarcode: item[0]['barcode'],
-            itemNotes: item[0]['notes'],
-            itemTags: item[0]['tags'],
-        }),
-    }) 
-    
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-    }
+    sendQuantityChangeToTimer(itemId, newQuantity);
 }
 
+function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
+{
+    quantityChangeTimer.finalQuantity = newQuantity;
+    quantityChangeTimer.itemId = itemId;
+    
+    // Reset timer if not done
+    if (quantityChangeTimer.started) {
+        clearTimeout(quantityChangeTimer.id);
+    }
+    else {
+        quantityChangeTimer.started = true;
+    }
+
+    // Start timer
+    quantityChangeTimer.id = setTimeout(async () => 
+    {
+        quantityChangeTimer.started = false;
+
+        // submit edit request
+        const item    = await getItemById(quantityChangeTimer.itemId);
+        const request = new Request(`/edit/${quantityChangeTimer.itemId}`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                itemName: item[0]['name'],
+                itemQuantity: quantityChangeTimer.finalQuantity,
+                itemMinQuantity: item[0]['minimumLevel'],
+                itemPrice: item[0]['price'],
+                itemValue: item[0]['value'],
+                itemBarcode: item[0]['barcode'],
+                itemNotes: item[0]['notes'],
+                itemTags: item[0]['tags'],
+            }),
+        }) 
+        
+        const response = await fetch(request);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+
+    }, 500);
+}
 
 function showQualityAdjustmentButtons(itemId)
 {
