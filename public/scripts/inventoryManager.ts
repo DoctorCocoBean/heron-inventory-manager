@@ -1,4 +1,3 @@
-
 var isEditingRow = false;
 var searchBar   = document.getElementById("searchBar");
 const itemTable = document.getElementById("itemTable");
@@ -16,6 +15,11 @@ class Item
     barcode     : number = 0;
     tags        : string = '';
     notes       : string = '';
+}
+
+enum LogType 
+{
+    QUANTITY = 1,
 }
 
 function showPopup(msg) 
@@ -928,4 +932,27 @@ async function uploadCSV()
 
     $('#editItemModal').modal('hide');
     loadItemTable();
+}
+
+async function logActivity(type: LogType, itemId: string, oldValue: string, newValue: string)
+{
+    try 
+    {
+        const request = new Request("/logActivity", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                type: type,
+                itemId: itemId,
+                oldValue: oldValue,
+                newValue: newValue
+            }),
+        })
+
+        const response = await fetch(request);
+    } 
+    catch (error) 
+    {
+        console.log("error: ", error);
+    }
 }

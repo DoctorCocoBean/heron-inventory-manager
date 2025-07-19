@@ -25,6 +25,10 @@ class Item {
         this.notes = '';
     }
 }
+var LogType;
+(function (LogType) {
+    LogType[LogType["QUANTITY"] = 1] = "QUANTITY";
+})(LogType || (LogType = {}));
 function showPopup(msg) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -799,6 +803,26 @@ function uploadCSV() {
         }
         $('#editItemModal').modal('hide');
         loadItemTable();
+    });
+}
+function logActivity(type, itemId, oldValue, newValue) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const request = new Request("/logActivity", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: type,
+                    itemId: itemId,
+                    oldValue: oldValue,
+                    newValue: newValue
+                }),
+            });
+            const response = yield fetch(request);
+        }
+        catch (error) {
+            console.log("error: ", error);
+        }
     });
 }
 //# sourceMappingURL=inventoryManager.js.map

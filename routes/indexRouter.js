@@ -46,6 +46,8 @@ indexRouter.get("/dashboard", async (req, res) =>
 
 indexRouter.get("/edit/:itemIndex", async (req, res) => 
 {
+    console.log('am i using this?');
+    
     const itemIndex = req.params.itemIndex;
     const items     = await db.getAllItems();
     res.render("itemDetails", { itemIndex: itemIndex, items: items });
@@ -83,6 +85,11 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
     itemIndex   = Number(req.params.itemIndex);
     const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
+    const oldItem = await db.getItemById(req.params.itemIndex);
+
+    if (oldItem[0].quantity != req.body.itemQuantity) {
+        await db.logActivity('quantity', String(itemIndex), String(oldItem[0].quantity), String(req.body.itemQuantity));
+    }
 
     await db.updateItem(itemIndex,
                         req.body.itemName,
@@ -179,6 +186,14 @@ indexRouter.post('/deleteAllItems', async (req, res) =>
 {
 	console.log('deleting all items');
     await db.deleteAllItems();
+    res.redirect("/");
+});
+
+indexRouter.post('/logActivity', async (req, res) =>
+{
+	console.log('log');
+    
+    await db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 });
 

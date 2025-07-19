@@ -137,9 +137,9 @@ async function searchForItem(name)
     }
 
     const SQL = `
-        SELECT * FROM items
-        WHERE LOWER(name) LIKE '%${name}%'
-        ORDER BY name;
+            SELECT * FROM items
+            WHERE LOWER(name) LIKE '%${name}%'
+            ORDER BY name;
         `;
 
     const { rows } = await pool.query(SQL);
@@ -149,7 +149,7 @@ async function searchForItem(name)
 async function deleteAllItems()
 {
     const SQL = `
-        DELETE FROM items;
+            DELETE FROM items;
         `;
 
     await pool.query(SQL);
@@ -179,18 +179,31 @@ async function calculateItemsMetaData()
 
     metaData.totalValue = metaData.totalValue.toFixed(2);
 
-
     const SQL = `
-    UPDATE "itemsTableData"
-    SET "totalItems"           = ${ metaData.numOfItems }, 
-    "totalQuantity"            = ${ metaData.totalQuantity },
-    "totalValue"               = ${ metaData.totalValue }
-    WHERE id = 1;
+        UPDATE "itemsTableData"
+        SET "totalItems"           = ${ metaData.numOfItems }, 
+        "totalQuantity"            = ${ metaData.totalQuantity },
+        "totalValue"               = ${ metaData.totalValue }
+        WHERE id = 1;
    `;
 
     await pool.query(SQL);
 
     return metaData;
+}
+
+async function logActivity(type, itemId, oldValue, newValue)
+{
+    const now = new Date();
+    const time = now.toTimeString();
+    const date = now.toDateString();
+
+    const SQL = `
+        INSERT INTO "activityLog" (type, "itemId", "oldValue", "newValue", "time", "date")
+        VALUES ('${type}', '${itemId}', '${oldValue}', '${newValue}', '${time}', '${date}');
+   `;
+
+    await pool.query(SQL);
 }
 
 module.exports = {
@@ -201,5 +214,6 @@ module.exports = {
     getItemById,
     deleteAllItems,
     deleteItem,
-    calculateItemsMetaData
+    calculateItemsMetaData,
+    logActivity
 };

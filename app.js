@@ -3,7 +3,14 @@
 
 // ---------------------------------------------
 
-// Refactor UpdateManually, getItemById
+// When in main items page, editing quantity feels slow. Maybe batch calls to database
+
+// Record quantity change history
+// Make updates one on individual items and not as whole
+
+// Get most subtracted items
+
+// Low items report
 
 // Remove multiple items by selecting checkboxes?
 
@@ -15,13 +22,7 @@
 
 // Deleting all items while creating back up
 
-// Record quantity change history
-
-// Get most subtracted items
-
 // View by tag
-
-// Low items report
 
 // ---------- Later ----------------- 
 
@@ -29,7 +30,6 @@
 // Editing item Finish creating the form to edit items
 // Need to render table from server on first load index is SolidJS
 // Reload table with SolidJS
-// When in main items page, editing quantity feels slow. Maybe batch calls to database
 
 const express = require('express');
 const path    = require("node:path");
