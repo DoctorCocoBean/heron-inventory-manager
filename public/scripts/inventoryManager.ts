@@ -5,6 +5,19 @@ const itemTable = document.getElementById("itemTable");
 const popup     = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 
+class Item 
+{
+    name        : string ='';
+    itemId      : number = -1;
+    quantity    : number = 0;
+    minimumLevel: number = 0;
+    price       : number = 0;
+    value       : number = 0;
+    barcode     : number = 0;
+    tags        : string = '';
+    notes       : string = '';
+}
+
 function showPopup(msg) 
 {
     const popup = document.getElementById('msgPopup');
@@ -245,7 +258,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
                         </div>
                         <div class="">
                         <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
-                        <button type="button" class="btn btn-primary inventoryBtn" onclick="updateItem(${data[0]['id']})">Save</button>
+                        <button type="button" class="btn btn-primary inventoryBtn" onclick="editItemDialogUpdate(${data[0]['id']})">Save</button>
                         </div>
                     </div>
                 </div>
@@ -401,18 +414,18 @@ async function getItemById(itemId)
     return data;
 }
 
-async function updateItemManually(itemId, name, quantity, minimumLevel, price, value)
-{ 
-    const item    = await getItemById(itemId);
-    const request = new Request(`/edit/${itemId}`, {
+async function testUpdate(itemData: Item)
+{
+    const item    = await getItemById(itemData.itemId);
+    const request = new Request(`/edit/${itemData.itemId}`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            itemName: name,
-            itemQuantity: quantity,
-            itemMinQuantity: minimumLevel,
-            itemPrice: price,
-            itemValue: value,
+            itemName: itemData.name,
+            itemQuantity: itemData.quantity,
+            itemMinQuantity: itemData.minimumLevel,
+            itemPrice: itemData.price,
+            itemValue: itemData.value,
             itemBarcode: item[0].barcode,
             itemNotes: item[0].notes,
             itemTags: item[0].tags,
@@ -427,7 +440,33 @@ async function updateItemManually(itemId, name, quantity, minimumLevel, price, v
     }
 }
 
-async function updateItem(itemId) 
+async function updateItem(itemData: Item)
+{
+    const item    = await getItemById(itemData.itemId);
+    const request = new Request(`/edit/${itemData.itemId}`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            itemName: itemData.name,
+            itemQuantity: itemData.quantity,
+            itemMinQuantity: itemData.minimumLevel,
+            itemPrice: itemData.price,
+            itemValue: itemData.value,
+            itemBarcode: item[0].barcode,
+            itemNotes: item[0].notes,
+            itemTags: item[0].tags,
+        }),
+    })
+    
+    const response = await fetch(request);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+    }
+}
+
+async function editItemDialogUpdate(itemId) 
 {
     const itemName          = getHTMLInputById('nameInput').value;
     const itemQuantity      = Number(getHTMLInputById('quantityInput').value);
@@ -686,17 +725,19 @@ async function changeRowStateToEditQuantity(itemId)
             else
                 input.value = String(result);
 
-            const tableRow     = document.getElementById(`tableRow_${itemId}`);
-            const name         = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-            const quantity     = getHTMLInputById('tempInput').value;
-            const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
-            const price        = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
-            const value        = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
+            const tableRow          = document.getElementById(`tableRow_${itemId}`);
+            const item              = new Item();
+                  item.itemId       = itemId;
+                  item.name         = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
+                  item.quantity     = Number(getHTMLInputById('tempInput').value);
+                  item.minimumLevel = Number(tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML);
+                  item.price        = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
+                  item.value        = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
 
-            isEditingRow = false;
+            updateItem(item);
 
-            updateItemManually(itemId, name, quantity, minimumLevel, price, value);
             tableRow.innerHTML = createTableRowHTML(itemId, name, Number(quantity), Number(minimumLevel), Number(price), Number(value));
+            isEditingRow       = false;
 
             event.preventDefault();
         }

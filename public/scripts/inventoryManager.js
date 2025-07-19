@@ -12,6 +12,19 @@ var searchBar = document.getElementById("searchBar");
 const itemTable = document.getElementById("itemTable");
 const popup = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
+class Item {
+    constructor() {
+        this.name = '';
+        this.itemId = -1;
+        this.quantity = 0;
+        this.minimumLevel = 0;
+        this.price = 0;
+        this.value = 0;
+        this.barcode = 0;
+        this.tags = '';
+        this.notes = '';
+    }
+}
 function showPopup(msg) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -220,7 +233,7 @@ function openEditItemDialog(itemId) {
                         </div>
                         <div class="">
                         <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
-                        <button type="button" class="btn btn-primary inventoryBtn" onclick="updateItem(${data[0]['id']})">Save</button>
+                        <button type="button" class="btn btn-primary inventoryBtn" onclick="editItemDialogUpdate(${data[0]['id']})">Save</button>
                         </div>
                     </div>
                 </div>
@@ -349,18 +362,18 @@ function getItemById(itemId) {
         return data;
     });
 }
-function updateItemManually(itemId, name, quantity, minimumLevel, price, value) {
+function testUpdate(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
-        const item = yield getItemById(itemId);
-        const request = new Request(`/edit/${itemId}`, {
+        const item = yield getItemById(itemData.itemId);
+        const request = new Request(`/edit/${itemData.itemId}`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                itemName: name,
-                itemQuantity: quantity,
-                itemMinQuantity: minimumLevel,
-                itemPrice: price,
-                itemValue: value,
+                itemName: itemData.name,
+                itemQuantity: itemData.quantity,
+                itemMinQuantity: itemData.minimumLevel,
+                itemPrice: itemData.price,
+                itemValue: itemData.value,
                 itemBarcode: item[0].barcode,
                 itemNotes: item[0].notes,
                 itemTags: item[0].tags,
@@ -373,7 +386,31 @@ function updateItemManually(itemId, name, quantity, minimumLevel, price, value) 
         }
     });
 }
-function updateItem(itemId) {
+function updateItem(itemData) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const item = yield getItemById(itemData.itemId);
+        const request = new Request(`/edit/${itemData.itemId}`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemName: itemData.name,
+                itemQuantity: itemData.quantity,
+                itemMinQuantity: itemData.minimumLevel,
+                itemPrice: itemData.price,
+                itemValue: itemData.value,
+                itemBarcode: item[0].barcode,
+                itemNotes: item[0].notes,
+                itemTags: item[0].tags,
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    });
+}
+function editItemDialogUpdate(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         const itemName = getHTMLInputById('nameInput').value;
         const itemQuantity = Number(getHTMLInputById('quantityInput').value);
@@ -588,14 +625,16 @@ function changeRowStateToEditQuantity(itemId) {
                 else
                     input.value = String(result);
                 const tableRow = document.getElementById(`tableRow_${itemId}`);
-                const name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-                const quantity = getHTMLInputById('tempInput').value;
-                const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
-                const price = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
-                const value = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
-                isEditingRow = false;
-                updateItemManually(itemId, name, quantity, minimumLevel, price, value);
+                const item = new Item();
+                item.itemId = itemId;
+                item.name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
+                item.quantity = Number(getHTMLInputById('tempInput').value);
+                item.minimumLevel = Number(tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML);
+                item.price = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
+                item.value = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
+                updateItem(item);
                 tableRow.innerHTML = createTableRowHTML(itemId, name, Number(quantity), Number(minimumLevel), Number(price), Number(value));
+                isEditingRow = false;
                 event.preventDefault();
             }
             if (event.key == "Escape") {
