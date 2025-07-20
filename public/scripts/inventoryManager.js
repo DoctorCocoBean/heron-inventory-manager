@@ -539,6 +539,7 @@ function onRowLoseFocus(itemId) {
         if (isEditingRow == false) {
             return;
         }
+        console.log('lose focus');
         const item = yield getItemById(itemId);
         const tableRow = document.getElementById(`tableRow_${itemId}`);
         const name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
@@ -599,8 +600,8 @@ function changeRowStateToEditQuantity(itemId) {
         const value = item[0]['value'];
         tableRow.innerHTML = `
         <td class="nameRow">${name}</td>
-        <td style="text-align: center;">
-            <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="3" onblur="onRowLoseFocus(${itemId})" style="text-align: center;"></input>
+        <td style="text-align: left;">
+            <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="6" onblur="onRowLoseFocus(${itemId})" style="margin-left: 30px; align-text: center;"></input>
         </td>
         <td class="minimumLevelRow">${minimumLevel}</td>
         <td class="priceRow">${price}</td>
@@ -612,6 +613,7 @@ function changeRowStateToEditQuantity(itemId) {
             if (event.key == 'Enter') {
                 const input = getHTMLInputById('tempInput');
                 const result = calculateInputField(input.value);
+                isEditingRow = false;
                 if (result == null)
                     input.value = initialValue;
                 else
@@ -620,24 +622,23 @@ function changeRowStateToEditQuantity(itemId) {
                 const item = new Item();
                 item.itemId = itemId;
                 item.name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-                item.quantity = Number(getHTMLInputById('tempInput').value);
+                item.quantity = Number(result);
                 item.minimumLevel = Number(tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML);
                 item.price = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
                 item.value = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
                 updateItem(item);
-                tableRow.innerHTML = createTableRowHTML(itemId, name, Number(quantity), Number(minimumLevel), Number(price), Number(value));
-                isEditingRow = false;
+                tableRow.innerHTML = createTableRowHTML(itemId, name, Number(result), Number(minimumLevel), Number(price), Number(value));
                 event.preventDefault();
             }
             if (event.key == "Escape") {
-                console.log('escape key');
                 changeRowStateToDefaultView(itemId);
                 event.preventDefault();
             }
         });
         const textInput = getHTMLInputById("tempInput");
         textInput.focus();
-        textInput.select();
+        const textLength = textInput.value.length;
+        textInput.setSelectionRange(textLength, textLength);
     });
 }
 function searchForItem(name) {
@@ -678,7 +679,10 @@ function loadItemTable() {
             var tableHTML = `
             <thead>
                 <td style="opacity: 50%;">Name</td>
-                <td style="opacity: 50%; text-align: center;">Quantity</td>
+                <td style="opacity: 50%; margin-left: 20px; padding: 20px">
+                <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
+                Quantity
+                </td>
                 <td style="opacity: 50%;">Minimum Level</td>
                 <td style="opacity: 50%;">Price</td>
                 <td style="opacity: 50%;">Value</td>
@@ -691,23 +695,98 @@ function loadItemTable() {
         });
     });
 }
+function loadLowStockItemTable() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/lowStockItems`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log(data);
+            var tableHTML = `
+            <thead>
+                <td style="opacity: 50%; width: 25%;">Name</td>
+                
+                <td style="opacity: 50%; width: 25%;">
+                <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
+                Quantity
+                </td>
+
+                <td style="opacity: 50%; width: 15%;">Minimum Level</td>
+                <td style="opacity: 50%;">Price</td>
+                <td style="opacity: 50%;">Value</td>
+            </thead>
+        `;
+            for (let i = 0; i < data.length; i++) {
+                tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+            }
+            itemTable.innerHTML = tableHTML;
+        });
+    });
+}
 function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value) {
+    // If below stock level show red background div
+    let lowStockStyle = 'display: inline; background-color: green';
+    if (Number(quantity) < Number(minimumLevel)) {
+        lowStockStyle = 'class="textBlockWithBGColor"';
+    }
+    else {
+        lowStockStyle = 'style="display: inline-block"';
+    }
     const html = `
             <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="openEditItemDialog(${itemId})" >
                 <td class="nameRow">${name}</td>
-                <td style="text-align: center;">
-                    <div class="container">
+                <td style="">
+                    <div class="container" onclick="startEditingQuantity(${itemId})" style="">
 
-                    <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
-                    <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
+                        </div>
+
+                        <div ${lowStockStyle}>
+                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                            ${quantity}
+                            </div>
+                        </div>
+
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
                     </div>
 
-                    <div class="quantityRow" style="display: inline" onclick="startEditingQuantity(${itemId})">
-                    ${quantity}
-                    </div>
+                    <div>
+                </td>
+                <td class="minimumLevelRow">${minimumLevel}</td>
+                <td class="priceRow">${price}</td>
+                <td class="valueRow">$${value}</td>
+            </tr>
+    `;
+    return html;
+}
+function createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value) {
+    // If below stock level show red background div
+    let lowStockStyle = '';
+    if (Number(quantity) < Number(minimumLevel)) {
+        lowStockStyle = 'textBlockWithBGColor';
+    }
+    const html = `
+            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="openEditItemDialog(${itemId})" >
+                <td class="nameRow">${name}</td>
+                <td style="">
+                    <div class="container" onclick="startEditingQuantity(${itemId})" style="">
 
-                    <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
-                    <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
+                        </div>
+
+                        <div class="${lowStockStyle}">
+                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                            ${quantity}
+                            </div>
+                        </div>
+
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
                     </div>
 
                     <div>

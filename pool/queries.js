@@ -199,7 +199,7 @@ async function logActivity(type, itemId, oldValue, newValue)
     const date = now.toDateString();
 
     const SQL = `
-        INSERT INTO "activityLog" (type, "itemId", "oldValue", "newValue", "time", "date")
+        INSERT INTO "activity-log" (type, "itemId", "oldValue", "newValue", "time", "date")
         VALUES ('${type}', '${itemId}', '${oldValue}', '${newValue}', '${time}', '${date}');
    `;
 

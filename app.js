@@ -1,16 +1,21 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// When in main items page, editing quantity feels slow. Maybe batch calls to database
+// Fixed: inline caclulation is broken
+// Low items report
 // ---------------------------------------------
 
-// Calculate database size based on rows | activityLog
-
-// Record quantity change history
+// Be able to mark low stock item as ordered
 
 // Get most subtracted items
 
-// Low items report
+// Price is missing dollar sign
+
+// On low stock page, make search confined to lowstock items
+
+// On delete item show info popup
+
+// quality edit button are too close making it hard to press number which triggers editing mode
 
 // Remove multiple items by selecting checkboxes?
 

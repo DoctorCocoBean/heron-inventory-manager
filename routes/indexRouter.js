@@ -36,12 +36,57 @@ indexRouter.get("/items", async (req, res) =>
 
     metaData.totalValue = convertNumToString(metaData.totalValue);
 
-    res.render("items", { title: "Inventory", items: items, metaData: metaData });
+    res.render("items", { items: items, metaData: metaData });
 });
 
 indexRouter.get("/dashboard", async (req, res) => 
 {
     res.render("dashboard", { });
+});
+
+
+indexRouter.get("/lowstock", async (req, res) => 
+{
+    console.log('loading low stock');
+    const allItems = await db.getAllItems();
+    var metaData = await db.calculateItemsMetaData();    
+    var lowItems = [];
+
+    // Calculate low stock here
+    for (i=0; i<allItems.length; i++)
+    {
+        if (allItems[i].quantity < allItems[i].minimumLevel) {
+            console.log(allItems[i].name);
+            lowItems.push(allItems[i]);
+        }
+    }
+
+    console.log(lowItems.length);
+    
+
+    // metaData.totalValue = convertNumToString(metaData.totalValue);
+
+    res.render("lowstock", { items: null });
+});
+
+indexRouter.get("/lowStockItems", async (req, res) => 
+{
+    console.log('loading low stock');
+    const allItems = await db.getAllItems();
+    var metaData = await db.calculateItemsMetaData();    
+    var lowItems = [];
+
+    // Calculate low stock here
+    for (i=0; i<allItems.length; i++)
+    {
+        if (Number(allItems[i].quantity) < Number(allItems[i].minimumLevel)) {
+            console.log(allItems[i].name, allItems[i].quantity, allItems[i].minimumLevel);
+            lowItems.push(allItems[i]);
+        }
+    }
+
+    console.log(lowItems.length);
+    res.send(lowItems);
 });
 
 indexRouter.get("/edit/:itemIndex", async (req, res) => 

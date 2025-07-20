@@ -6,73 +6,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <script content-type="application/javascript;charset=utf-8" src="https://cdn.jsdelivr.net/gh/Raghav-Uppala/Tag.js@main/tag.js"></script>
-  <!-- <script src="./tag.js"></script> -->
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <link rel="stylesheet" href="/stylesheets/InventoryStyle.css">
 </head>
 <body>
-  <style>
-    body {
-      max-width: 70vw;
-      margin: auto;
-    }
-    #container {
-      display:flex;
-    }
-    #wrapper {
-      margin-left:5vw;
-    }
+    <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Minimum Level</th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">1</th>
+        <td>
+          <div style="background-color: red; width: 20px; height: 20px; display: inline-block; "></div>
+          5
+          <div style="background-color: red; width: 20px; height: 20px; display: inline-block; "></div>
+        </td>
+        <td>Otto</td>
+        <td>@mdo</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>
+          <div style="background-color: white; width: 20px; height: 20px; display: inline-block; "></div>
+          5
+          <div style="background-color: red; width: 20px; height: 20px; display: none; "></div>
+        </td>
+        <td>Thornton</td>
+        <td>@fat</td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>5</td>
+        <td>the Bird</td>
+        <td>@twitter</td>
+      </tr>
+    </tbody>
+  </table>
 
-    .tag {
-      background-color: rgb(199, 199, 199);
-      padding-left: 0.1em;
-      padding-right: 0.1em;
-      margin-left: 0.3em;
-      margin-right: 0.3em;
-    }
-    .tag .tagDelButton {
-      color:rgb(102, 101, 101);
-    }
-    .tag .tagDelButton:hover {
-      cursor: pointer;
-      color: #111
-    }
-    #input [contentEditable]:focus {
-      outline:none;
-    }
-    #input {
-      border: 2px solid black;
-    }
-  </style>
-  <h1>
-    Test Tag.js
-  </h1>
-  <div id="container">
-  <div id="text">
-  <p>
-    This is a basic usecase for Tag.js. <br>
-    Type @ followed by any of the tags and press enter.<br>
-    Tags: tag1, tag2, tag3
-  </p>
-  </div>
-  <br>
-  <div id="wrapper">
-  <div id="result">
-    The result will be shown here, press enter to show
-  </div>
-  <div  id="input"></div>
-  </div>
-  </div>
-  <script>
-    let input = document.querySelector('#input')
-    let test = new tagJS(input, {
-      modifiers: ["@"],
-      whitelist: true,
-      repeatedTags: false,
-      acceptedTags: ["tag1", "tag2", "tag3"],
-      tagProperties: true,
-      tagPropertyDelim: ":",
-      tagDelButton:"&times",
-      onSubmit: function(obj) {document.querySelector("#result").innerText = obj.inputStr + " " + JSON.stringify(obj.tags)}
-    })
-  </script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="../scripts/inventoryManager.js"></script>
 </body>
 </html>

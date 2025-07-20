@@ -98,3 +98,15 @@
 .msgPopup-hide {
     opacity: 0;
 }
+
+.textBlockWithBGColor {
+
+    background-color: rgb(250, 81, 68);
+    color: white;
+    border-radius: 5px;
+    display: inline-block;
+    width: 60px;
+    height: 20px;
+    align-content: center;
+    text-align: center;
+}
