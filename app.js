@@ -1,15 +1,14 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Fixed: inline caclulation is broken
-// Low items report
+// Price is missing dollar sign
 // ---------------------------------------------
 
 // Be able to mark low stock item as ordered
 
-// Get most subtracted items
+// Activity Log
 
-// Price is missing dollar sign
+// Get most subtracted items
 
 // On low stock page, make search confined to lowstock items
 

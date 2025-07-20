@@ -719,7 +719,7 @@ function loadLowStockItemTable() {
             </thead>
         `;
             for (let i = 0; i < data.length; i++) {
-                tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+                tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
             }
             itemTable.innerHTML = tableHTML;
         });
@@ -757,42 +757,7 @@ function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value) 
                     <div>
                 </td>
                 <td class="minimumLevelRow">${minimumLevel}</td>
-                <td class="priceRow">${price}</td>
-                <td class="valueRow">$${value}</td>
-            </tr>
-    `;
-    return html;
-}
-function createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value) {
-    // If below stock level show red background div
-    let lowStockStyle = '';
-    if (Number(quantity) < Number(minimumLevel)) {
-        lowStockStyle = 'textBlockWithBGColor';
-    }
-    const html = `
-            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="openEditItemDialog(${itemId})" >
-                <td class="nameRow">${name}</td>
-                <td style="">
-                    <div class="container" onclick="startEditingQuantity(${itemId})" style="">
-
-                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
-                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
-                        </div>
-
-                        <div class="${lowStockStyle}">
-                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
-                            ${quantity}
-                            </div>
-                        </div>
-
-                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
-                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
-                    </div>
-
-                    <div>
-                </td>
-                <td class="minimumLevelRow">${minimumLevel}</td>
-                <td class="priceRow">${price}</td>
+                <td class="">$<p class="priceRow" style="display: inline-block">${price}</p></td>
                 <td class="valueRow">$${value}</td>
             </tr>
     `;
