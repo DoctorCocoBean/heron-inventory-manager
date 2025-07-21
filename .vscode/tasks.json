@@ -13,8 +13,8 @@
 		{
 			"label": "Build TypeScript Custom",
 			"type": "shell",
-			"command": "tsc.cmd --project tsconfig.json",
-			// "command": "npx swc 'E:/Coding Projects/NodeJS/InventoryApp/public/scripts/inventoryManager.ts' -o 'E:/Coding Projects/NodeJS/InventoryApp/public/scripts/inventoryManager.js'",
+			// "command": "tsc.cmd --project tsconfig.json",
+			"command": "npx swc 'E:/Coding Projects/NodeJS/InventoryApp/public/scripts/inventoryManager.ts' -o 'E:/Coding Projects/NodeJS/InventoryApp/public/scripts/inventoryManager.js'",
 			"presentation": {
 				"echo": true,
 				"reveal": "always",

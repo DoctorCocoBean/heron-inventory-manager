@@ -875,17 +875,87 @@ async function loadLowStockItemTable()
                 <td style="opacity: 50%; width: 15%;">Minimum Level</td>
                 <td style="opacity: 50%;">Price</td>
                 <td style="opacity: 50%;">Value</td>
+                <td style="opacity: 50%; width: 10%;">Stock Ordered</td>
             </thead>
         `
 
         for (let i=0; i<data.length; i++) 
         {
-            tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
+            tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
                                             data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
         }
 
         itemTable.innerHTML= tableHTML;
     });
+}
+
+function itemOrderedCheckboxClicked(itemId: number) 
+{
+    const tableRow = document.getElementById(`tableRow_${itemId}`);
+    const checkbox = tableRow.getElementsByClassName('orderedCheckbox')[0];
+
+    if (checkbox.checked) {
+        tableRow.classList.remove('table-active');
+    } else {
+        tableRow.classList.add('table-active');
+    }
+
+    checkbox.checked = !checkbox.checked;
+}
+
+function createLowStockTableRowHTML(itemId: number, name: string, quantity: number, minimumLevel: number, price: number, value: number): string
+{
+    // If below stock level show red background div
+    let lowStockStyle = 'display: inline; background-color: green';
+    let btnSize = '25px';
+    let isLowStock = false;
+    if (Number(quantity) < Number(minimumLevel))
+    {
+        isLowStock = true;
+        lowStockStyle = 'class="quantityDiv textBlockWithBGColor"';
+    }
+    else 
+    {
+        lowStockStyle = 'class="quantityDiv textBlockNoBGColor"';
+    }
+
+    const html = `
+            <tr class="" style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="itemOrderedCheckboxClicked(${itemId})" >
+                <td class="nameRow">${name}</td>
+                <td style="">
+                    <div class="container" onclick="startEditingQuantity(${itemId})" style="">
+
+                        <div style="background-color: transparent; display: inline-block; width: ${btnSize}; height: ${btnSize}">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
+                        </div>
+
+                        <div ${lowStockStyle}>
+                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                            ${quantity}
+                            </div>
+                        </div>
+
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
+                    </div>
+
+                    <div>
+                </td>
+                <td class="minimumLevelRow">${minimumLevel}</td>
+
+                <td>
+                $<p class="priceRow" style="display: inline-block">${price}</p>
+                </td>
+
+                <td class="valueRow">$${value}</td>
+
+                <td class="checkBoxRow" style="background-color: none; padding-left: 40px;">
+                    <input type="checkbox" class="orderedCheckbox" value="Stock Ordered" onclick="itemOrderedCheckboxClick(${itemId})"></input>
+                </td>
+            </tr>
+    `
+
+    return html;
 }
 
 function createTableRowHTML(itemId: number, name: string, quantity: number, minimumLevel: number, price: number, value: number): string
@@ -897,8 +967,8 @@ function createTableRowHTML(itemId: number, name: string, quantity: number, mini
 
     if (Number(quantity) < Number(minimumLevel))
     {
-        lowStockStyle = 'class="quantityDiv textBlockWithBGColor"';
         isLowStock = true;
+        lowStockStyle = 'class="quantityDiv textBlockWithBGColor"';
     }
     else 
     {

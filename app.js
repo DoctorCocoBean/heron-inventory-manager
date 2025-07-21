@@ -1,10 +1,11 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Separate transaction page and activity page
-// Add item title to transaction log
-// Activity Log
+// Fixed: inline input calculator broken when inputing signle number
+// Fixed: alignment of out of stock div when mousing over
 // ---------------------------------------------
+
+// Fix: inline calculating 0+15 is broken
 
 // Be able to mark low stock item as ordered
 
