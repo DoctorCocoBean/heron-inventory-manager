@@ -110,3 +110,10 @@
     align-content: center;
     text-align: center;
 }
+
+.textBlockNoBGColor {
+    display: inline;
+    align-content: center;
+    text-align: center;
+    padding-left: 10px;
+}

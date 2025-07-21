@@ -1,18 +1,12 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Price is missing dollar sign
+// Separate transaction page and activity page
+// Add item title to transaction log
+// Activity Log
 // ---------------------------------------------
 
-// Separate transaction page and activity page
-
-// Add item title to transaction log
-
 // Be able to mark low stock item as ordered
-
-// Activity Log
-
-// Get most subtracted items
 
 // On low stock page, make search confined to lowstock items
 
@@ -38,6 +32,7 @@
 // Editing item Finish creating the form to edit items
 // Need to render table from server on first load index is SolidJS
 // Reload table with SolidJS
+// Get most subtracted items
 
 const express = require('express');
 const path    = require("node:path");

@@ -177,6 +177,17 @@ function calculateInputField(inputData: string): number
         element += inputData[i];
     }
 
+    // If no equation just output the number
+    if (op == Operation.NONE && nextOp == Operation.NONE)
+    {
+        if (isNaN(Number(inputData))) {
+            result = null;
+        } else {
+            result = Number(inputData);
+            return result;
+        }
+    }
+
     // Done parsing so check to see if there's one more number to add to caclulation
     if (result && element != '') {
         result = calculate(result, Number(element), op);
@@ -611,21 +622,35 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
     }, 500);
 }
 
-function showQualityAdjustmentButtons(itemId)
+function onMouseOverRow(itemId: number, isLowStock: boolean)
 {
     const tableRow = document.getElementById(`tableRow_${itemId}`);
     const buttons = tableRow.getElementsByTagName('button');
+    const lowStockDiv = tableRow.getElementsByClassName('quantityDiv')[0];
     
+    if (isLowStock)
+    {
+        lowStockDiv.classList.remove('textBlockWithBGColor');
+        lowStockDiv.classList.add('textBlockNoBGColor');
+    }
+
     for (let i=0; i<buttons.length; i++) {
         buttons[i].style.display = 'inline-block';
     }
 }
 
-function hideQualityAdjustmentButtons(itemId) 
+function onMouseLeaveRow(itemId: number, isLowStock: boolean)
 {
     const tableRow = document.getElementById(`tableRow_${itemId}`);
     const buttons = tableRow.getElementsByTagName('button');
+    const lowStockDiv = tableRow.getElementsByClassName('quantityDiv')[0];
     
+    if (isLowStock)
+    {
+        lowStockDiv.classList.add('textBlockWithBGColor');
+        lowStockDiv.classList.remove('textBlockNoBGColor');
+    }
+
     for (let i=0; i<buttons.length; i++) {
         buttons[i].style.display = 'none';
     }
@@ -636,8 +661,6 @@ async function onRowLoseFocus(itemId)
     if (isEditingRow == false) {
         return;
     }
-    console.log('lose focus');
-    
 
     const item         = await getItemById(itemId);
     const tableRow     = document.getElementById(`tableRow_${itemId}`);
@@ -726,6 +749,8 @@ async function changeRowStateToEditQuantity(itemId)
             const result = calculateInputField(input.value);
             isEditingRow = false; 
 
+            console.log(result);
+            
             if (result == null)
                 input.value = initialValue; 
             else
@@ -739,7 +764,6 @@ async function changeRowStateToEditQuantity(itemId)
                   item.minimumLevel = Number(tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML);
                   item.price        = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
                   item.value        = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
-
 
             updateItem(item);
 
@@ -806,13 +830,13 @@ async function loadItemTable()
     {
         var tableHTML = `
             <thead>
-                <td style="opacity: 50%;">Name</td>
-                <td style="opacity: 50%; margin-left: 20px; padding: 20px">
+                <td style="opacity: 50%; width: 25%">Name</td>
+                <td style="opacity: 50%; width: 25%; margin-left: 20px; padding: 20px">
                 <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
                 Quantity
                 </td>
                 <td style="opacity: 50%;">Minimum Level</td>
-                <td style="opacity: 50%;">Price</td>
+                <td style="opacity: 50%; width: 15%">Price</td>
                 <td style="opacity: 50%;">Value</td>
             </thead>
         `
@@ -858,7 +882,6 @@ async function loadLowStockItemTable()
         {
             tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
                                             data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
-
         }
 
         itemTable.innerHTML= tableHTML;
@@ -869,22 +892,27 @@ function createTableRowHTML(itemId: number, name: string, quantity: number, mini
 {
     // If below stock level show red background div
     let lowStockStyle = 'display: inline; background-color: green';
+    let btnSize = '25px';
+    let isLowStock = false;
+
     if (Number(quantity) < Number(minimumLevel))
     {
-        lowStockStyle = 'class="textBlockWithBGColor"';
+        lowStockStyle = 'class="quantityDiv textBlockWithBGColor"';
+        isLowStock = true;
     }
     else 
     {
-        lowStockStyle = 'style="display: inline-block"';
+        lowStockStyle = 'class="quantityDiv textBlockNoBGColor"';
     }
 
     const html = `
-            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="showQualityAdjustmentButtons(${itemId})" onmouseleave="hideQualityAdjustmentButtons(${itemId})" onclick="openEditItemDialog(${itemId})" >
+    
+            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="openEditItemDialog(${itemId})" >
                 <td class="nameRow">${name}</td>
                 <td style="">
                     <div class="container" onclick="startEditingQuantity(${itemId})" style="">
 
-                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <div style="background-color: transparent; display: inline-block; width: ${btnSize}; height: ${btnSize}">
                         <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
                         </div>
 
