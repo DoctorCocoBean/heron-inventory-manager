@@ -20,6 +20,13 @@ class Item
     notes       : string = '';
 }
 
+class QuanityChangeSummary
+{
+    name : string = '';
+    totalSubtactions: number = 0;
+    totalAdditions: number = 0;
+}
+
 enum LogType 
 {
     QUANTITY = 1,
@@ -208,7 +215,6 @@ async function openEditItemDialog(itemId: number): Promise<void>
 
         $('#editItemModal').modal()
 
-        // const popup = document.getElementById('editItemModal');
         editItemDialog.innerHTML = `
             <div class="modal-dialog">
 
@@ -987,25 +993,129 @@ async function uploadCSV()
     loadItemTable();
 }
 
-async function logActivity(type: LogType, itemId: string, oldValue: string, newValue: string)
+async function loadTransactionLog()
 {
-    try 
-    {
-        const request = new Request("/logActivity", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                type: type,
-                itemId: itemId,
-                oldValue: oldValue,
-                newValue: newValue
-            }),
-        })
+    const request = new Request(`/getActivityLog`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+    })
 
-        const response = await fetch(request);
-    } 
-    catch (error) 
+    const response = await fetch(request);
+    const data = response.json().then((data) => 
     {
-        console.log("error: ", error);
-    }
+        console.log(data);
+        
+        var tableHTML = `
+            <thead>
+                <td style="opacity: 50%;">Name</td>
+                <td style="opacity: 50%;">Total Additions</td>
+                <td style="opacity: 50%;">Total Subtractions</td>
+            </thead>
+        `
+
+        let oldValue = 0;
+        let newValue = 0;
+        let transaction = 0;
+        let quantityChangeSummaries: Array<QuanityChangeSummary> = [];
+
+        for (let i=0; i<data.length; i++) 
+        {
+            oldValue = Number(data[i]['oldValue']);
+            newValue = Number(data[i]['newValue']);
+            transaction = oldValue - newValue;
+
+            let alreadyAdded = false;
+            for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+            {
+                if (quantityChangeSummaries[j].name == data[i]['itemName'])
+                {
+                    if (transaction > 0) {
+                        quantityChangeSummaries[j].totalAdditions += transaction;
+                    }
+                    if (transaction < 0) {
+                        quantityChangeSummaries[j].totalSubtactions += transaction;
+                    }
+                    alreadyAdded = true;
+                }
+            }
+
+            // Add if not already added to list
+            if (!alreadyAdded) 
+            {
+                let t = new QuanityChangeSummary();
+                t.name = data[i]['itemName'];
+
+                if (transaction > 0) {
+                    t.totalAdditions += transaction;
+                }
+                if (transaction < 0) {
+                    t.totalSubtactions += Math.abs(transaction);
+                    console.log(t.name, t.totalSubtactions);
+                    
+                }
+                quantityChangeSummaries.push(t);
+            }
+
+        }
+
+        // Add merged quantity change summaries
+        for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+        {
+            const html = `
+                    <tr style="vertical-align: middle" id="tableRow_">
+
+                        <td class="typeRow">${quantityChangeSummaries[j].name}</td>
+
+                        <td style=""> ${quantityChangeSummaries[j].totalAdditions}</td>
+
+                        <td style=""> ${quantityChangeSummaries[j].totalSubtactions}</td>
+
+                    </tr>
+            `
+            tableHTML += html;
+
+            itemTable.innerHTML= tableHTML;
+        }
+    });
+}
+
+async function loadActivityLog()
+{
+    const request = new Request(`/getActivityLog`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    const response = await fetch(request);
+    const data = response.json().then((data) => 
+    {
+        console.log(data);
+        
+        var tableHTML = `
+            <thead>
+                <td style="opacity: 50%; width: 30%;">Name</td>
+                <td style="opacity: 50%; width: 15%;">Type</td>
+                <td style="opacity: 50%; width: 20%;">Activity</td>
+                <td style="opacity: 50%;">Time</td>
+                <td style="opacity: 50%;">Date</td>
+            </thead>
+        `
+
+        for (let i=0; i<data.length; i++) 
+        {
+            const quantityChange = Number(data[i]['oldValue']) - Number(data[i]['newValue']);
+            const html = `
+                    <tr style="vertical-align: middle" id="tableRow_">
+                        <td class="typeRow">${data[i]['itemName']}</td>
+                        <td class="typeRow">${data[i]['type']}</td>
+                        <td> Quanity change:   ${quantityChange} </td>
+                        <td> ${data[i]['time']} </td>
+                        <td> ${data[i]['date']} </td>
+                    </tr>
+            `
+            tableHTML += html;
+        }
+
+        itemTable.innerHTML= tableHTML;
+    });
 }

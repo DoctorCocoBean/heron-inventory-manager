@@ -18,6 +18,8 @@
     "solid-js": "^1.9.7"
   },
   "devDependencies": {
+    "@swc/cli": "^0.7.8",
+    "@swc/core": "^1.13.1",
     "@types/jquery": "^3.5.32"
   }
 }

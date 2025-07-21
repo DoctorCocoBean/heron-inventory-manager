@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name=""viewport" content="width=device-width, initial-scale=1">
+        <title>Low Stock</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/InventoryStyle.css">
+
+    </head>
+    <style>
+        .scrollable {
+            height: 80vh;
+            overflow:scroll;
+            overflow-x: hidden;
+        }
+    </style>
+    <body>
+
+    <!-- Popup -->
+    <div id='msgPopup' class="msgPopup">
+        Default
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="editItemModal" role="dialog">
+        <div class="modal-dialog">
+            Default
+        </div>
+    </div>
+
+
+    <div class="container-fluid min-vh-100 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
+        <div class="row flex-fill">
+
+            <!-- Side bar -->
+            <%- include('sideBar'); %>
+        
+            <!-- content -->
+            <main class="col overflow-auto min-vh-100 p-0">
+                <div class="bg-light rounded-3 p-3" style="height: 300px">
+
+                    <div class="d-flex justify-content-between">
+
+                    <div class="">
+                        <h3 style="opacity: 20%;">Activity Log</h3>
+                    </div>
+
+                    <div class="m-1">
+                        <button onclick="openNewItemDialog()" class="btn btn-primary inventoryBtn" >Add Item</button>
+                        <button class="btn btn-primary inventoryBtn" id="readCVSButton" onclick="showUploadDialog()">Upload</button>
+                        <button class="btn btn-primary inventoryBtn" id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
+                    </div>
+                    </div>
+
+                    <hr style="opacity: 10%;">
+
+                    <div class="m-1">
+                        <input type="text" placeholder="search" id="searchBar" class="searchBar" style="width: 300px"></input>
+                    </div>
+
+                    <div class="scrollable" >
+                        <table class="table table-hover  itemsTable" style=""; id="itemTable">
+                        </table>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="../scripts/inventoryManager.js"></script>
+    </body>
+
+    <script>
+        // Keyboard events
+        searchBar.addEventListener("keypress", function(event) {
+            if (event.key == "Enter") {
+                event.preventDefault();
+                searchForItem(searchBar.value)
+            }
+        });
+
+        $(document).keyup(function(e) 
+        {
+            if (e.key === "Escape") { // escape key maps to keycode `27`
+                $('#editItemModal').modal('hide');
+            }
+
+            if (e.key === "/") {
+                searchBar.focus();
+            }
+        });
+
+       loadActivityLog();        
+    </script>
+</html>

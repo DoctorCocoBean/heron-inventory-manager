@@ -44,7 +44,6 @@ indexRouter.get("/dashboard", async (req, res) =>
     res.render("dashboard", { });
 });
 
-
 indexRouter.get("/lowstock", async (req, res) => 
 {
     console.log('loading low stock');
@@ -61,12 +60,17 @@ indexRouter.get("/lowstock", async (req, res) =>
         }
     }
 
-    console.log(lowItems.length);
-    
-
-    // metaData.totalValue = convertNumToString(metaData.totalValue);
-
     res.render("lowstock", { items: null });
+});
+
+indexRouter.get("/activityLog", async (req, res) => 
+{
+    res.render("activityLog", { });
+});
+
+indexRouter.get("/transactionReport", async (req, res) => 
+{
+    res.render("transactionReport", { });
 });
 
 indexRouter.get("/lowStockItems", async (req, res) => 
@@ -133,7 +137,9 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
     const oldItem = await db.getItemById(req.params.itemIndex);
 
     if (oldItem[0].quantity != req.body.itemQuantity) {
-        await db.logActivity('quantity', String(itemIndex), String(oldItem[0].quantity), String(req.body.itemQuantity));
+        console.log('name is ', oldItem[0].name);
+        
+        await db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
     }
 
     await db.updateItem(itemIndex,
@@ -240,6 +246,13 @@ indexRouter.post('/logActivity', async (req, res) =>
     
     await db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
     res.redirect("/");
+});
+
+indexRouter.get('/getActivityLog', async (req, res) =>
+{
+	console.log('get log');
+    const rows = await db.getActivityLog();
+    res.send(rows)
 });
 
 module.exports = indexRouter

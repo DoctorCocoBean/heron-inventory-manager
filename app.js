@@ -4,6 +4,10 @@
 // Price is missing dollar sign
 // ---------------------------------------------
 
+// Separate transaction page and activity page
+
+// Add item title to transaction log
+
 // Be able to mark low stock item as ordered
 
 // Activity Log

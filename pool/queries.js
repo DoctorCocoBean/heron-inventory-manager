@@ -192,18 +192,27 @@ async function calculateItemsMetaData()
     return metaData;
 }
 
-async function logActivity(type, itemId, oldValue, newValue)
+async function logActivity(type, itemId, itemName, oldValue, newValue)
 {
     const now = new Date();
     const time = now.toTimeString();
     const date = now.toDateString();
 
+    console.log('logging item name', itemName);
+    
+
     const SQL = `
-        INSERT INTO "activity-log" (type, "itemId", "oldValue", "newValue", "time", "date")
-        VALUES ('${type}', '${itemId}', '${oldValue}', '${newValue}', '${time}', '${date}');
+        INSERT INTO "activity-log" (type, "itemId", "itemName", "oldValue", "newValue", "time", "date")
+        VALUES ('${type}', '${itemId}', '${itemName}', '${oldValue}', '${newValue}', '${time}', '${date}');
    `;
 
     await pool.query(SQL);
+}
+
+async function getActivityLog()
+{
+    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY id`);
+    return rows;
 }
 
 module.exports = {
@@ -215,5 +224,6 @@ module.exports = {
     deleteAllItems,
     deleteItem,
     calculateItemsMetaData,
-    logActivity
+    logActivity,
+    getActivityLog
 };
