@@ -353,6 +353,8 @@ function addItem() {
 }
 function deleteItem(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
+        const item = yield getItemById(itemId);
+        const name = item[0].name;
         const request = new Request(`/deleteItem`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
@@ -367,6 +369,8 @@ function deleteItem(itemId) {
         }
         $('#editItemModal').modal('hide');
         loadItemTable();
+        const msg = 'Item: ' + name + ' deleted.';
+        showPopup(msg);
     });
 }
 function deleteAllItems() {
@@ -392,6 +396,19 @@ function getItemById(itemId) {
             return data;
         });
         return data;
+    });
+}
+function getItemNameById(itemId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/getItemById/${itemId}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const response = yield fetch(request);
+        const data = yield response.json().then((data) => {
+            return data;
+        });
+        return data.name;
     });
 }
 function updateItem(itemData) {

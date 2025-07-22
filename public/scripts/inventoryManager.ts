@@ -399,6 +399,9 @@ async function addItem()
 
 async function deleteItem(itemId: number)
 {
+    const item = await getItemById(itemId);
+    const name = item[0].name;
+
     const request = new Request(`/deleteItem`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
@@ -416,6 +419,9 @@ async function deleteItem(itemId: number)
 
     $('#editItemModal').modal('hide');
     loadItemTable();
+
+    const msg = 'Item: ' + name + ' deleted.'
+    showPopup(msg);
 }
 
 async function deleteAllItems()
@@ -445,6 +451,22 @@ async function getItemById(itemId)
     });
 
     return data;
+}
+
+async function getItemNameById(itemId)
+{
+    const request = new Request(`/getItemById/${itemId}`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    const response = await fetch(request);
+    const data = await response.json().then((data) => 
+    {
+        return data;
+    });
+
+    return data.name;
 }
 
 async function updateItem(itemData: Item)

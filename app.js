@@ -4,7 +4,9 @@
 
 // ---------------------------------------------
 
-// On low stock page, make search confined to lowstock items
+// Sort transaction log by most changed
+
+// Sort activty log by most recent
 
 // When you click edit quantity on low stock page and then click away row html breaks
 
