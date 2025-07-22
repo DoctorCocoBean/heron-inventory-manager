@@ -108,6 +108,21 @@ indexRouter.get("/getItemById/:itemId", async (req, res) =>
     }
 });
 
+indexRouter.get("/searchLowStock/:itemName", async (req, res) => 
+{
+    var nameToSearch = req.params.itemName;
+    var items;
+
+    if (nameToSearch == "all") {
+        items = await db.getAllLowStockItems();
+    }
+    else {
+        items = await db.searchForLowStockItem(req.params.itemName);
+    }
+
+    res.send(items);
+});
+
 indexRouter.get("/search/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;

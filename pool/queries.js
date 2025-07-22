@@ -6,6 +6,22 @@ async function getAllItems() {
     return rows;
 }
 
+async function getAllLowStockItems() 
+{
+    const { rows } = await pool.query("SELECT * FROM items ORDER BY id");
+
+    let lowStockItems = [];
+    for (let i=0; i<rows.length; i++)
+    {
+        if (Number(rows[i].quantity) < Number(rows[i].minimumLevel))
+        {
+            lowStockItems.push(rows[i]);
+        }
+    }
+
+    return lowStockItems;
+}
+
 async function getItemById(id) {
     const { rows } = await pool.query(`SELECT * FROM items WHERE "id" = ${id}`);
     return rows;
@@ -139,7 +155,6 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
 
 async function searchForItem(name) 
 {
-
     console.log("Server searching for item:", name);
     
     if (!name) {
@@ -162,6 +177,42 @@ async function searchForItem(name)
 
     const { rows } = await pool.query(SQL);
     return rows;
+}
+
+async function searchForLowStockItem(name) 
+{
+    console.log("Server searching for item:", name);
+    
+    if (!name) {
+        name = "null";
+        return;
+    }
+    else
+    { 
+        if (name.includes('\''))
+        {
+            name = sanitizeApostrophe(name);
+        }
+    }
+
+    const SQL = `
+            SELECT * FROM items
+            WHERE LOWER(name) LIKE '%${name}%'
+            ORDER BY name;
+        `;
+
+    const { rows } = await pool.query(SQL);
+    let lowStockItems = [];
+
+    for (let i=0; i<rows.length; i++)
+    {
+        if (Number(rows[i].quantity) < Number(rows[i].minimumLevel))
+        {
+            lowStockItems.push(rows[i]);
+        }
+    }
+
+    return lowStockItems;
 }
 
 async function deleteAllItems()
@@ -235,10 +286,12 @@ async function getActivityLog()
 
 module.exports = {
     getAllItems, 
+    getAllLowStockItems,
     addItem,
     updateItem,
     updateItemOrderedStatus,
     searchForItem,
+    searchForLowStockItem,
     getItemById,
     deleteAllItems,
     deleteItem,

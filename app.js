@@ -1,17 +1,14 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Fixed: inline input calculator broken when inputing signle number
-// Fixed: alignment of out of stock div when mousing over
-// Fix: inline calculating 0+15 is broken
-// Be able to mark low stock item as ordered
+
 // ---------------------------------------------
 
 // On low stock page, make search confined to lowstock items
 
-// On delete item show info popup
+// When you click edit quantity on low stock page and then click away row html breaks
 
-// quality edit button are too close making it hard to press number which triggers editing mode
+// On delete item show info popup
 
 // Remove multiple items by selecting checkboxes?
 
@@ -27,6 +24,7 @@
 
 // ---------- Later ----------------- 
 
+// Create icons for different pages
 // Ctrl z undo, delete, quantity
 // Editing item Finish creating the form to edit items
 // Need to render table from server on first load index is SolidJS

@@ -788,6 +788,40 @@ async function changeRowStateToEditQuantity(itemId)
     textInput.setSelectionRange(textLength, textLength);
 }
 
+async function searchForLowStockItem(name: string) 
+{
+    if (name == "") {
+        name = "all";
+    }
+
+    const request = new Request(`/searchLowStock/${name}`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    const response = await fetch(request);
+    const data = response.json().then((data) => {
+        console.log(data);
+
+        var tableHTML = `
+            <thead>
+                <td>Name</td>
+                <td>Quantity</td>
+                <td>Minimum Level</td>
+                <td>Price</td>
+            </thead>
+        `
+
+        for (let i=0; i<data.length; i++) 
+        {
+            tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
+                                            data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+        }
+
+        itemTable.innerHTML= tableHTML;
+    });
+}
+
 async function searchForItem(name: string) 
 {
     if (name == "") {
