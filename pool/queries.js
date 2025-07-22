@@ -98,22 +98,40 @@ async function deleteItem(itemId)
     await pool.query(SQL);
 }
 
+async function updateItemOrderedStatus(itemId, stockOrdered)
+{
+    try 
+    {
+        const SQL = `
+            UPDATE items
+            SET "stockOrdered" = ${stockOrdered} 
+            WHERE id = ${ itemId };
+        `;
+
+        await pool.query(SQL);
+    }
+    catch (error) {
+        console.log('Error trying to update stock ordered status: ', error);
+    }
+}
+
 async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
-                          itemNotes, itemTags)
+                          itemNotes, itemTags, stockOrdered)
 {
     console.log("updating... item:" + itemIndex + " " + itemValue);
 
     const SQL = `
-    UPDATE items
-    SET name           = '${ name }', 
-    quantity           = '${ itemQuantity }',
-    "minimumLevel"     = '${ itemMinQuantity }',
-    "price"            = '${ itemPrice }',
-    "value"            = '${ itemValue }',
-    "barcode"          = '${ itemBarcode }',
-    "notes"            = '${ itemNotes }',
-    "tags"             = '${ itemTags }'
-    WHERE id = ${ itemIndex };
+        UPDATE items
+        SET name           = '${ name }', 
+        quantity           = '${ itemQuantity }',
+        "minimumLevel"     = '${ itemMinQuantity }',
+        "price"            = '${ itemPrice }',
+        "value"            = '${ itemValue }',
+        "barcode"          = '${ itemBarcode }',
+        "notes"            = '${ itemNotes }',
+        "tags"             = '${ itemTags }',
+        "stockOrdered"     =  ${stockOrdered}
+        WHERE id = ${ itemIndex };
    `;
 
    await pool.query(SQL);
@@ -219,6 +237,7 @@ module.exports = {
     getAllItems, 
     addItem,
     updateItem,
+    updateItemOrderedStatus,
     searchForItem,
     getItemById,
     deleteAllItems,

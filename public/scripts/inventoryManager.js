@@ -1,671 +1,507 @@
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-        var info = gen[key](arg);
-        var value = info.value;
-    } catch (error) {
-        reject(error);
-        return;
-    }
-    if (info.done) {
-        resolve(value);
-    } else {
-        Promise.resolve(value).then(_next, _throw);
-    }
-}
-function _async_to_generator(fn) {
-    return function() {
-        var self = this, args = arguments;
-        return new Promise(function(resolve, reject) {
-            var gen = fn.apply(self, args);
-            function _next(value) {
-                asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-            }
-            function _throw(err) {
-                asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-            }
-            _next(undefined);
-        });
-    };
-}
-function _class_call_check(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
-function _define_property(obj, key, value) {
-    if (key in obj) {
-        Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-        });
-    } else {
-        obj[key] = value;
-    }
-    return obj;
-}
-function _ts_generator(thisArg, body) {
-    var f, y, t, _ = {
-        label: 0,
-        sent: function() {
-            if (t[0] & 1) throw t[1];
-            return t[1];
-        },
-        trys: [],
-        ops: []
-    }, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
-        return this;
-    }), g;
-    function verb(n) {
-        return function(v) {
-            return step([
-                n,
-                v
-            ]);
-        };
-    }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while(g && (g = 0, op[0] && (_ = 0)), _)try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [
-                op[0] & 2,
-                t.value
-            ];
-            switch(op[0]){
-                case 0:
-                case 1:
-                    t = op;
-                    break;
-                case 4:
-                    _.label++;
-                    return {
-                        value: op[1],
-                        done: false
-                    };
-                case 5:
-                    _.label++;
-                    y = op[1];
-                    op = [
-                        0
-                    ];
-                    continue;
-                case 7:
-                    op = _.ops.pop();
-                    _.trys.pop();
-                    continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                        _ = 0;
-                        continue;
-                    }
-                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-                        _.label = op[1];
-                        break;
-                    }
-                    if (op[0] === 6 && _.label < t[1]) {
-                        _.label = t[1];
-                        t = op;
-                        break;
-                    }
-                    if (t && _.label < t[2]) {
-                        _.label = t[2];
-                        _.ops.push(op);
-                        break;
-                    }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop();
-                    continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) {
-            op = [
-                6,
-                e
-            ];
-            y = 0;
-        } finally{
-            f = t = 0;
-        }
-        if (op[0] & 5) throw op[1];
-        return {
-            value: op[0] ? op[1] : void 0,
-            done: true
-        };
-    }
-}
-var QuantityChangeTimer = function QuantityChangeTimer() {
-    "use strict";
-    _class_call_check(this, QuantityChangeTimer);
-    _define_property(this, "id", -1);
-    _define_property(this, "itemId", -1);
-    _define_property(this, "started", false);
-    _define_property(this, "finalQuantity", 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-var Item = function Item() {
-    "use strict";
-    _class_call_check(this, Item);
-    _define_property(this, "name", '');
-    _define_property(this, "itemId", -1);
-    _define_property(this, "quantity", 0);
-    _define_property(this, "minimumLevel", 0);
-    _define_property(this, "price", 0);
-    _define_property(this, "value", 0);
-    _define_property(this, "barcode", 0);
-    _define_property(this, "tags", '');
-    _define_property(this, "notes", '');
-};
-var QuanityChangeSummary = function QuanityChangeSummary() {
-    "use strict";
-    _class_call_check(this, QuanityChangeSummary);
-    _define_property(this, "name", '');
-    _define_property(this, "totalSubtactions", 0);
-    _define_property(this, "totalAdditions", 0);
-};
-var LogType = /*#__PURE__*/ function(LogType) {
+class QuantityChangeTimer {
+    constructor() {
+        this.id = -1;
+        this.itemId = -1;
+        this.started = false;
+        this.finalQuantity = 0;
+    }
+}
+;
+class Item {
+    constructor() {
+        this.name = '';
+        this.itemId = -1;
+        this.quantity = 0;
+        this.minimumLevel = 0;
+        this.price = 0;
+        this.value = 0;
+        this.barcode = 0;
+        this.tags = '';
+        this.notes = '';
+        this.stockOrdered = false;
+    }
+}
+class QuanityChangeSummary {
+    constructor() {
+        this.name = '';
+        this.totalSubtactions = 0;
+        this.totalAdditions = 0;
+    }
+}
+var LogType;
+(function (LogType) {
     LogType[LogType["QUANTITY"] = 1] = "QUANTITY";
-    return LogType;
-}(LogType || {});
+})(LogType || (LogType = {}));
 // --- GLOBALS -----
 var isEditingRow = false;
 var searchBar = document.getElementById("searchBar");
-var itemTable = document.getElementById("itemTable");
-var popup = document.getElementById("editItemModal");
-var editItemDialog = document.getElementById("editItemModal");
+const itemTable = document.getElementById("itemTable");
+const popup = document.getElementById("editItemModal");
+const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 function showPopup(msg) {
-    var popup = document.getElementById('msgPopup');
+    const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
     popup.classList.remove('msgPopup-hide');
     popup.style.display = 'block';
-    setTimeout(function() {
+    setTimeout(() => {
         popup.classList.add('msgPopup-hide');
     }, 1500);
 }
 function openNewItemDialog() {
-    var popup = document.getElementById('editItemModal');
+    const popup = document.getElementById('editItemModal');
     $('#editItemModal').modal();
-    popup.innerHTML = '\n        <div class="modal-dialog">\n\n        <!-- Modal content-->\n        <div class="modal-content">\n            <div class="modal-header">\n            <h4 class="modal-title">Edit Item</h4>\n            </div>\n            <div class="modal-body">\n\n                <div class="container">\n                <div class="row">\n                    <div class="col-md p-3" style="line-height: 1.8">\n                    Name: <br>\n                    Quantity: <br>\n                    Minimum Level: <br>\n                    Price: <br>\n                    Value: <br>\n                    Barcode: <br>\n                    </div>\n                    <div class="col-sm">\n                        <input type="text" id="nameInput" ></input> <br>\n                        <input type="text" id="quantityInput"  ></input> <br>\n                        <input type="text" id="minQuantityInput" ></input> <br>\n                        <input type="text" id="priceInput" ></input> <br>\n                        <input type="text" id="valueInput" ></input> <br>\n                        <input type="text" id="barcodeInput" ></input> <br>\n                        <input type="text" id="notesInput" ></input> <br>\n                        <input type="text" id="tagsInput" ></input> <br>\n                    </div>\n                </div>\n            </div>\n            <div class="modal-footer">\n            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n            <button type="button" class="btn btn-default" onclick="addItem()">Save</button>\n\n            </div>\n        </div>\n        \n        </div>\n    ';
+    popup.innerHTML = `
+        <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Edit Item</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="container">
+                <div class="row">
+                    <div class="col-md p-3" style="line-height: 1.8">
+                    Name: <br>
+                    Quantity: <br>
+                    Minimum Level: <br>
+                    Price: <br>
+                    Value: <br>
+                    Barcode: <br>
+                    </div>
+                    <div class="col-sm">
+                        <input type="text" id="nameInput" ></input> <br>
+                        <input type="text" id="quantityInput"  ></input> <br>
+                        <input type="text" id="minQuantityInput" ></input> <br>
+                        <input type="text" id="priceInput" ></input> <br>
+                        <input type="text" id="valueInput" ></input> <br>
+                        <input type="text" id="barcodeInput" ></input> <br>
+                        <input type="text" id="notesInput" ></input> <br>
+                        <input type="text" id="tagsInput" ></input> <br>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default" onclick="addItem()">Save</button>
+
+            </div>
+        </div>
+        
+        </div>
+    `;
 }
-var Operation = /*#__PURE__*/ function(Operation) {
+var Operation;
+(function (Operation) {
     Operation[Operation["NONE"] = 0] = "NONE";
     Operation[Operation["ADD"] = 1] = "ADD";
     Operation[Operation["SUBTRACT"] = 2] = "SUBTRACT";
-    return Operation;
-}(Operation || {});
+})(Operation || (Operation = {}));
 function calculate(numA, numB, op) {
-    if (op == 2) {
+    if (op == Operation.SUBTRACT) {
         return numA - numB;
-    } else if (op == 1) {
+    }
+    else if (op == Operation.ADD) {
         return numA + numB;
-    } else {
+    }
+    else {
         return null;
     }
 }
 function calculateInputField(inputData) {
     // If contains subtraction symbol do substration
     var initialInputData = inputData;
-    var op = 0;
-    var nextOp = 0;
+    var op = Operation.NONE;
+    var nextOp = Operation.NONE;
     var element = '';
     var result = null;
     // Parse text input string
-    for(var i = 0; i < inputData.length; i++){
-        if (isNaN(Number(inputData[i]))) {
+    for (let i = 0; i < inputData.length; i++) {
+        if (isNaN(Number(inputData[i]))) // Check for operation symbol or non number
+         {
             if (inputData[i] == '-') {
-                if (op == 0) op = 2;
-                else nextOp = 2;
-            } else if (inputData[i] == '+') {
-                if (op == 0) op = 1;
-                else nextOp = 1;
-            } else {
+                if (op == Operation.NONE)
+                    op = Operation.SUBTRACT;
+                else
+                    nextOp = Operation.SUBTRACT;
+            }
+            else if (inputData[i] == '+') {
+                if (op == Operation.NONE)
+                    op = Operation.ADD;
+                else
+                    nextOp = Operation.ADD;
+            }
+            else // Error
+             {
                 console.log('Error: text input contains invalid input');
                 showPopup('Error: text input contains invalid input');
                 return null;
             }
-            if (result == null) {
+            if (result == null) // Check if two numbers can be calcuated together
+             {
                 result = Number(element);
                 element = '';
-            } else {
+            }
+            else {
                 result = calculate(result, Number(element), op);
                 element = '';
                 op = nextOp;
-                nextOp = 0;
+                nextOp = Operation.NONE;
             }
             continue;
         }
         element += inputData[i];
     }
     // If no equation just output the number
-    if (op == 0 && nextOp == 0) {
+    if (op == Operation.NONE && nextOp == Operation.NONE) {
         if (isNaN(Number(inputData))) {
             result = null;
-        } else {
+        }
+        else {
             result = Number(inputData);
             return result;
         }
     }
     // Done parsing so check to see if there's one more number to add to caclulation
-    if (result && element != '') {
+    if ((result != null) && element != '') {
         result = calculate(result, Number(element), op);
-        if (result == null) console.log("error calculating");
+        if (result == null)
+            console.log("error calculating");
     }
     return result;
 }
 function openEditItemDialog(itemId) {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    console.log('opening');
-                    if (isEditingRow) {
-                        return [
-                            2
-                        ];
-                    }
-                    console.log('goto item', itemId);
-                    itemId = itemId;
-                    request = new Request("/getItemById/".concat(itemId), {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    data = response.json().then(function(data) {
-                        console.log('data: ', data);
-                        if (data.length <= 0) {
-                            console.log('Error. data is empty');
-                            return;
-                        }
-                        $('#editItemModal').modal();
-                        editItemDialog.innerHTML = '\n            <div class="modal-dialog">\n\n            <!-- Modal content-->\n            <div class="modal-content">\n                <div class="modal-header">\n                <h4 class="modal-title">Edit Item</h4>\n                </div>\n                <div class="modal-body">\n\n                    <div class="row" style="font-family: var(--primary-font);">\n                        <div class="col-md" style="line-height: 3;">\n                        </div>\n                        <div class="col-sm" style="line-height: 3;">\n                        </div>\n                    </div>\n\n                    <div class="row" style="font-family: var(--primary-font);">\n                        <div class="col-4"  style="line-height: 3;">\n                            Name:  <br>\n                            Quantity: <br>\n                            Minimum Level: <br>\n                            Price: <br>\n                            Tags: <br>\n                            Barcode: <br>\n                            Notes:\n                        </div>\n                        <div class="col-8" style="line-height: 3;">\n                            <input type="text" id="nameInput" value="'.concat(data[0]['name'], '" class="editInput" style="height: 40px; width: 300px"></input> \n                            <br>\n\n                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editPopUpAdjustQuantity(-1)">-</button>\n                            <input type="text" id="quantityInput" value="').concat(data[0]['quantity'], '" class="editInput" style="height: 40px; width: 150px" autocomplete="off"></input> \n                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editPopUpAdjustQuantity(1)">+</button>\n                            <br>\n\n                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editInputFieldNum(\'minimumLevelInput\', -1)">-</button>\n                            <input type="text" id="minimumLevelInput" value="').concat(data[0]['minimumLevel'], '" class="editInput" style="height: 40px; width: 150px"></input> \n                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editInputFieldNum(\'minimumLevelInput\', 1)">+</button>\n                            <br>\n\n                            <input type="text" id="priceInput" value="').concat(data[0]['price'], '" class="editInput" style="height: 40px; width: 150px"></input> \n\n                            <p style="display: inline; padding-left:20px;">Value: <b id="valueText" class="enhancedText">').concat(data[0]['value'], '</b></p>\n\n                            <input type="text" id="tagsInput" value="').concat(data[0]['tags'], '" class="editInput" style="height: 40px; width: 300px"></input> \n\n                            <input type="text" id="barcodeInput" value="').concat(data[0]['barcode'], '" class="editInput" style="height: 40px; width: 300px"></input> \n\n                            <textarea id="notesInput" value="').concat(data[0]['notes'], ' rows="5" col="100" class="editInput" style="width: 300px">').concat(data[0]['notes'], '</textarea>\n                        </div>\n                    </div>\n\n                    <div class="row" style="font-family: var(--primary-font);">\n                        <div class="col-md"  style="line-height: 3;">\n                        </div>\n                    </div>\n\n                    <div class="d-flex justify-content-between">\n                        <div class="">\n                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>\n                        </div>\n                        <div class="">\n                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(').concat(data[0]['id'], ')">Delete</button>\n                        <button type="button" class="btn btn-primary inventoryBtn" onclick="editItemDialogUpdate(').concat(data[0]['id'], ')">Save</button>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        ');
-                        // Update item value when quanity changes
-                        var quantityInput = document.getElementById('quantityInput');
-                        var initialValue = quantityInput.value;
-                        // On key up
-                        quantityInput.addEventListener('keyup', function(event1) {
-                            var input = document.getElementById('quantityInput');
-                            console.log(input.value);
-                            if (event1.key == 'Enter') {
-                                var result = calculateInputField(input.value);
-                                if (result == null) input.value = initialValue;
-                                else input.value = String(result);
-                            }
-                            if (typeof Number(input.value) === 'number' && !isNaN(Number(input.value))) {
-                                var price = document.getElementById('priceInput').value;
-                                var quantity = Number(input.value);
-                                var value = Number(price) * quantity;
-                                var valueText = document.getElementById('valueText');
-                                valueText.innerHTML = Number(value).toFixed(2);
-                            } else {
-                                var msg = 'Quanity isnt number';
-                                document.getElementById('valueText').innerHTML = msg;
-                            }
-                        });
-                        // Update item value when price changes
-                        var priceInput = document.getElementById('priceInput');
-                        priceInput.addEventListener('keyup', function() {
-                            var input = document.getElementById('priceInput');
-                            if (typeof Number(input.value) === 'number' && !isNaN(Number(input.value))) {
-                                var price = Number(input.value);
-                                var quantity = Number(document.getElementById('quantityInput').value);
-                                var value = price * quantity;
-                                var valueText = document.getElementById('valueText');
-                                valueText.innerHTML = Number(value).toFixed(2);
-                            } else {
-                                var msg = 'Price isnt number';
-                                var priceInput = document.getElementById('valueText').innerHTML = msg;
-                            }
-                        });
-                    });
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('opening');
+        if (isEditingRow) {
+            return;
+        }
+        console.log('goto item', itemId);
+        itemId = itemId;
+        const request = new Request(`/getItemById/${itemId}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
         });
-    })();
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log('data: ', data);
+            if (data.length <= 0) {
+                console.log('Error. data is empty');
+                return;
+            }
+            $('#editItemModal').modal();
+            editItemDialog.innerHTML = `
+            <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h4 class="modal-title">Edit Item</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row" style="font-family: var(--primary-font);">
+                        <div class="col-md" style="line-height: 3;">
+                        </div>
+                        <div class="col-sm" style="line-height: 3;">
+                        </div>
+                    </div>
+
+                    <div class="row" style="font-family: var(--primary-font);">
+                        <div class="col-4"  style="line-height: 3;">
+                            Name:  <br>
+                            Quantity: <br>
+                            Minimum Level: <br>
+                            Price: <br>
+                            Tags: <br>
+                            Barcode: <br>
+                            Notes:
+                        </div>
+                        <div class="col-8" style="line-height: 3;">
+                            <input type="text" id="nameInput" value="${data[0]['name']}" class="editInput" style="height: 40px; width: 300px"></input> 
+                            <br>
+
+                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editPopUpAdjustQuantity(-1)">-</button>
+                            <input type="text" id="quantityInput" value="${data[0]['quantity']}" class="editInput" style="height: 40px; width: 150px" autocomplete="off"></input> 
+                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editPopUpAdjustQuantity(1)">+</button>
+                            <br>
+
+                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editInputFieldNum('minimumLevelInput', -1)">-</button>
+                            <input type="text" id="minimumLevelInput" value="${data[0]['minimumLevel']}" class="editInput" style="height: 40px; width: 150px"></input> 
+                            <button style="width: 40px; height: 40px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="editInputFieldNum('minimumLevelInput', 1)">+</button>
+                            <br>
+
+                            <input type="text" id="priceInput" value="${data[0]['price']}" class="editInput" style="height: 40px; width: 150px"></input> 
+
+                            <p style="display: inline; padding-left:20px;">Value: <b id="valueText" class="enhancedText">${data[0]['value']}</b></p>
+
+                            <input type="text" id="tagsInput" value="${data[0]['tags']}" class="editInput" style="height: 40px; width: 300px"></input> 
+
+                            <input type="text" id="barcodeInput" value="${data[0]['barcode']}" class="editInput" style="height: 40px; width: 300px"></input> 
+
+                            <textarea id="notesInput" value="${data[0]['notes']} rows="5" col="100" class="editInput" style="width: 300px">${data[0]['notes']}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row" style="font-family: var(--primary-font);">
+                        <div class="col-md"  style="line-height: 3;">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div class="">
+                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>
+                        </div>
+                        <div class="">
+                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
+                        <button type="button" class="btn btn-primary inventoryBtn" onclick="editItemDialogUpdate(${data[0]['id']})">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+            // Update item value when quanity changes
+            const quantityInput = document.getElementById('quantityInput');
+            const initialValue = quantityInput.value;
+            // On key up
+            quantityInput.addEventListener('keyup', (event) => {
+                const input = document.getElementById('quantityInput');
+                console.log(input.value);
+                if (event.key == 'Enter') {
+                    const result = calculateInputField(input.value);
+                    if (result == null)
+                        input.value = initialValue;
+                    else
+                        input.value = String(result);
+                }
+                if (typeof Number(input.value) === 'number' && !isNaN(Number(input.value))) {
+                    const price = document.getElementById('priceInput').value;
+                    const quantity = Number(input.value);
+                    const value = Number(price) * quantity;
+                    const valueText = document.getElementById('valueText');
+                    valueText.innerHTML = Number(value).toFixed(2);
+                }
+                else {
+                    const msg = 'Quanity isnt number';
+                    document.getElementById('valueText').innerHTML = msg;
+                }
+            });
+            // Update item value when price changes
+            const priceInput = document.getElementById('priceInput');
+            priceInput.addEventListener('keyup', () => {
+                const input = document.getElementById('priceInput');
+                if (typeof Number(input.value) === 'number' && !isNaN(Number(input.value))) {
+                    const price = Number(input.value);
+                    const quantity = Number(document.getElementById('quantityInput').value);
+                    const value = price * quantity;
+                    const valueText = document.getElementById('valueText');
+                    valueText.innerHTML = Number(value).toFixed(2);
+                }
+                else {
+                    const msg = 'Price isnt number';
+                    const priceInput = document.getElementById('valueText').innerHTML = msg;
+                }
+            });
+        });
+    });
 }
 function getHTMLInputById(id) {
     return document.getElementById(id);
 }
 function addItem() {
-    return _async_to_generator(function() {
-        var itemName, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, itemNotes, itemTags, request, response, errorData;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    itemName = getHTMLInputById('nameInput').value;
-                    itemQuantity = getHTMLInputById('quantityInput').value;
-                    itemMinQuantity = getHTMLInputById('minQuantityInput').value;
-                    itemPrice = getHTMLInputById('priceInput').value;
-                    itemValue = getHTMLInputById('valueInput').value;
-                    itemBarcode = getHTMLInputById('barcodeInput').value;
-                    itemNotes = getHTMLInputById('notesInput').value;
-                    itemTags = getHTMLInputById('tagsInput').value;
-                    request = new Request("/addItem", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            itemName: itemName,
-                            itemQuantity: itemQuantity,
-                            itemMinQuantity: itemMinQuantity,
-                            itemPrice: itemPrice,
-                            itemValue: itemValue,
-                            itemBarcode: itemBarcode,
-                            itemNotes: itemNotes,
-                            itemTags: itemTags
-                        })
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    if (!!response.ok) return [
-                        3,
-                        3
-                    ];
-                    return [
-                        4,
-                        response.json()
-                    ];
-                case 2:
-                    errorData = _state.sent();
-                    throw new Error("HTTP Error: Status ".concat(response.status, ", Message: ").concat(errorData.message || 'Unknow err'));
-                case 3:
-                    $('#editItemModal').modal('hide');
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const itemName = getHTMLInputById('nameInput').value;
+        const itemQuantity = getHTMLInputById('quantityInput').value;
+        const itemMinQuantity = getHTMLInputById('minQuantityInput').value;
+        const itemPrice = getHTMLInputById('priceInput').value;
+        const itemValue = getHTMLInputById('valueInput').value;
+        const itemBarcode = getHTMLInputById('barcodeInput').value;
+        const itemNotes = getHTMLInputById('notesInput').value;
+        const itemTags = getHTMLInputById('tagsInput').value;
+        const request = new Request(`/addItem`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemName: itemName,
+                itemQuantity: itemQuantity,
+                itemMinQuantity: itemMinQuantity,
+                itemPrice: itemPrice,
+                itemValue: itemValue,
+                itemBarcode: itemBarcode,
+                itemNotes: itemNotes,
+                itemTags: itemTags,
+            }),
         });
-    })();
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+        $('#editItemModal').modal('hide');
+    });
 }
 function deleteItem(itemId) {
-    return _async_to_generator(function() {
-        var request, response, errorData;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/deleteItem", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            itemId: itemId
-                        })
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    if (!!response.ok) return [
-                        3,
-                        3
-                    ];
-                    return [
-                        4,
-                        response.json()
-                    ];
-                case 2:
-                    errorData = _state.sent();
-                    throw new Error("HTTP Error: Status ".concat(response.status, ", Message: ").concat(errorData.message || 'Unknow err'));
-                case 3:
-                    $('#editItemModal').modal('hide');
-                    loadItemTable();
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/deleteItem`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemId: itemId,
+            }),
         });
-    })();
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+        $('#editItemModal').modal('hide');
+        loadItemTable();
+    });
 }
 function deleteAllItems() {
-    return _async_to_generator(function() {
-        var request, response;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/deleteAllItems", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({})
-                    });
-                    return [
-                        4,
-                        fetch(request).then(function() {
-                            loadItemTable();
-                        })
-                    ];
-                case 1:
-                    response = _state.sent();
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/deleteAllItems`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
         });
-    })();
+        const response = yield fetch(request).then(() => {
+            loadItemTable();
+        });
+    });
 }
 function getItemById(itemId) {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/getItemById/".concat(itemId), {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    return [
-                        4,
-                        response.json().then(function(data) {
-                            return data;
-                        })
-                    ];
-                case 2:
-                    data = _state.sent();
-                    return [
-                        2,
-                        data
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/getItemById/${itemId}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
         });
-    })();
+        const response = yield fetch(request);
+        const data = yield response.json().then((data) => {
+            return data;
+        });
+        return data;
+    });
 }
 function updateItem(itemData) {
-    return _async_to_generator(function() {
-        var item, request, response, errorData;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    return [
-                        4,
-                        getItemById(itemData.itemId)
-                    ];
-                case 1:
-                    item = _state.sent();
-                    request = new Request("/edit/".concat(itemData.itemId), {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            itemName: itemData.name,
-                            itemQuantity: itemData.quantity,
-                            itemMinQuantity: itemData.minimumLevel,
-                            itemPrice: itemData.price,
-                            itemValue: itemData.value,
-                            itemBarcode: item[0].barcode,
-                            itemNotes: item[0].notes,
-                            itemTags: item[0].tags
-                        })
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 2:
-                    response = _state.sent();
-                    if (!!response.ok) return [
-                        3,
-                        4
-                    ];
-                    return [
-                        4,
-                        response.json()
-                    ];
-                case 3:
-                    errorData = _state.sent();
-                    throw new Error("HTTP Error: Status ".concat(response.status, ", Message: ").concat(errorData.message || 'Unknow err'));
-                case 4:
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('upate item');
+        const item = yield getItemById(itemData.itemId);
+        const request = new Request(`/edit/${itemData.itemId}`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemName: itemData.name,
+                itemQuantity: itemData.quantity,
+                itemMinQuantity: itemData.minimumLevel,
+                itemPrice: itemData.price,
+                itemValue: itemData.value,
+                itemBarcode: item[0].barcode,
+                itemNotes: item[0].notes,
+                itemTags: item[0].tags,
+                itemStockOrdered: itemData.stockOrdered,
+            }),
         });
-    })();
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    });
 }
 function editItemDialogUpdate(itemId) {
-    return _async_to_generator(function() {
-        var itemName, itemQuantity, itemMinQuantity, itemPrice, itemBarcode, itemNotes, itemTags, request, response, errorData, tableRow, itemValue;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    itemName = getHTMLInputById('nameInput').value;
-                    itemQuantity = Number(getHTMLInputById('quantityInput').value);
-                    itemMinQuantity = Number(getHTMLInputById('minimumLevelInput').value);
-                    itemPrice = Number(getHTMLInputById('priceInput').value);
-                    itemBarcode = getHTMLInputById('barcodeInput').value;
-                    itemNotes = getHTMLInputById('notesInput').value;
-                    itemTags = getHTMLInputById('tagsInput').value;
-                    request = new Request("/edit/".concat(itemId), {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            itemName: itemName,
-                            itemQuantity: itemQuantity,
-                            itemMinQuantity: itemMinQuantity,
-                            itemPrice: itemPrice,
-                            itemBarcode: itemBarcode,
-                            itemNotes: itemNotes,
-                            itemTags: itemTags
-                        })
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    if (!!response.ok) return [
-                        3,
-                        3
-                    ];
-                    return [
-                        4,
-                        response.json()
-                    ];
-                case 2:
-                    errorData = _state.sent();
-                    throw new Error("HTTP Error: Status ".concat(response.status, ", Message: ").concat(errorData.message || 'Unknow err'));
-                case 3:
-                    $('#editItemModal').modal('hide');
-                    tableRow = document.getElementById("tableRow_".concat(itemId));
-                    itemValue = Number(itemQuantity) * Number(itemPrice);
-                    tableRow.innerHTML = createTableRowHTML(itemId, itemName, itemQuantity, itemMinQuantity, itemPrice, itemValue);
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const itemName = getHTMLInputById('nameInput').value;
+        const itemQuantity = Number(getHTMLInputById('quantityInput').value);
+        const itemMinQuantity = Number(getHTMLInputById('minimumLevelInput').value);
+        const itemPrice = Number(getHTMLInputById('priceInput').value);
+        const itemBarcode = getHTMLInputById('barcodeInput').value;
+        const itemNotes = getHTMLInputById('notesInput').value;
+        const itemTags = getHTMLInputById('tagsInput').value;
+        const request = new Request(`/edit/${itemId}`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemName: itemName,
+                itemQuantity: itemQuantity,
+                itemMinQuantity: itemMinQuantity,
+                itemPrice: itemPrice,
+                itemBarcode: itemBarcode,
+                itemNotes: itemNotes,
+                itemTags: itemTags,
+            }),
         });
-    })();
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+        $('#editItemModal').modal('hide');
+        const tableRow = document.getElementById(`tableRow_${itemId}`);
+        const itemValue = Number(itemQuantity) * Number(itemPrice);
+        tableRow.innerHTML = createTableRowHTML(itemId, itemName, itemQuantity, itemMinQuantity, itemPrice, itemValue);
+    });
 }
 function editPopupDecreaseQuantity() {
-    var qualityInput = getHTMLInputById('quantityInput');
+    const qualityInput = getHTMLInputById('quantityInput');
     console.log(qualityInput, qualityInput.value);
     qualityInput.value = String(Number(qualityInput.value) - 1);
-    if (Number(qualityInput.value) < 0) qualityInput.value = String(0);
+    if (Number(qualityInput.value) < 0)
+        qualityInput.value = String(0);
 }
 function editInputFieldNum(inputId, numberAdjustment) {
-    var inputField = getHTMLInputById(inputId);
+    const inputField = getHTMLInputById(inputId);
     inputField.value = Number(inputField.value) + numberAdjustment;
-    if (Number(inputField.value) < 0) inputField.value = String(0);
+    if (Number(inputField.value) < 0)
+        inputField.value = String(0);
 }
 function editPopUpAdjustQuantity(numberAdjustment) {
     editInputFieldNum('quantityInput', numberAdjustment);
-    var price = getHTMLInputById('priceInput').value;
-    var quantity = getHTMLInputById('quantityInput').value;
-    var value = Number(price) * Number(quantity);
-    var priceInput = document.getElementById('valueText');
+    const price = getHTMLInputById('priceInput').value;
+    const quantity = getHTMLInputById('quantityInput').value;
+    const value = Number(price) * Number(quantity);
+    const priceInput = document.getElementById('valueText');
     priceInput.innerHTML = Number(value).toFixed(2);
 }
 function incrementQuantity(itemId) {
-    return _async_to_generator(function() {
-        var tableRow, quantity, price, newQuantity, value;
-        return _ts_generator(this, function(_state) {
-            event.stopPropagation();
-            tableRow = document.getElementById("tableRow_".concat(itemId));
-            quantity = Number(tableRow.getElementsByClassName('quantityRow')[0].innerHTML);
-            price = Number(tableRow.getElementsByClassName('priceRow')[0].innerHTML);
-            newQuantity = quantity + 1;
-            value = Number(price * quantity);
-            tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
-            tableRow.getElementsByClassName("valueRow")[0].innerHTML = "$" + value.toFixed(2);
-            sendQuantityChangeToTimer(itemId, newQuantity);
-            return [
-                2
-            ];
-        });
-    })();
+    return __awaiter(this, void 0, void 0, function* () {
+        event.stopPropagation();
+        const tableRow = document.getElementById(`tableRow_${itemId}`);
+        const quantity = Number(tableRow.getElementsByClassName('quantityRow')[0].innerHTML);
+        const price = Number(tableRow.getElementsByClassName('priceRow')[0].innerHTML);
+        var newQuantity = quantity + 1;
+        let value = Number(price * quantity);
+        tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
+        tableRow.getElementsByClassName("valueRow")[0].innerHTML = "$" + value.toFixed(2);
+        sendQuantityChangeToTimer(itemId, newQuantity);
+    });
 }
 function decrementQuantity(itemId) {
-    return _async_to_generator(function() {
-        var tableRow, quantity, price, newQuantity, value;
-        return _ts_generator(this, function(_state) {
-            event.stopPropagation();
-            tableRow = document.getElementById("tableRow_".concat(itemId));
-            quantity = Number(tableRow.getElementsByClassName('quantityRow')[0].innerHTML);
-            price = Number(tableRow.getElementsByClassName('priceRow')[0].innerHTML);
-            newQuantity = quantity - 1;
-            if (newQuantity < 0) {
-                newQuantity = 0;
-            }
-            value = Number(price * quantity);
-            tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
-            tableRow.getElementsByClassName("valueRow")[0].innerHTML = "$" + value.toFixed(2);
-            sendQuantityChangeToTimer(itemId, newQuantity);
-            return [
-                2
-            ];
-        });
-    })();
+    return __awaiter(this, void 0, void 0, function* () {
+        event.stopPropagation();
+        const tableRow = document.getElementById(`tableRow_${itemId}`);
+        const quantity = Number(tableRow.getElementsByClassName('quantityRow')[0].innerHTML);
+        const price = Number(tableRow.getElementsByClassName('priceRow')[0].innerHTML);
+        var newQuantity = quantity - 1;
+        if (newQuantity < 0) {
+            newQuantity = 0;
+        }
+        let value = Number(price * quantity);
+        tableRow.getElementsByClassName("quantityRow")[0].innerHTML = String(newQuantity);
+        tableRow.getElementsByClassName("valueRow")[0].innerHTML = "$" + value.toFixed(2);
+        sendQuantityChangeToTimer(itemId, newQuantity);
+    });
 }
 function sendQuantityChangeToTimer(itemId, newQuantity) {
     quantityChangeTimer.finalQuantity = newQuantity;
@@ -673,585 +509,561 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
     // Reset timer if not done
     if (quantityChangeTimer.started) {
         clearTimeout(quantityChangeTimer.id);
-    } else {
+    }
+    else {
         quantityChangeTimer.started = true;
     }
     // Start timer
-    quantityChangeTimer.id = setTimeout(function() {
-        return _async_to_generator(function() {
-            var item, request, response, errorData;
-            return _ts_generator(this, function(_state) {
-                switch(_state.label){
-                    case 0:
-                        quantityChangeTimer.started = false;
-                        return [
-                            4,
-                            getItemById(quantityChangeTimer.itemId)
-                        ];
-                    case 1:
-                        item = _state.sent();
-                        request = new Request("/edit/".concat(quantityChangeTimer.itemId), {
-                            method: "POST",
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                itemName: item[0]['name'],
-                                itemQuantity: quantityChangeTimer.finalQuantity,
-                                itemMinQuantity: item[0]['minimumLevel'],
-                                itemPrice: item[0]['price'],
-                                itemValue: item[0]['value'],
-                                itemBarcode: item[0]['barcode'],
-                                itemNotes: item[0]['notes'],
-                                itemTags: item[0]['tags']
-                            })
-                        });
-                        return [
-                            4,
-                            fetch(request)
-                        ];
-                    case 2:
-                        response = _state.sent();
-                        if (!!response.ok) return [
-                            3,
-                            4
-                        ];
-                        return [
-                            4,
-                            response.json()
-                        ];
-                    case 3:
-                        errorData = _state.sent();
-                        throw new Error("HTTP Error: Status ".concat(response.status, ", Message: ").concat(errorData.message || 'Unknow err'));
-                    case 4:
-                        return [
-                            2
-                        ];
-                }
-            });
-        })();
-    }, 500);
+    quantityChangeTimer.id = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+        quantityChangeTimer.started = false;
+        // submit edit request
+        const item = yield getItemById(quantityChangeTimer.itemId);
+        const request = new Request(`/edit/${quantityChangeTimer.itemId}`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemName: item[0]['name'],
+                itemQuantity: quantityChangeTimer.finalQuantity,
+                itemMinQuantity: item[0]['minimumLevel'],
+                itemPrice: item[0]['price'],
+                itemValue: item[0]['value'],
+                itemBarcode: item[0]['barcode'],
+                itemNotes: item[0]['notes'],
+                itemTags: item[0]['tags'],
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    }), 500);
 }
 function onMouseOverRow(itemId, isLowStock) {
-    var tableRow = document.getElementById("tableRow_".concat(itemId));
-    var buttons = tableRow.getElementsByTagName('button');
-    var lowStockDiv = tableRow.getElementsByClassName('quantityDiv')[0];
+    const tableRow = document.getElementById(`tableRow_${itemId}`);
+    const buttons = tableRow.getElementsByTagName('button');
+    const lowStockDiv = tableRow.getElementsByClassName('quantityDiv')[0];
     if (isLowStock) {
         lowStockDiv.classList.remove('textBlockWithBGColor');
         lowStockDiv.classList.add('textBlockNoBGColor');
     }
-    for(var i = 0; i < buttons.length; i++){
+    for (let i = 0; i < buttons.length; i++) {
         buttons[i].style.display = 'inline-block';
     }
 }
 function onMouseLeaveRow(itemId, isLowStock) {
-    var tableRow = document.getElementById("tableRow_".concat(itemId));
-    var buttons = tableRow.getElementsByTagName('button');
-    var lowStockDiv = tableRow.getElementsByClassName('quantityDiv')[0];
+    const tableRow = document.getElementById(`tableRow_${itemId}`);
+    const buttons = tableRow.getElementsByTagName('button');
+    const lowStockDiv = tableRow.getElementsByClassName('quantityDiv')[0];
     if (isLowStock) {
         lowStockDiv.classList.add('textBlockWithBGColor');
         lowStockDiv.classList.remove('textBlockNoBGColor');
     }
-    for(var i = 0; i < buttons.length; i++){
+    for (let i = 0; i < buttons.length; i++) {
         buttons[i].style.display = 'none';
     }
 }
 function onRowLoseFocus(itemId) {
-    return _async_to_generator(function() {
-        var item, tableRow, name, quantity, minimumLevel, price, value, request, response, errorData;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    if (isEditingRow == false) {
-                        return [
-                            2
-                        ];
-                    }
-                    return [
-                        4,
-                        getItemById(itemId)
-                    ];
-                case 1:
-                    item = _state.sent();
-                    tableRow = document.getElementById("tableRow_".concat(itemId));
-                    name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-                    quantity = item[0]['quantity'];
-                    minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
-                    price = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
-                    value = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
-                    request = new Request("/edit/".concat(itemId), {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            itemName: name,
-                            itemQuantity: quantity,
-                            itemMinQuantity: minimumLevel,
-                            itemPrice: price,
-                            itemValue: value,
-                            itemBarcode: item[0].barcode,
-                            itemNotes: item[0].notes,
-                            itemTags: item[0].tags
-                        })
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 2:
-                    response = _state.sent();
-                    if (!!response.ok) return [
-                        3,
-                        4
-                    ];
-                    return [
-                        4,
-                        response.json()
-                    ];
-                case 3:
-                    errorData = _state.sent();
-                    throw new Error("HTTP Error: Status ".concat(response.status, ", Message: ").concat(errorData.message || 'Unknow err'));
-                case 4:
-                    changeRowStateToDefaultView(itemId);
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        if (isEditingRow == false) {
+            return;
+        }
+        const item = yield getItemById(itemId);
+        const tableRow = document.getElementById(`tableRow_${itemId}`);
+        const name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
+        const quantity = item[0]['quantity'];
+        const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
+        const price = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
+        const value = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
+        const request = new Request(`/edit/${itemId}`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemName: name,
+                itemQuantity: quantity,
+                itemMinQuantity: minimumLevel,
+                itemPrice: price,
+                itemValue: value,
+                itemBarcode: item[0].barcode,
+                itemNotes: item[0].notes,
+                itemTags: item[0].tags,
+            }),
         });
-    })();
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+        changeRowStateToDefaultView(itemId);
+    });
 }
 function startEditingQuantity(itemId) {
-    return _async_to_generator(function() {
-        return _ts_generator(this, function(_state) {
-            event.stopPropagation();
-            changeRowStateToEditQuantity(itemId);
-            return [
-                2
-            ];
-        });
-    })();
+    return __awaiter(this, void 0, void 0, function* () {
+        event.stopPropagation();
+        changeRowStateToEditQuantity(itemId);
+    });
 }
 function changeRowStateToDefaultView(itemId) {
-    return _async_to_generator(function() {
-        var item, name, quantity, minimumLevel, price, value, tableRow;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    isEditingRow = false;
-                    return [
-                        4,
-                        getItemById(itemId)
-                    ];
-                case 1:
-                    item = _state.sent();
-                    name = item[0]['name'];
-                    quantity = item[0]['quantity'];
-                    minimumLevel = item[0]['minimumLevel'];
-                    price = item[0]['price'];
-                    value = item[0]['value'];
-                    tableRow = document.getElementById("tableRow_".concat(itemId));
-                    tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
-                    return [
-                        2
-                    ];
-            }
-        });
-    })();
+    return __awaiter(this, void 0, void 0, function* () {
+        isEditingRow = false;
+        const item = yield getItemById(itemId);
+        const name = item[0]['name'];
+        const quantity = item[0]['quantity'];
+        const minimumLevel = item[0]['minimumLevel'];
+        const price = item[0]['price'];
+        const value = item[0]['value'];
+        const tableRow = document.getElementById(`tableRow_${itemId}`);
+        tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
+    });
 }
 function changeRowStateToEditQuantity(itemId) {
-    return _async_to_generator(function() {
-        var item, tableRow, name, quantity, minimumLevel, price, value, quantityInput, initialValue, textInput, textLength;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    isEditingRow = true;
-                    return [
-                        4,
-                        getItemById(itemId)
-                    ];
-                case 1:
-                    item = _state.sent();
-                    tableRow = document.getElementById("tableRow_".concat(itemId));
-                    name = item[0]['name'];
-                    quantity = item[0]['quantity'];
-                    minimumLevel = item[0]['minimumLevel'];
-                    price = item[0]['price'];
-                    value = item[0]['value'];
-                    tableRow.innerHTML = '\n        <td class="nameRow">'.concat(name, '</td>\n        <td style="text-align: left;">\n            <input type="text" class="quantityRow" id="tempInput" value="').concat(quantity, '" size="6" onblur="onRowLoseFocus(').concat(itemId, ')" style="margin-left: 30px; align-text: center;"></input>\n        </td>\n        <td class="minimumLevelRow">').concat(minimumLevel, '</td>\n        <td class="priceRow">').concat(price, '</td>\n        <td class="valueRow">').concat(value, "</td>\n    ");
-                    quantityInput = getHTMLInputById('tempInput');
-                    initialValue = quantityInput.value;
-                    quantityInput.addEventListener('keydown', function(event1) {
-                        if (event1.key == 'Enter') {
-                            var input = getHTMLInputById('tempInput');
-                            var result = calculateInputField(input.value);
-                            isEditingRow = false;
-                            console.log(result);
-                            if (result == null) input.value = initialValue;
-                            else input.value = String(result);
-                            var tableRow = document.getElementById("tableRow_".concat(itemId));
-                            var item = new Item();
-                            item.itemId = itemId;
-                            item.name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
-                            item.quantity = Number(result);
-                            item.minimumLevel = Number(tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML);
-                            item.price = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
-                            item.value = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
-                            updateItem(item);
-                            tableRow.innerHTML = createTableRowHTML(itemId, name, Number(result), Number(minimumLevel), Number(price), Number(value));
-                            event1.preventDefault();
-                        }
-                        if (event1.key == "Escape") {
-                            changeRowStateToDefaultView(itemId);
-                            event1.preventDefault();
-                        }
-                    });
-                    textInput = getHTMLInputById("tempInput");
-                    textInput.focus();
-                    textLength = textInput.value.length;
-                    textInput.setSelectionRange(textLength, textLength);
-                    return [
-                        2
-                    ];
+    return __awaiter(this, void 0, void 0, function* () {
+        isEditingRow = true;
+        const item = yield getItemById(itemId);
+        const tableRow = document.getElementById(`tableRow_${itemId}`);
+        const name = item[0]['name'];
+        const quantity = item[0]['quantity'];
+        const minimumLevel = item[0]['minimumLevel'];
+        const price = item[0]['price'];
+        const value = item[0]['value'];
+        tableRow.innerHTML = `
+        <td class="nameRow">${name}</td>
+        <td style="text-align: left;">
+            <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="6" onblur="onRowLoseFocus(${itemId})" style="margin-left: 30px; align-text: center;"></input>
+        </td>
+        <td class="minimumLevelRow">${minimumLevel}</td>
+        <td class="priceRow">${price}</td>
+        <td class="valueRow">${value}</td>
+    `;
+        const quantityInput = getHTMLInputById('tempInput');
+        const initialValue = quantityInput.value;
+        quantityInput.addEventListener('keydown', function (event) {
+            if (event.key == 'Enter') {
+                const input = getHTMLInputById('tempInput');
+                const result = calculateInputField(input.value);
+                isEditingRow = false;
+                console.log(result);
+                if (result == null)
+                    input.value = initialValue;
+                else
+                    input.value = String(result);
+                const tableRow = document.getElementById(`tableRow_${itemId}`);
+                const item = new Item();
+                item.itemId = itemId;
+                item.name = tableRow.getElementsByClassName("nameRow")[0].innerHTML;
+                item.quantity = Number(result);
+                item.minimumLevel = Number(tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML);
+                item.price = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
+                item.value = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
+                updateItem(item);
+                tableRow.innerHTML = createTableRowHTML(itemId, name, Number(result), Number(minimumLevel), Number(price), Number(value));
+                event.preventDefault();
+            }
+            if (event.key == "Escape") {
+                changeRowStateToDefaultView(itemId);
+                event.preventDefault();
             }
         });
-    })();
+        const textInput = getHTMLInputById("tempInput");
+        textInput.focus();
+        const textLength = textInput.value.length;
+        textInput.setSelectionRange(textLength, textLength);
+    });
 }
 function searchForItem(name) {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    if (name == "") {
-                        name = "all";
-                    }
-                    request = new Request("/search/".concat(name), {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    data = response.json().then(function(data) {
-                        console.log(data);
-                        var tableHTML = "\n            <thead>\n                <td>Name</td>\n                <td>Quantity</td>\n                <td>Minimum Level</td>\n                <td>Price</td>\n            </thead>\n        ";
-                        for(var i = 0; i < data.length; i++){
-                            tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
-                        }
-                        itemTable.innerHTML = tableHTML;
-                    });
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        if (name == "") {
+            name = "all";
+        }
+        const request = new Request(`/search/${name}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
         });
-    })();
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log(data);
+            var tableHTML = `
+            <thead>
+                <td>Name</td>
+                <td>Quantity</td>
+                <td>Minimum Level</td>
+                <td>Price</td>
+            </thead>
+        `;
+            for (let i = 0; i < data.length; i++) {
+                tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+            }
+            itemTable.innerHTML = tableHTML;
+        });
+    });
 }
 function loadItemTable() {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/search/all", {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    data = response.json().then(function(data) {
-                        var tableHTML = '\n            <thead>\n                <td style="opacity: 50%; width: 25%">Name</td>\n                <td style="opacity: 50%; width: 25%; margin-left: 20px; padding: 20px">\n                <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>\n                Quantity\n                </td>\n                <td style="opacity: 50%;">Minimum Level</td>\n                <td style="opacity: 50%; width: 15%">Price</td>\n                <td style="opacity: 50%;">Value</td>\n            </thead>\n        ';
-                        for(var i = 0; i < data.length; i++){
-                            tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
-                        }
-                        itemTable.innerHTML = tableHTML;
-                    });
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/search/all`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
         });
-    })();
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            var tableHTML = `
+            <thead>
+                <td style="opacity: 50%; width: 25%">Name</td>
+                <td style="opacity: 50%; width: 25%; margin-left: 20px; padding: 20px">
+                <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
+                Quantity
+                </td>
+                <td style="opacity: 50%;">Minimum Level</td>
+                <td style="opacity: 50%; width: 15%">Price</td>
+                <td style="opacity: 50%;">Value</td>
+            </thead>
+        `;
+            for (let i = 0; i < data.length; i++) {
+                tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+            }
+            itemTable.innerHTML = tableHTML;
+        });
+    });
 }
 function loadLowStockItemTable() {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/lowStockItems", {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    data = response.json().then(function(data) {
-                        console.log(data);
-                        var tableHTML = '\n            <thead>\n                <td style="opacity: 50%; width: 25%;">Name</td>\n                \n                <td style="opacity: 50%; width: 25%;">\n                <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>\n                Quantity\n                </td>\n\n                <td style="opacity: 50%; width: 15%;">Minimum Level</td>\n                <td style="opacity: 50%;">Price</td>\n                <td style="opacity: 50%;">Value</td>\n                <td style="opacity: 50%; width: 10%;">Stock Ordered</td>\n            </thead>\n        ';
-                        for(var i = 0; i < data.length; i++){
-                            tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
-                        }
-                        itemTable.innerHTML = tableHTML;
-                    });
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/lowStockItems`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
         });
-    })();
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log(data);
+            var tableHTML = `
+            <thead>
+                <td style="opacity: 50%; width: 25%;">Name</td>
+                
+                <td style="opacity: 50%; width: 25%;">
+                <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
+                Quantity
+                </td>
+
+                <td style="opacity: 50%; width: 15%;">Minimum Level</td>
+                <td style="opacity: 50%;">Price</td>
+                <td style="opacity: 50%;">Value</td>
+                <td style="opacity: 50%; width: 10%;">Stock Ordered</td>
+            </thead>
+        `;
+            for (let i = 0; i < data.length; i++) {
+                tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value'], data[i]['stockOrdered']);
+            }
+            itemTable.innerHTML = tableHTML;
+        });
+    });
 }
 function itemOrderedCheckboxClicked(itemId) {
-    var tableRow = document.getElementById("tableRow_".concat(itemId));
-    var checkbox = tableRow.getElementsByClassName('orderedCheckbox')[0];
+    const tableRow = document.getElementById(`tableRow_${itemId}`);
+    const checkbox = tableRow.getElementsByClassName('orderedCheckbox')[0];
     if (checkbox.checked) {
         tableRow.classList.remove('table-active');
-    } else {
+        updateItemOrderedStatus(itemId, false);
+    }
+    else {
         tableRow.classList.add('table-active');
+        updateItemOrderedStatus(itemId, true);
     }
     checkbox.checked = !checkbox.checked;
 }
-function createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value) {
+function updateItemOrderedStatus(itemId, stockOrdered) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/updateItemOrderedStatus`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemId: itemId,
+                stockOrdered: stockOrdered,
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    });
+}
+function createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value, stockOrdered) {
+    let lowStockStyle = 'display: inline; background-color: green';
+    let btnSize = '25px';
+    let isLowStock = false;
+    let tableActiveClass = '';
+    let checked = '';
     // If below stock level show red background div
-    var lowStockStyle = 'display: inline; background-color: green';
-    var btnSize = '25px';
-    var isLowStock = false;
     if (Number(quantity) < Number(minimumLevel)) {
         isLowStock = true;
         lowStockStyle = 'class="quantityDiv textBlockWithBGColor"';
-    } else {
+    }
+    else {
         lowStockStyle = 'class="quantityDiv textBlockNoBGColor"';
     }
-    var html = '\n            <tr class="" style="vertical-align: middle" id="tableRow_'.concat(itemId, '" onmouseover="onMouseOverRow(').concat(itemId, ", ").concat(isLowStock, ')" onmouseleave="onMouseLeaveRow(').concat(itemId, ", ").concat(isLowStock, ')" onclick="itemOrderedCheckboxClicked(').concat(itemId, ')" >\n                <td class="nameRow">').concat(name, '</td>\n                <td style="">\n                    <div class="container" onclick="startEditingQuantity(').concat(itemId, ')" style="">\n\n                        <div style="background-color: transparent; display: inline-block; width: ').concat(btnSize, "; height: ").concat(btnSize, '">\n                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(').concat(itemId, ')">-</button>\n                        </div>\n\n                        <div ').concat(lowStockStyle, '>\n                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(').concat(itemId, ')">\n                            ').concat(quantity, '\n                            </div>\n                        </div>\n\n                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">\n                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(').concat(itemId, ')">+</button>\n                    </div>\n\n                    <div>\n                </td>\n                <td class="minimumLevelRow">').concat(minimumLevel, '</td>\n\n                <td>\n                $<p class="priceRow" style="display: inline-block">').concat(price, '</p>\n                </td>\n\n                <td class="valueRow">$').concat(value, '</td>\n\n                <td class="checkBoxRow" style="background-color: none; padding-left: 40px;">\n                    <input type="checkbox" class="orderedCheckbox" value="Stock Ordered" onclick="itemOrderedCheckboxClick(').concat(itemId, ')"></input>\n                </td>\n            </tr>\n    ');
+    if (stockOrdered) {
+        tableActiveClass = 'table-active';
+        checked = 'checked';
+    }
+    const html = `
+            <tr class="${tableActiveClass}" style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="itemOrderedCheckboxClicked(${itemId})" >
+                <td class="nameRow">${name}</td>
+                <td style="">
+                    <div class="container" onclick="startEditingQuantity(${itemId})" style="">
+
+                        <div style="background-color: transparent; display: inline-block; width: ${btnSize}; height: ${btnSize}">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
+                        </div>
+
+                        <div ${lowStockStyle}>
+                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                            ${quantity}
+                            </div>
+                        </div>
+
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
+                    </div>
+
+                    <div>
+                </td>
+                <td class="minimumLevelRow">${minimumLevel}</td>
+
+                <td>
+                $<p class="priceRow" style="display: inline-block">${price}</p>
+                </td>
+
+                <td class="valueRow">$${value}</td>
+
+                <td class="checkBoxRow" style="background-color: none; padding-left: 40px;">
+                    <input type="checkbox" class="orderedCheckbox" value="Stock Ordered" onclick="itemOrderedCheckboxClicked(${itemId})" ${checked}></input>
+                </td>
+            </tr>
+    `;
     return html;
 }
 function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value) {
     // If below stock level show red background div
-    var lowStockStyle = 'display: inline; background-color: green';
-    var btnSize = '25px';
-    var isLowStock = false;
+    let lowStockStyle = 'display: inline; background-color: green';
+    let btnSize = '25px';
+    let isLowStock = false;
     if (Number(quantity) < Number(minimumLevel)) {
         isLowStock = true;
         lowStockStyle = 'class="quantityDiv textBlockWithBGColor"';
-    } else {
+    }
+    else {
         lowStockStyle = 'class="quantityDiv textBlockNoBGColor"';
     }
-    var html = '\n    \n            <tr style="vertical-align: middle" id="tableRow_'.concat(itemId, '" onmouseover="onMouseOverRow(').concat(itemId, ", ").concat(isLowStock, ')" onmouseleave="onMouseLeaveRow(').concat(itemId, ", ").concat(isLowStock, ')" onclick="openEditItemDialog(').concat(itemId, ')" >\n                <td class="nameRow">').concat(name, '</td>\n                <td style="">\n                    <div class="container" onclick="startEditingQuantity(').concat(itemId, ')" style="">\n\n                        <div style="background-color: transparent; display: inline-block; width: ').concat(btnSize, "; height: ").concat(btnSize, '">\n                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(').concat(itemId, ')">-</button>\n                        </div>\n\n                        <div ').concat(lowStockStyle, '>\n                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(').concat(itemId, ')">\n                            ').concat(quantity, '\n                            </div>\n                        </div>\n\n                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">\n                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(').concat(itemId, ')">+</button>\n                    </div>\n\n                    <div>\n                </td>\n                <td class="minimumLevelRow">').concat(minimumLevel, '</td>\n\n                <td>\n                $<p class="priceRow" style="display: inline-block">').concat(price, '</p>\n                </td>\n\n                <td class="valueRow">$').concat(value, "</td>\n            </tr>\n    ");
+    const html = `
+    
+            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="openEditItemDialog(${itemId})" >
+                <td class="nameRow">${name}</td>
+                <td style="">
+                    <div class="container" onclick="startEditingQuantity(${itemId})" style="">
+
+                        <div style="background-color: transparent; display: inline-block; width: ${btnSize}; height: ${btnSize}">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px;" class="btn btn-primary inventoryBtn" onclick="decrementQuantity(${itemId})">-</button>
+                        </div>
+
+                        <div ${lowStockStyle}>
+                            <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                            ${quantity}
+                            </div>
+                        </div>
+
+                        <div style="background-color: transparent; display: inline-block; width: 30px; height: 30px;">
+                        <button style="display: none; width: 30px; height: 30px; padding: 0px" class="btn btn-primary inventoryBtn" onclick="incrementQuantity(${itemId})">+</button>
+                    </div>
+
+                    <div>
+                </td>
+                <td class="minimumLevelRow">${minimumLevel}</td>
+
+                <td>
+                $<p class="priceRow" style="display: inline-block">${price}</p>
+                </td>
+
+                <td class="valueRow">$${value}</td>
+            </tr>
+    `;
     return html;
 }
 function readFileAsText(file) {
-    return _async_to_generator(function() {
-        return _ts_generator(this, function(_state) {
-            return [
-                2,
-                new Promise(function(resolve, reject) {
-                    var reader = new FileReader();
-                    reader.onload = function(event1) {
-                        resolve(event1.target.result);
-                    };
-                    reader.onerror = function(event1) {
-                        console.log("error");
-                        reject(event1.target.result);
-                    };
-                    reader.readAsText(file);
-                })
-            ];
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                resolve(event.target.result);
+            };
+            reader.onerror = (event) => {
+                console.log("error");
+                reject(event.target.result);
+            };
+            reader.readAsText(file);
         });
-    })();
+    });
 }
 function showUploadDialog() {
-    return _async_to_generator(function() {
-        return _ts_generator(this, function(_state) {
-            $('#editItemModal').modal();
-            popup.innerHTML = '\n        <div class="modal-dialog">\n\n        <!-- Modal content-->\n        <div class="modal-content">\n            <div class="modal-header">\n            <h4 class="modal-title">Edit Item</h4>\n            </div>\n            <div class="modal-body">\n\n                <div class="container">\n                <div class="row">\n                    <div class="col-md p-3" style="line-height: 1.8">\n                    <input type="file" id="csvFileInput" accept=".csv">\n                    </div>\n                </div>\n            </div>\n            <div class="d-flex justify-content-between">\n                <div class="">\n                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\n                </div>\n                <div class="">\n                    <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>\n                </div>\n            </div>\n        </div>\n        \n        </div>\n    ';
-            return [
-                2
-            ];
-        });
-    })();
+    return __awaiter(this, void 0, void 0, function* () {
+        $('#editItemModal').modal();
+        popup.innerHTML = `
+        <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Edit Item</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="container">
+                <div class="row">
+                    <div class="col-md p-3" style="line-height: 1.8">
+                    <input type="file" id="csvFileInput" accept=".csv">
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <div class="">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <div class="">
+                    <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>
+                </div>
+            </div>
+        </div>
+        
+        </div>
+    `;
+    });
 }
 function uploadCSV() {
-    return _async_to_generator(function() {
-        var csvFileInput, file, fileData, request, response, error;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    csvFileInput = document.getElementById('csvFileInput');
-                    file = csvFileInput.files[0];
-                    if (!file) {
-                        return [
-                            2
-                        ];
-                    }
-                    _state.label = 1;
-                case 1:
-                    _state.trys.push([
-                        1,
-                        4,
-                        ,
-                        5
-                    ]);
-                    return [
-                        4,
-                        readFileAsText(file)
-                    ];
-                case 2:
-                    fileData = _state.sent();
-                    request = new Request("/uploadCSV", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            csvData: fileData
-                        })
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 3:
-                    response = _state.sent();
-                    return [
-                        3,
-                        5
-                    ];
-                case 4:
-                    error = _state.sent();
-                    console.log("error reading file: ", error);
-                    return [
-                        3,
-                        5
-                    ];
-                case 5:
-                    $('#editItemModal').modal('hide');
-                    loadItemTable();
-                    return [
-                        2
-                    ];
-            }
-        });
-    })();
+    return __awaiter(this, void 0, void 0, function* () {
+        const csvFileInput = document.getElementById('csvFileInput');
+        const file = csvFileInput.files[0];
+        if (!file) {
+            return;
+        }
+        try {
+            const fileData = yield readFileAsText(file);
+            const request = new Request("/uploadCSV", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    csvData: fileData
+                }),
+            });
+            const response = yield fetch(request);
+        }
+        catch (error) {
+            console.log("error reading file: ", error);
+        }
+        $('#editItemModal').modal('hide');
+        loadItemTable();
+    });
 }
 function loadTransactionLog() {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/getActivityLog", {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/getActivityLog`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log(data);
+            var tableHTML = `
+            <thead>
+                <td style="opacity: 50%;">Name</td>
+                <td style="opacity: 50%;">Total Additions</td>
+                <td style="opacity: 50%;">Total Subtractions</td>
+            </thead>
+        `;
+            let oldValue = 0;
+            let newValue = 0;
+            let transaction = 0;
+            let quantityChangeSummaries = [];
+            for (let i = 0; i < data.length; i++) {
+                oldValue = Number(data[i]['oldValue']);
+                newValue = Number(data[i]['newValue']);
+                transaction = oldValue - newValue;
+                let alreadyAdded = false;
+                for (let j = 0; j < quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+                 {
+                    if (quantityChangeSummaries[j].name == data[i]['itemName']) {
+                        if (transaction > 0) {
+                            quantityChangeSummaries[j].totalAdditions += transaction;
                         }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    data = response.json().then(function(data) {
-                        console.log(data);
-                        var tableHTML = '\n            <thead>\n                <td style="opacity: 50%;">Name</td>\n                <td style="opacity: 50%;">Total Additions</td>\n                <td style="opacity: 50%;">Total Subtractions</td>\n            </thead>\n        ';
-                        var oldValue = 0;
-                        var newValue = 0;
-                        var transaction = 0;
-                        var quantityChangeSummaries = [];
-                        for(var i = 0; i < data.length; i++){
-                            oldValue = Number(data[i]['oldValue']);
-                            newValue = Number(data[i]['newValue']);
-                            transaction = oldValue - newValue;
-                            var alreadyAdded = false;
-                            for(var j = 0; j < quantityChangeSummaries.length; j++){
-                                if (quantityChangeSummaries[j].name == data[i]['itemName']) {
-                                    if (transaction > 0) {
-                                        quantityChangeSummaries[j].totalAdditions += transaction;
-                                    }
-                                    if (transaction < 0) {
-                                        quantityChangeSummaries[j].totalSubtactions += transaction;
-                                    }
-                                    alreadyAdded = true;
-                                }
-                            }
-                            // Add if not already added to list
-                            if (!alreadyAdded) {
-                                var t = new QuanityChangeSummary();
-                                t.name = data[i]['itemName'];
-                                if (transaction > 0) {
-                                    t.totalAdditions += transaction;
-                                }
-                                if (transaction < 0) {
-                                    t.totalSubtactions += Math.abs(transaction);
-                                    console.log(t.name, t.totalSubtactions);
-                                }
-                                quantityChangeSummaries.push(t);
-                            }
+                        if (transaction < 0) {
+                            quantityChangeSummaries[j].totalSubtactions += transaction;
                         }
-                        // Add merged quantity change summaries
-                        for(var j1 = 0; j1 < quantityChangeSummaries.length; j1++){
-                            var html = '\n                    <tr style="vertical-align: middle" id="tableRow_">\n\n                        <td class="typeRow">'.concat(quantityChangeSummaries[j1].name, '</td>\n\n                        <td style=""> ').concat(quantityChangeSummaries[j1].totalAdditions, '</td>\n\n                        <td style=""> ').concat(quantityChangeSummaries[j1].totalSubtactions, "</td>\n\n                    </tr>\n            ");
-                            tableHTML += html;
-                            itemTable.innerHTML = tableHTML;
-                        }
-                    });
-                    return [
-                        2
-                    ];
+                        alreadyAdded = true;
+                    }
+                }
+                // Add if not already added to list
+                if (!alreadyAdded) {
+                    let t = new QuanityChangeSummary();
+                    t.name = data[i]['itemName'];
+                    if (transaction > 0) {
+                        t.totalAdditions += transaction;
+                    }
+                    if (transaction < 0) {
+                        t.totalSubtactions += Math.abs(transaction);
+                        console.log(t.name, t.totalSubtactions);
+                    }
+                    quantityChangeSummaries.push(t);
+                }
+            }
+            // Add merged quantity change summaries
+            for (let j = 0; j < quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+             {
+                const html = `
+                    <tr style="vertical-align: middle" id="tableRow_">
+
+                        <td class="typeRow">${quantityChangeSummaries[j].name}</td>
+
+                        <td style=""> ${quantityChangeSummaries[j].totalAdditions}</td>
+
+                        <td style=""> ${quantityChangeSummaries[j].totalSubtactions}</td>
+
+                    </tr>
+            `;
+                tableHTML += html;
+                itemTable.innerHTML = tableHTML;
             }
         });
-    })();
+    });
 }
 function loadActivityLog() {
-    return _async_to_generator(function() {
-        var request, response, data;
-        return _ts_generator(this, function(_state) {
-            switch(_state.label){
-                case 0:
-                    request = new Request("/getActivityLog", {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    return [
-                        4,
-                        fetch(request)
-                    ];
-                case 1:
-                    response = _state.sent();
-                    data = response.json().then(function(data) {
-                        console.log(data);
-                        var tableHTML = '\n            <thead>\n                <td style="opacity: 50%; width: 30%;">Name</td>\n                <td style="opacity: 50%; width: 15%;">Type</td>\n                <td style="opacity: 50%; width: 20%;">Activity</td>\n                <td style="opacity: 50%;">Time</td>\n                <td style="opacity: 50%;">Date</td>\n            </thead>\n        ';
-                        for(var i = 0; i < data.length; i++){
-                            var quantityChange = Number(data[i]['oldValue']) - Number(data[i]['newValue']);
-                            var html = '\n                    <tr style="vertical-align: middle" id="tableRow_">\n                        <td class="typeRow">'.concat(data[i]['itemName'], '</td>\n                        <td class="typeRow">').concat(data[i]['type'], "</td>\n                        <td> Quanity change:   ").concat(quantityChange, " </td>\n                        <td> ").concat(data[i]['time'], " </td>\n                        <td> ").concat(data[i]['date'], " </td>\n                    </tr>\n            ");
-                            tableHTML += html;
-                        }
-                        itemTable.innerHTML = tableHTML;
-                    });
-                    return [
-                        2
-                    ];
-            }
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/getActivityLog`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
         });
-    })();
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log(data);
+            var tableHTML = `
+            <thead>
+                <td style="opacity: 50%; width: 30%;">Name</td>
+                <td style="opacity: 50%; width: 15%;">Type</td>
+                <td style="opacity: 50%; width: 20%;">Activity</td>
+                <td style="opacity: 50%;">Time</td>
+                <td style="opacity: 50%;">Date</td>
+            </thead>
+        `;
+            for (let i = 0; i < data.length; i++) {
+                const quantityChange = Number(data[i]['oldValue']) - Number(data[i]['newValue']);
+                const html = `
+                    <tr style="vertical-align: middle" id="tableRow_">
+                        <td class="typeRow">${data[i]['itemName']}</td>
+                        <td class="typeRow">${data[i]['type']}</td>
+                        <td> Quanity change:   ${quantityChange} </td>
+                        <td> ${data[i]['time']} </td>
+                        <td> ${data[i]['date']} </td>
+                    </tr>
+            `;
+                tableHTML += html;
+            }
+            itemTable.innerHTML = tableHTML;
+        });
+    });
 }
-
+//# sourceMappingURL=inventoryManager.js.map

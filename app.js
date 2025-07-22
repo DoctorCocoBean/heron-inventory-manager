@@ -3,11 +3,9 @@
 
 // Fixed: inline input calculator broken when inputing signle number
 // Fixed: alignment of out of stock div when mousing over
-// ---------------------------------------------
-
 // Fix: inline calculating 0+15 is broken
-
 // Be able to mark low stock item as ordered
+// ---------------------------------------------
 
 // On low stock page, make search confined to lowstock items
 

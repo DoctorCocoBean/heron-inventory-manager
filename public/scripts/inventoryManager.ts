@@ -18,6 +18,7 @@ class Item
     barcode     : number = 0;
     tags        : string = '';
     notes       : string = '';
+    stockOrdered: boolean = false;
 }
 
 class QuanityChangeSummary
@@ -189,7 +190,7 @@ function calculateInputField(inputData: string): number
     }
 
     // Done parsing so check to see if there's one more number to add to caclulation
-    if (result && element != '') {
+    if ((result != null) && element != '') {
         result = calculate(result, Number(element), op);
         if (result == null)
             console.log("error calculating");
@@ -448,6 +449,8 @@ async function getItemById(itemId)
 
 async function updateItem(itemData: Item)
 {
+    console.log('upate item');
+    
     const item    = await getItemById(itemData.itemId);
     const request = new Request(`/edit/${itemData.itemId}`, {
         method: "POST",
@@ -461,6 +464,7 @@ async function updateItem(itemData: Item)
             itemBarcode: item[0].barcode,
             itemNotes: item[0].notes,
             itemTags: item[0].tags,
+            itemStockOrdered: itemData.stockOrdered,
         }),
     })
     
@@ -882,7 +886,7 @@ async function loadLowStockItemTable()
         for (let i=0; i<data.length; i++) 
         {
             tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'],
-                                            data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+                                            data[i]['minimumLevel'], data[i]['price'], data[i]['value'], data[i]['stockOrdered']);
         }
 
         itemTable.innerHTML= tableHTML;
@@ -892,23 +896,47 @@ async function loadLowStockItemTable()
 function itemOrderedCheckboxClicked(itemId: number) 
 {
     const tableRow = document.getElementById(`tableRow_${itemId}`);
-    const checkbox = tableRow.getElementsByClassName('orderedCheckbox')[0];
+    const checkbox = tableRow.getElementsByClassName('orderedCheckbox')[0] as HTMLInputElement;
 
     if (checkbox.checked) {
         tableRow.classList.remove('table-active');
+        updateItemOrderedStatus(itemId, false);
     } else {
         tableRow.classList.add('table-active');
+        updateItemOrderedStatus(itemId, true);
     }
 
     checkbox.checked = !checkbox.checked;
 }
 
-function createLowStockTableRowHTML(itemId: number, name: string, quantity: number, minimumLevel: number, price: number, value: number): string
+async function updateItemOrderedStatus(itemId: number, stockOrdered: boolean)
 {
-    // If below stock level show red background div
+    const request = new Request(`/updateItemOrderedStatus`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            itemId: itemId,
+            stockOrdered: stockOrdered,
+        }),
+    })
+    
+    const response = await fetch(request);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+    }
+}
+
+function createLowStockTableRowHTML(itemId: number, name: string, quantity: number, minimumLevel: number, price: number, value: number, stockOrdered: boolean): string
+{
     let lowStockStyle = 'display: inline; background-color: green';
-    let btnSize = '25px';
-    let isLowStock = false;
+    let btnSize       = '25px';
+    let isLowStock    = false;
+    let tableActiveClass = '';
+    let checked = '';
+
+    // If below stock level show red background div
     if (Number(quantity) < Number(minimumLevel))
     {
         isLowStock = true;
@@ -919,8 +947,13 @@ function createLowStockTableRowHTML(itemId: number, name: string, quantity: numb
         lowStockStyle = 'class="quantityDiv textBlockNoBGColor"';
     }
 
+    if (stockOrdered) {
+        tableActiveClass = 'table-active';
+        checked = 'checked';
+    } 
+
     const html = `
-            <tr class="" style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="itemOrderedCheckboxClicked(${itemId})" >
+            <tr class="${tableActiveClass}" style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="itemOrderedCheckboxClicked(${itemId})" >
                 <td class="nameRow">${name}</td>
                 <td style="">
                     <div class="container" onclick="startEditingQuantity(${itemId})" style="">
@@ -950,7 +983,7 @@ function createLowStockTableRowHTML(itemId: number, name: string, quantity: numb
                 <td class="valueRow">$${value}</td>
 
                 <td class="checkBoxRow" style="background-color: none; padding-left: 40px;">
-                    <input type="checkbox" class="orderedCheckbox" value="Stock Ordered" onclick="itemOrderedCheckboxClick(${itemId})"></input>
+                    <input type="checkbox" class="orderedCheckbox" value="Stock Ordered" onclick="itemOrderedCheckboxClicked(${itemId})" ${checked}></input>
                 </td>
             </tr>
     `

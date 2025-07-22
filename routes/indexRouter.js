@@ -46,7 +46,6 @@ indexRouter.get("/dashboard", async (req, res) =>
 
 indexRouter.get("/lowstock", async (req, res) => 
 {
-    console.log('loading low stock');
     const allItems = await db.getAllItems();
     var metaData = await db.calculateItemsMetaData();    
     var lowItems = [];
@@ -55,7 +54,6 @@ indexRouter.get("/lowstock", async (req, res) =>
     for (i=0; i<allItems.length; i++)
     {
         if (allItems[i].quantity < allItems[i].minimumLevel) {
-            console.log(allItems[i].name);
             lowItems.push(allItems[i]);
         }
     }
@@ -75,7 +73,6 @@ indexRouter.get("/transactionReport", async (req, res) =>
 
 indexRouter.get("/lowStockItems", async (req, res) => 
 {
-    console.log('loading low stock');
     const allItems = await db.getAllItems();
     var metaData = await db.calculateItemsMetaData();    
     var lowItems = [];
@@ -84,19 +81,15 @@ indexRouter.get("/lowStockItems", async (req, res) =>
     for (i=0; i<allItems.length; i++)
     {
         if (Number(allItems[i].quantity) < Number(allItems[i].minimumLevel)) {
-            console.log(allItems[i].name, allItems[i].quantity, allItems[i].minimumLevel);
             lowItems.push(allItems[i]);
         }
     }
 
-    console.log(lowItems.length);
     res.send(lowItems);
 });
 
 indexRouter.get("/edit/:itemIndex", async (req, res) => 
 {
-    console.log('am i using this?');
-    
     const itemIndex = req.params.itemIndex;
     const items     = await db.getAllItems();
     res.render("itemDetails", { itemIndex: itemIndex, items: items });
@@ -132,14 +125,22 @@ indexRouter.get("/search/:itemName", async (req, res) =>
 
 indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
-    itemIndex   = Number(req.params.itemIndex);
-    const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
+    itemIndex     = Number(req.params.itemIndex);
+    const value   = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
     const oldItem = await db.getItemById(req.params.itemIndex);
 
+    let stockOrdered = oldItem[0].stockOrdered;
+    if (stockOrdered == null) 
+        stockOrdered = false;
+
+    // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.itemQuantity) {
-        console.log('name is ', oldItem[0].name);
-        
         await db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+    }
+
+    // Reset stock ordered status if quantity is about minimum level
+    if (req.body.itemQuantity > req.body.itemMinQuantity) {
+        stockOrdered = false;    
     }
 
     await db.updateItem(itemIndex,
@@ -150,8 +151,16 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
                         value,
                         req.body.itemBarcode,
                         req.body.itemNotes,
-                        req.body.itemTags
+                        req.body.itemTags,
+                        stockOrdered
                     );
+    res.send();
+});
+
+
+indexRouter.post("/updateItemOrderedStatus", async (req, res) =>
+{
+    await db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();
 });
 
