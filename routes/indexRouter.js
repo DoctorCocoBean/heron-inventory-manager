@@ -197,9 +197,17 @@ indexRouter.post("/addItem", async (req, res) =>
 
 indexRouter.post("/deleteItem", async (req, res) =>
 {
-	console.log('deleting', req.body);
+	console.log('deleting', req.body.itemss);
 
     await db.deleteItem(req.body.itemId);
+    res.send();
+});
+
+indexRouter.post("/deleteArrayOfItems", async (req, res) =>
+{
+    console.log('trying');
+    
+    await db.deleteArrayOfItems(req.body.items);
     res.send();
 });
 

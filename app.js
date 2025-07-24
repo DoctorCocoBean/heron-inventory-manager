@@ -1,14 +1,10 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Sort transaction log by most changed
-// Sort activty log by most recent
-// Fix: When you click edit quantity on low stock page and then click away row html breaks
+// Remove multiple items by selecting checkboxes?
 // ---------------------------------------------
 
-// Searching break row html
-
-// Remove multiple items by selecting checkboxes?
+// Searching break row htmls
 
 // Validate update form inputs aren't null or weird characters
 

@@ -114,6 +114,20 @@ async function deleteItem(itemId)
     await pool.query(SQL);
 }
 
+async function deleteArrayOfItems(items)
+{
+    let SQL;
+    for (i=0; i<items.length; i++) 
+    {
+        console.log('deleting', items[i]);
+        
+        const SQL = `
+            DELETE FROM items WHERE id = ${items[i]};
+        `;
+        await pool.query(SQL);
+    }
+}
+
 async function updateItemOrderedStatus(itemId, stockOrdered)
 {
     try 
@@ -294,6 +308,7 @@ module.exports = {
     searchForLowStockItem,
     getItemById,
     deleteAllItems,
+    deleteArrayOfItems,
     deleteItem,
     calculateItemsMetaData,
     logActivity,

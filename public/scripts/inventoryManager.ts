@@ -39,6 +39,7 @@ const itemTable = document.getElementById("itemTable");
 const popup     = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
+var selectedItems = [];
 
 function showPopup(msg) 
 {
@@ -421,6 +422,27 @@ async function deleteItem(itemId: number)
 
     const msg = 'Item: ' + name + ' deleted.'
     showPopup(msg);
+}
+
+async function deleteSelectedItems()
+{
+    const request = new Request(`/deleteArrayOfItems`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            items: selectedItems,
+        }),
+    })
+
+    const response = await fetch(request);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+    }
+
+    loadItemTable();
+    showPopup('Deleted selected items');
 }
 
 async function deleteAllItems()
@@ -893,6 +915,7 @@ async function loadItemTable()
     {
         var tableHTML = `
             <thead>
+                <td style="opacity: 50%; width: 5%"></td>
                 <td style="opacity: 50%; width: 25%">Name</td>
                 <td style="opacity: 50%; width: 25%; margin-left: 20px; padding: 20px">
                 <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
@@ -966,6 +989,31 @@ function itemOrderedCheckboxClicked(itemId: number)
     }
 
     checkbox.checked = !checkbox.checked;
+}
+
+function itemSelectClick(itemId: number)
+{
+    const result = selectedItems.find(item => {
+        if ( String(item) === String(itemId) )
+            return true;
+        else 
+            return false;
+    });
+
+    if (result) {
+        selectedItems = selectedItems.filter(item => String(item) !== String(itemId));
+    } else {
+        selectedItems.push(itemId);
+    }
+
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    if (selectedItems.length > 0) {
+        deleteBtn.classList.remove('d-none')
+    } else {
+        deleteBtn.classList.add('d-none')
+    }
+
+    event.stopPropagation();
 }
 
 async function updateItemOrderedStatus(itemId: number, stockOrdered: boolean)
@@ -1070,6 +1118,11 @@ function createTableRowHTML(itemId: number, name: string, quantity: number, mini
     const html = `
     
             <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="openEditItemDialog(${itemId})" >
+
+                <td class="checkboxRow">
+                    <input type="checkbox" class="selectedCheckbox" value="" onclick="itemSelectClick(${itemId})" ></input>
+                </td>
+
                 <td class="nameRow">${name}</td>
                 <td style="">
                     <div class="container" onclick="startEditingQuantity(${itemId})" style="">

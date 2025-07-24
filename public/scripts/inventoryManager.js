@@ -48,6 +48,7 @@ const itemTable = document.getElementById("itemTable");
 const popup = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
+var selectedItems = [];
 function showPopup(msg) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -371,6 +372,24 @@ function deleteItem(itemId) {
         loadItemTable();
         const msg = 'Item: ' + name + ' deleted.';
         showPopup(msg);
+    });
+}
+function deleteSelectedItems() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/deleteArrayOfItems`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: selectedItems,
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+        loadItemTable();
+        showPopup('Deleted selected items');
     });
 }
 function deleteAllItems() {
@@ -756,6 +775,7 @@ function loadItemTable() {
         const data = response.json().then((data) => {
             var tableHTML = `
             <thead>
+                <td style="opacity: 50%; width: 5%"></td>
                 <td style="opacity: 50%; width: 25%">Name</td>
                 <td style="opacity: 50%; width: 25%; margin-left: 20px; padding: 20px">
                 <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
@@ -816,6 +836,28 @@ function itemOrderedCheckboxClicked(itemId) {
         updateItemOrderedStatus(itemId, true);
     }
     checkbox.checked = !checkbox.checked;
+}
+function itemSelectClick(itemId) {
+    const result = selectedItems.find(item => {
+        if (String(item) === String(itemId))
+            return true;
+        else
+            return false;
+    });
+    if (result) {
+        selectedItems = selectedItems.filter(item => String(item) !== String(itemId));
+    }
+    else {
+        selectedItems.push(itemId);
+    }
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    if (selectedItems.length > 0) {
+        deleteBtn.classList.remove('d-none');
+    }
+    else {
+        deleteBtn.classList.add('d-none');
+    }
+    event.stopPropagation();
 }
 function updateItemOrderedStatus(itemId, stockOrdered) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -904,6 +946,11 @@ function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value) 
     const html = `
     
             <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="openEditItemDialog(${itemId})" >
+
+                <td class="checkboxRow">
+                    <input type="checkbox" class="selectedCheckbox" value="" onclick="itemSelectClick(${itemId})" ></input>
+                </td>
+
                 <td class="nameRow">${name}</td>
                 <td style="">
                     <div class="container" onclick="startEditingQuantity(${itemId})" style="">
