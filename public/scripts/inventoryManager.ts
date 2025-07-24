@@ -1263,6 +1263,33 @@ async function uploadCSV()
     loadItemTable();
 }
 
+async function downloadCSV()
+{
+    console.log('test');
+    
+    const request = new Request(`/downloadCSV`, {
+        method: "GET",
+        headers: { 'Accept': 'text/plain' }
+    })
+
+    const response = await fetch(request);
+    const data = response.text().then((data) => 
+    {
+        console.log('data: ', data);
+        var blob = new Blob([data], { type: 'text/plain'});
+
+        var a = document.createElement('a');
+        a.download = 'test.txt';
+        a.href = URL.createObjectURL(blob);
+        a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+    });
+}
+
 async function loadTransactionLog()
 {
     const request = new Request(`/getActivityLog`, {

@@ -252,6 +252,23 @@ indexRouter.post("/uploadCSV", (req, res) =>
     res.redirect("/");
 });
 
+indexRouter.get("/downloadCSV", async (req, res) => 
+{
+    console.log('Parsing... ');
+    
+    try {
+        const config = { delelimiter: "," }
+        const rows = await db.getAllItems();
+        const data = papa.unparse(rows, config);
+        console.log(data);
+        res.send(data);
+    }
+    catch {
+        console.log('Failed to download csv');
+        throw new Error('Error downlaoding csv'); // Express will catch this
+    }
+});
+
 indexRouter.post("/new", async (req, res) => 
 {
     console.log(`post ${req.body.name}`);
