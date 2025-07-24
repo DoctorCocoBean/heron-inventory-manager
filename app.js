@@ -1,16 +1,12 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-
+// Sort transaction log by most changed
+// Sort activty log by most recent
+// Fix: When you click edit quantity on low stock page and then click away row html breaks
 // ---------------------------------------------
 
-// Sort transaction log by most changed
-
-// Sort activty log by most recent
-
-// When you click edit quantity on low stock page and then click away row html breaks
-
-// On delete item show info popup
+// Searching break row html
 
 // Remove multiple items by selecting checkboxes?
 
@@ -18,14 +14,14 @@
 
 // Downloading/export csv
 
-// Order by date or order by name
-
 // Deleting all items while creating back up
 
 // View by tag
 
 // ---------- Later ----------------- 
 
+// For transactions, limit results by date range
+// Be able to swtich data back and forth from sortly and InventoryAppss
 // Create icons for different pages
 // Ctrl z undo, delete, quantity
 // Editing item Finish creating the form to edit items

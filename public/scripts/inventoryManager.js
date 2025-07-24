@@ -630,7 +630,13 @@ function changeRowStateToDefaultView(itemId) {
         const price = item[0]['price'];
         const value = item[0]['value'];
         const tableRow = document.getElementById(`tableRow_${itemId}`);
-        tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
+        console.log(quantity, minimumLevel);
+        if (Number(quantity) > Number(minimumLevel)) {
+            tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
+        }
+        else {
+            tableRow.innerHTML = createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value, false);
+        }
     });
 }
 function changeRowStateToEditQuantity(itemId) {
@@ -643,14 +649,9 @@ function changeRowStateToEditQuantity(itemId) {
         const minimumLevel = item[0]['minimumLevel'];
         const price = item[0]['price'];
         const value = item[0]['value'];
-        tableRow.innerHTML = `
-        <td class="nameRow">${name}</td>
-        <td style="text-align: left;">
-            <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="6" onblur="onRowLoseFocus(${itemId})" style="margin-left: 30px; align-text: center;"></input>
-        </td>
-        <td class="minimumLevelRow">${minimumLevel}</td>
-        <td class="priceRow">${price}</td>
-        <td class="valueRow">${value}</td>
+        const elem = tableRow.getElementsByClassName('quantityDiv')[0];
+        elem.innerHTML = `
+            <input type="text" class="quantityRow" id="tempInput" value="${quantity}" size="6" onblur="onRowLoseFocus(${itemId})" style="align-text: center;"></input>
     `;
         const quantityInput = getHTMLInputById('tempInput');
         const initialValue = quantityInput.value;
@@ -659,7 +660,6 @@ function changeRowStateToEditQuantity(itemId) {
                 const input = getHTMLInputById('tempInput');
                 const result = calculateInputField(input.value);
                 isEditingRow = false;
-                console.log(result);
                 if (result == null)
                     input.value = initialValue;
                 else
@@ -673,7 +673,12 @@ function changeRowStateToEditQuantity(itemId) {
                 item.price = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
                 item.value = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
                 updateItem(item);
-                tableRow.innerHTML = createTableRowHTML(itemId, name, Number(result), Number(minimumLevel), Number(price), Number(value));
+                if (Number(quantity) > Number(minimumLevel)) {
+                    tableRow.innerHTML = createTableRowHTML(itemId, name, result, minimumLevel, price, value);
+                }
+                else {
+                    tableRow.innerHTML = createLowStockTableRowHTML(itemId, name, result, minimumLevel, price, value, false);
+                }
                 event.preventDefault();
             }
             if (event.key == "Escape") {
@@ -1012,7 +1017,6 @@ function loadTransactionLog() {
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
-            console.log(data);
             var tableHTML = `
             <thead>
                 <td style="opacity: 50%;">Name</td>
@@ -1050,21 +1054,32 @@ function loadTransactionLog() {
                     }
                     if (transaction < 0) {
                         t.totalSubtactions += Math.abs(transaction);
-                        console.log(t.name, t.totalSubtactions);
                     }
                     quantityChangeSummaries.push(t);
                 }
             }
+            // Sort items by total subtractions
+            const sortItems = (itemA, itemB) => {
+                if (Math.abs(itemA.totalSubtactions) > Math.abs(itemB.totalSubtactions)) {
+                    return -1;
+                }
+                else if (Math.abs(itemA.totalSubtactions) > Math.abs(itemB.totalSubtactions)) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
+            };
+            quantityChangeSummaries.sort(sortItems);
             // Add merged quantity change summaries
             for (let j = 0; j < quantityChangeSummaries.length; j++) // Merge two tranctions if same item
              {
+                const element = quantityChangeSummaries[j];
                 const html = `
                     <tr style="vertical-align: middle" id="tableRow_">
 
                         <td class="typeRow">${quantityChangeSummaries[j].name}</td>
-
                         <td style=""> ${quantityChangeSummaries[j].totalAdditions}</td>
-
                         <td style=""> ${quantityChangeSummaries[j].totalSubtactions}</td>
 
                     </tr>

@@ -280,7 +280,7 @@ async function logActivity(type, itemId, itemName, oldValue, newValue)
 
 async function getActivityLog()
 {
-    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY id`);
+    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY "date" DESC`);
     return rows;
 }
 

@@ -15,6 +15,7 @@
 			"type": "shell",
 			"command": "tsc.cmd --project tsconfig.json",
 			// "command": "npx swc 'E:/Coding Projects/NodeJS/InventoryApp/public/scripts/inventoryManager.ts' -o 'E:/Coding Projects/NodeJS/InventoryApp/public/scripts/inventoryManager.js'",
+			// "command": "npx swc scripts -d scripts/js --source-maps true",
 			"presentation": {
 				"echo": true,
 				"reveal": "always",
