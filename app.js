@@ -2,9 +2,8 @@
 //Database passwood: wCBrkihVgfbs9PGV
 
 // Remove multiple items by selecting checkboxes?
-// ---------------------------------------------
-
 // Searching break row htmls
+// ---------------------------------------------
 
 // Validate update form inputs aren't null or weird characters
 

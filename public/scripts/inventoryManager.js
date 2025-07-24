@@ -723,14 +723,7 @@ function searchForLowStockItem(name) {
         const response = yield fetch(request);
         const data = response.json().then((data) => {
             console.log(data);
-            var tableHTML = `
-            <thead>
-                <td>Name</td>
-                <td>Quantity</td>
-                <td>Minimum Level</td>
-                <td>Price</td>
-            </thead>
-        `;
+            var tableHTML = createLowStockTableHeader();
             for (let i = 0; i < data.length; i++) {
                 tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
             }
@@ -740,6 +733,7 @@ function searchForLowStockItem(name) {
 }
 function searchForItem(name) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('search?');
         if (name == "") {
             name = "all";
         }
@@ -750,14 +744,7 @@ function searchForItem(name) {
         const response = yield fetch(request);
         const data = response.json().then((data) => {
             console.log(data);
-            var tableHTML = `
-            <thead>
-                <td>Name</td>
-                <td>Quantity</td>
-                <td>Minimum Level</td>
-                <td>Price</td>
-            </thead>
-        `;
+            var tableHTML = createTableHeader();
             for (let i = 0; i < data.length; i++) {
                 tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
             }
@@ -765,7 +752,7 @@ function searchForItem(name) {
         });
     });
 }
-function loadItemTable() {
+function loadItemTable(searchValue) {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/search/all`, {
             method: "GET",
@@ -875,6 +862,40 @@ function updateItemOrderedStatus(itemId, stockOrdered) {
             throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
         }
     });
+}
+function createTableHeader() {
+    var tableHTML = `
+        <thead>
+            <td style="opacity: 50%; width: 5%"></td>
+            <td style="opacity: 50%; width: 25%">Name</td>
+            <td style="opacity: 50%; width: 25%; margin-left: 20px; padding: 20px">
+            <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
+            Quantity
+            </td>
+            <td style="opacity: 50%;">Minimum Level</td>
+            <td style="opacity: 50%; width: 15%">Price</td>
+            <td style="opacity: 50%;">Value</td>
+        </thead>
+        `;
+    return tableHTML;
+}
+function createLowStockTableHeader() {
+    var tableHTML = `
+        <thead>
+            <td style="opacity: 50%; width: 25%;">Name</td>
+            
+            <td style="opacity: 50%; width: 25%;">
+            <div style="background-color: none; width: 25px; height: 25px; display: inline-block;"></div>
+            Quantity
+            </td>
+
+            <td style="opacity: 50%; width: 15%;">Minimum Level</td>
+            <td style="opacity: 50%;">Price</td>
+            <td style="opacity: 50%;">Value</td>
+            <td style="opacity: 50%; width: 10%;">Stock Ordered</td>
+        </thead>
+    `;
+    return tableHTML;
 }
 function createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value, stockOrdered) {
     let lowStockStyle = 'display: inline; background-color: green';
