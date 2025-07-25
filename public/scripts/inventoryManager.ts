@@ -760,13 +760,10 @@ async function changeRowStateToDefaultView(itemId)
     const value        = item[0]['value'];
 
     const tableRow     = document.getElementById(`tableRow_${itemId}`);
-    console.log(quantity, minimumLevel);
-    
-    if (Number(quantity) > Number(minimumLevel)) {
-        tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, value);
-    } else {
-        tableRow.innerHTML = createLowStockTableRowHTML(itemId, name, quantity, minimumLevel, price, value, false);
-    }
+    const elem = tableRow.getElementsByClassName('quantityDiv')[0];
+    elem.innerHTML = `
+            ${quantity}
+    `;
 }
 
 async function changeRowStateToEditQuantity(itemId)

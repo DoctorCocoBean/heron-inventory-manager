@@ -1,13 +1,8 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
-// Remove multiple items by selecting checkboxes?
-// Searching break row htmls
+// Fixed: Pressing escape on low stock items break formatting
 // ---------------------------------------------
-
-// Pressing escape on low stock items break formatting
-
-// Validate update form inputs aren't null or weird characters
 
 // Downloading/export csv
 
