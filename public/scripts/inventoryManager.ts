@@ -27,6 +27,25 @@ class QuanityChangeSummary
     totalAdditions: number = 0;
 }
 
+interface ICommand
+{
+    undo(): void;
+}
+
+class QuantityChangeCommand implements ICommand
+{
+    quantity: number;
+
+    constructor(quantity: number) {
+        this.quantity = quantity;
+    }
+
+
+    undo(): void {
+
+    }
+}
+
 enum LogType 
 {
     QUANTITY = 1,
@@ -40,6 +59,7 @@ const popup     = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
+var commandStack = [];
 
 function showPopup(msg) 
 {
@@ -638,7 +658,7 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
     }
 
     // Start timer
-    quantityChangeTimer.id = setTimeout(async () => 
+    quantityChangeTimer.id = window.setTimeout(async () => 
     {
         quantityChangeTimer.started = false;
 
@@ -762,7 +782,9 @@ async function changeRowStateToDefaultView(itemId)
     const tableRow     = document.getElementById(`tableRow_${itemId}`);
     const elem = tableRow.getElementsByClassName('quantityDiv')[0];
     elem.innerHTML = `
+             <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
             ${quantity}
+            </div>
     `;
 }
 
@@ -810,11 +832,12 @@ async function changeRowStateToEditQuantity(itemId)
 
             updateItem(item);
 
-            if (Number(quantity) > Number(minimumLevel)) {
-                tableRow.innerHTML = createTableRowHTML(itemId, name, result, minimumLevel, price, value);
-            } else {
-                tableRow.innerHTML = createLowStockTableRowHTML(itemId, name, result, minimumLevel, price, value, false);
-            }
+            const elem = tableRow.getElementsByClassName('quantityDiv')[0];
+            elem.innerHTML = `
+                    <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                    ${result}
+                    </div>
+            `;
 
             event.preventDefault();
         }
@@ -887,7 +910,7 @@ async function searchForItem(name: string)
     });
 }
 
-async function loadItemTable(searchValue: string)
+async function loadItemTable()
 {
     const request = new Request(`/search/all`, {
         method: "GET",
@@ -1262,8 +1285,6 @@ async function uploadCSV()
 
 async function downloadCSV()
 {
-    console.log('test');
-    
     const request = new Request(`/downloadCSV`, {
         method: "GET",
         headers: { 'Accept': 'text/plain' }
@@ -1276,7 +1297,7 @@ async function downloadCSV()
         var blob = new Blob([data], { type: 'text/plain'});
 
         var a = document.createElement('a');
-        a.download = 'test.txt';
+        a.download = 'items.txt';
         a.href = URL.createObjectURL(blob);
         a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
         a.style.display = 'none';

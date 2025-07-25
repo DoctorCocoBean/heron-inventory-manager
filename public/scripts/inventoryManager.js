@@ -37,6 +37,13 @@ class QuanityChangeSummary {
         this.totalAdditions = 0;
     }
 }
+class QuantityChangeCommand {
+    constructor(quantity) {
+        this.quantity = quantity;
+    }
+    undo() {
+    }
+}
 var LogType;
 (function (LogType) {
     LogType[LogType["QUANTITY"] = 1] = "QUANTITY";
@@ -49,6 +56,7 @@ const popup = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
+var commandStack = [];
 function showPopup(msg) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -550,7 +558,7 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
         quantityChangeTimer.started = true;
     }
     // Start timer
-    quantityChangeTimer.id = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+    quantityChangeTimer.id = window.setTimeout(() => __awaiter(this, void 0, void 0, function* () {
         quantityChangeTimer.started = false;
         // submit edit request
         const item = yield getItemById(quantityChangeTimer.itemId);
@@ -651,7 +659,9 @@ function changeRowStateToDefaultView(itemId) {
         const tableRow = document.getElementById(`tableRow_${itemId}`);
         const elem = tableRow.getElementsByClassName('quantityDiv')[0];
         elem.innerHTML = `
+             <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
             ${quantity}
+            </div>
     `;
     });
 }
@@ -689,12 +699,12 @@ function changeRowStateToEditQuantity(itemId) {
                 item.price = Number(tableRow.getElementsByClassName("priceRow")[0].innerHTML);
                 item.value = Number(tableRow.getElementsByClassName("valueRow")[0].innerHTML);
                 updateItem(item);
-                if (Number(quantity) > Number(minimumLevel)) {
-                    tableRow.innerHTML = createTableRowHTML(itemId, name, result, minimumLevel, price, value);
-                }
-                else {
-                    tableRow.innerHTML = createLowStockTableRowHTML(itemId, name, result, minimumLevel, price, value, false);
-                }
+                const elem = tableRow.getElementsByClassName('quantityDiv')[0];
+                elem.innerHTML = `
+                    <div class="quantityRow" style="display: inline; margin: 10px;" onclick="startEditingQuantity(${itemId})">
+                    ${result}
+                    </div>
+            `;
                 event.preventDefault();
             }
             if (event.key == "Escape") {
@@ -749,7 +759,7 @@ function searchForItem(name) {
         });
     });
 }
-function loadItemTable(searchValue) {
+function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/search/all`, {
             method: "GET",
@@ -1076,7 +1086,6 @@ function uploadCSV() {
 }
 function downloadCSV() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('test');
         const request = new Request(`/downloadCSV`, {
             method: "GET",
             headers: { 'Accept': 'text/plain' }
@@ -1086,7 +1095,7 @@ function downloadCSV() {
             console.log('data: ', data);
             var blob = new Blob([data], { type: 'text/plain' });
             var a = document.createElement('a');
-            a.download = 'test.txt';
+            a.download = 'items.txt';
             a.href = URL.createObjectURL(blob);
             a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
             a.style.display = 'none';
