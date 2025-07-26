@@ -1,6 +1,7 @@
 :root {
     --primary-color: #5595ec;
     --primary-font: roboto;
+    --dashboard-tile-size: 200px;
 }
 
 .sideBar {
@@ -124,4 +125,20 @@
 
 .table tr.table-active td {
   background-color: #bde299; /* Your desired background color */
+}
+
+.dashboardTile 
+{
+    width: var(--dashboard-tile-size);
+    height: var(--dashboard-tile-size);
+    background-color: rgb(255, 255, 255);
+    margin: 20px;
+
+    border-radius: 10px;
+    filter: drop-shadow(0px 0px 10px rgb(219, 218, 218));
+
+    font-family: var(--primary-font);
+
+    display: grid;
+    place-items: center;
 }

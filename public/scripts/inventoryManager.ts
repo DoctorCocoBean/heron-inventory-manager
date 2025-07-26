@@ -1,3 +1,4 @@
+
 class QuantityChangeTimer
 {
     id: number = -1;
@@ -516,6 +517,25 @@ async function getItemById(itemId)
     return data;
 }
 
+async function getItemJson(itemId) 
+{
+    console.log('hello');
+    
+    const request = new Request(`/getItemById/${itemId}`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+    })
+
+    const response = await fetch(request);
+    const data = await response.json().then((data) => 
+    { 
+        const s = JSON.stringify(data[0]);
+        console.log(JSON.parse(s));
+        
+        return data;
+    });
+}
+
 async function getItemNameById(itemId)
 {
     const request = new Request(`/getItemById/${itemId}`, {
@@ -963,6 +983,7 @@ async function loadItemTable()
         }
 
         itemTable.innerHTML= tableHTML;
+        getItemJson(6051);
     });
 }
 

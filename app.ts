@@ -2,32 +2,33 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 
+
 // Activity stores date in a way that can't be sorted
 // Activity log date is accurate enough to sort 
 // Undo stack should match up with activity log
 // Added "are you sure" prompt before deleting all items
 // Deleting all items while creating back up
+// Change itemIndex to itemId
+// Dashboard
 // ---------------------------------------------
 
-// Change itemIndex to itemId
+// Try uploaded a downloaded csv
 
-// Process bar when uploading
+// Create icons for different pages
 
-// Be able to undo full item edits
-// Ctrl z undo
-
-// Double check Downloading/export csv
-
-// View by tag
-
-// figure out how to normalize items table ids
+// Deploy version 1 of app
 
 // ---------- Later ----------------- 
 
 // For transactions, limit results by date range
-// Be able to swtich data back and forth from sortly and InventoryAppss
-// Create icons for different pages
+// Be able to swtich data back and forth from sortly and InventoryApp
 // Use SolidJS
+// View by tag
+// Process bar when uploading
+// Be able to undo full item edits by using JSON.stringify to conversion json to string for old and new valuess
+// Normalize items table after deleting all items? alter sequence public.books_id_seq restart with 1;
+// Use gallery of images like pinterest
+// Dashbaord show low stock items in mini tables
 
 import * as express from 'express';
 import * as path from 'node:path';

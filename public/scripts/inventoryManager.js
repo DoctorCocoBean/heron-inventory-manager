@@ -453,6 +453,21 @@ function getItemById(itemId) {
         return data;
     });
 }
+function getItemJson(itemId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('hello');
+        const request = new Request(`/getItemById/${itemId}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const response = yield fetch(request);
+        const data = yield response.json().then((data) => {
+            const s = JSON.stringify(data[0]);
+            console.log(JSON.parse(s));
+            return data;
+        });
+    });
+}
 function getItemNameById(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/getItemById/${itemId}`, {
@@ -812,6 +827,7 @@ function loadItemTable() {
                 tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
             }
             itemTable.innerHTML = tableHTML;
+            getItemJson(6051);
         });
     });
 }

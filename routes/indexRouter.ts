@@ -34,17 +34,18 @@ indexRouter.get("/items", async (req, res) =>
 {
     console.log('loading page');
     
-    const items = await db.getAllItems();
-    var metaData = await db.calculateItemsMetaData();    
-
-    metaData.totalValue = convertNumToString(metaData.totalValue);
+    const items               = await db.getAllItems();
+    var   metaData            = await db.calculateItemsMetaData();
+          metaData.totalValue = convertNumToString(metaData.totalValue);
 
     res.render("items", { items: items, metaData: metaData });
 });
 
 indexRouter.get("/dashboard", async (req, res) => 
 {
-    res.render("dashboard", { });
+    var metaData            = await db.calculateItemsMetaData();
+        metaData.totalValue = convertNumToString(metaData.totalValue);
+    res.render("dashboard", { metaData });
 });
 
 indexRouter.get("/lowstock", async (req, res) => 
@@ -91,11 +92,11 @@ indexRouter.get("/lowStockItems", async (req, res) =>
     res.send(lowItems);
 });
 
-indexRouter.get("/edit/:itemIndex", async (req, res) => 
+indexRouter.get("/edit/:itemId", async (req, res) => 
 {
-    const itemIndex = req.params.itemIndex;
+    const itemId = req.params.itemId;
     const items     = await db.getAllItems();
-    res.render("itemDetails", { itemIndex: itemIndex, items: items });
+    res.render("itemDetails", { itemId: itemId, items: items });
 });
 
 indexRouter.get("/getItemById/:itemId", async (req, res) => 
@@ -141,23 +142,20 @@ indexRouter.get("/search/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.post("/edit/:itemIndex", async (req, res) =>
+indexRouter.post("/edit/:itemId", async (req, res) =>
 {
-    console.log('update');
-    
-    const itemIndex     = Number(req.params.itemIndex);
+    const itemId     = Number(req.params.itemId);
     const value   = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
-    const oldItem = await db.getItemById(req.params.itemIndex);
+    const oldItem = await db.getItemById(req.params.itemId);
 
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null) 
         stockOrdered = false;
 
     // Log activity if quantity has changed
-    if (oldItem[0].quantity != req.body.itemQuantity) {
-        console.log('sldkfjsldfkjsldkjfkl');
-        
-        await db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+    if (oldItem[0].quantity != req.body.itemQuantity) 
+    {
+        await db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
 
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.itemQuantity;
@@ -168,7 +166,7 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
         stockOrdered = false;    
     }
 
-    await db.updateItem(itemIndex,
+    await db.updateItem(itemId,
                         req.body.itemName,
                         req.body.itemQuantity,
                         req.body.itemMinQuantity,

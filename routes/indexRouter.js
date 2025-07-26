@@ -39,7 +39,9 @@ indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, functi
     res.render("items", { items: items, metaData: metaData });
 }));
 indexRouter.get("/dashboard", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.render("dashboard", {});
+    var metaData = yield db.calculateItemsMetaData();
+    metaData.totalValue = convertNumToString(metaData.totalValue);
+    res.render("dashboard", { metaData });
 }));
 indexRouter.get("/lowstock", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allItems = yield db.getAllItems();
@@ -71,10 +73,10 @@ indexRouter.get("/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0
     }
     res.send(lowItems);
 }));
-indexRouter.get("/edit/:itemIndex", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const itemIndex = req.params.itemIndex;
+indexRouter.get("/edit/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const itemId = req.params.itemId;
     const items = yield db.getAllItems();
-    res.render("itemDetails", { itemIndex: itemIndex, items: items });
+    res.render("itemDetails", { itemId: itemId, items: items });
 }));
 indexRouter.get("/getItemById/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -107,18 +109,16 @@ indexRouter.get("/search/:itemName", (req, res) => __awaiter(void 0, void 0, voi
     }
     res.send(items);
 }));
-indexRouter.post("/edit/:itemIndex", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('update');
-    const itemIndex = Number(req.params.itemIndex);
+indexRouter.post("/edit/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const itemId = Number(req.params.itemId);
     const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
-    const oldItem = yield db.getItemById(req.params.itemIndex);
+    const oldItem = yield db.getItemById(req.params.itemId);
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null)
         stockOrdered = false;
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.itemQuantity) {
-        console.log('sldkfjsldfkjsldkjfkl');
-        yield db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+        yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.itemQuantity;
     }
@@ -126,7 +126,7 @@ indexRouter.post("/edit/:itemIndex", (req, res) => __awaiter(void 0, void 0, voi
     if (req.body.itemQuantity > req.body.itemMinQuantity) {
         stockOrdered = false;
     }
-    yield db.updateItem(itemIndex, req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, value, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags, stockOrdered);
+    yield db.updateItem(itemId, req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, value, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags, stockOrdered);
     res.send();
 }));
 indexRouter.post("/updateItemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

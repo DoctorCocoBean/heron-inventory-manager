@@ -30,13 +30,35 @@
             <%- include('sideBar'); %>
         
             <!-- content -->
-            <main class="col overflow-auto min-vh-100">
-                <div class="bg-light min-vh-100 rounded-3 p-3">
+            <main class="col overflow-auto min-vh-100 p-0" style="background-color: rgb(248, 247, 247);">
 
-                    <div class="scrollable" >
-                    </div>
-
+                <div class="">
+                    <h3 style="opacity: 20%;" class="p-2">Dashboard</h3>
                 </div>
+                <hr style="opacity: 10%;">
+
+                <div class="d-flex flex-row justify-content-center mx-auto">
+                    <div class="dashboardTile">
+                        <div style="text-align: center;">
+                            <b style="font-size: 30px;"><%= metaData.numOfItems %></b><br>
+                            Items
+                        </div>
+                    </div>
+                    <div class="dashboardTile">
+                        <div style="text-align: center;">
+                            <b style="font-size: 30px;"><%= metaData.totalQuantity %></b><br>
+                            Total Quantity
+                        </div>
+                    </div>
+                    <div class="dashboardTile">
+                        <div style="text-align: center;">
+                            <b style="font-size: 30px;">$<%= metaData.totalValue %></b><br>
+                            Total Values
+                        </div>
+                    </div>
+                </div>
+
+
             </main>
         </div>
     </div>
