@@ -37,6 +37,12 @@ class QuanityChangeSummary {
         this.totalAdditions = 0;
     }
 }
+const now = new Date();
+const time = now.toTimeString();
+// const date = now.toDateString();
+// const date = now.toLocaleDateString();
+// const date = now.date();
+// console.log(date);
 var LogType;
 (function (LogType) {
     LogType[LogType["QUANTITY"] = 1] = "QUANTITY";
@@ -754,7 +760,6 @@ function searchForItem(name) {
 }
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('LOSD');
         const request = new Request(`/search/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
@@ -1200,16 +1205,36 @@ function loadActivityLog() {
             </thead>
         `;
             for (let i = 0; i < data.length; i++) {
-                const quantityChange = Number(data[i]['oldValue']) - Number(data[i]['newValue']);
-                const html = `
-                    <tr style="vertical-align: middle" id="tableRow_">
-                        <td class="typeRow">${data[i]['itemName']}</td>
-                        <td class="typeRow">${data[i]['type']}</td>
-                        <td> Quanity change:   ${quantityChange} </td>
-                        <td> ${data[i]['time']} </td>
-                        <td> ${data[i]['date']} </td>
-                    </tr>
-            `;
+                let html = '';
+                switch (data[i]['type']) {
+                    case 'quantity':
+                        {
+                            const quantityChange = Number(data[i]['oldValue']) - Number(data[i]['newValue']);
+                            html = `
+                            <tr style="vertical-align: middle" id="tableRow_">
+                                <td class="typeRow">${data[i]['itemName']}</td>
+                                <td class="typeRow">${data[i]['type']}</td>
+                                <td> Quanity change:   ${quantityChange} </td>
+                                <td> ${data[i]['time']} </td>
+                                <td> ${data[i]['date']} </td>
+                            </tr>
+                    `;
+                            break;
+                        }
+                    case 'delete all':
+                        {
+                            html = `
+                            <tr style="vertical-align: middle" id="tableRow_">
+                                <td class="typeRow">Delete All</td>
+                                <td class="typeRow">${data[i]['type']}</td>
+                                <td> Delete all items </td>
+                                <td> ${data[i]['time']} </td>
+                                <td> ${data[i]['date']} </td>
+                            </tr>
+                    `;
+                            break;
+                        }
+                }
                 tableHTML += html;
             }
             itemTable.innerHTML = tableHTML;

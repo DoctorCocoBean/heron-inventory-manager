@@ -13,46 +13,6 @@ const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
 const db = require("../pool/queries");
-class DeleteAllCommand {
-    constructor() {
-        this.name = 'Delete All';
-    }
-    undo() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('undoing delete all');
-            yield db.overwrightItemsTableWithBackup();
-        });
-    }
-}
-class QuantityChangeCommand {
-    constructor(itemId, oldQuantity, newQuantity) {
-        this.name = 'Quantity Change';
-        this.itemId = itemId;
-        this.oldQuantity = oldQuantity;
-        this.newQuantity = newQuantity;
-    }
-    undo() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Get item
-            const item = (yield db.getItemById(this.itemId))[0];
-            const value = Number(this.newQuantity) * Number(item.price);
-            const quantityChange = this.newQuantity - this.oldQuantity;
-            const newValue = Number(item.quantity) - quantityChange;
-            let stockOrdered = item.stockOrdered;
-            if (stockOrdered == null)
-                stockOrdered = false;
-            // Log activity if quantity has changed
-            yield db.logActivity('quantity', String(this.itemId), item.name, String(item.quantity), String(this.newQuantity));
-            // Reset stock ordered status if quantity is about minimum level
-            if (item.quantity > item.minimumLevel) {
-                stockOrdered = false;
-            }
-            yield db.updateItem(this.itemId, item.name, newValue, item.minimumLevel, item.price, value, item.barcode, item.notes, item.tags, stockOrdered);
-        });
-    }
-}
-// --- GLOBALS -----
-var commandStack = [];
 indexRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
 }));
@@ -73,7 +33,6 @@ function convertNumToString(num) {
 }
 indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('loading page');
-    console.log('commandStack', commandStack.length);
     const items = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
     metaData.totalValue = convertNumToString(metaData.totalValue);
@@ -158,12 +117,10 @@ indexRouter.post("/edit/:itemIndex", (req, res) => __awaiter(void 0, void 0, voi
         stockOrdered = false;
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.itemQuantity) {
+        console.log('sldkfjsldfkjsldkjfkl');
         yield db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.itemQuantity;
-        let c = new QuantityChangeCommand(itemIndex, oldQuantity, newQuantity);
-        commandStack.push(c);
-        console.log('commandStack', commandStack);
     }
     // Reset stock ordered status if quantity is about minimum level
     if (req.body.itemQuantity > req.body.itemMinQuantity) {
@@ -236,31 +193,60 @@ indexRouter.get("/getTableMetaData", (req, res) => __awaiter(void 0, void 0, voi
     yield db.calculateItemsMetaData();
 }));
 indexRouter.post('/deleteAllItems', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('deleting all items');
     yield db.backupItemsTable();
     yield db.deleteAllItems();
-    commandStack.push(new DeleteAllCommand());
+    yield db.logActivity('delete all', null, null, null, null);
     res.redirect("/");
 }));
 indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('log');
     yield db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 }));
 indexRouter.get('/getActivityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('get log');
     const rows = yield db.getActivityLog();
     res.send(rows);
 }));
 indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (commandStack.length > 0) {
-        (commandStack[commandStack.length - 1]).undo();
-        commandStack.pop();
-        res.send('Undo successful');
+    try {
+        const activtyLog = yield db.getActivityLog();
+        const log = activtyLog[0];
+        switch (log.type) {
+            case 'quantity':
+                undoQuantityChange(log.itemId, log.oldValue, log.newValue);
+                break;
+            case 'delete all':
+                console.log('undo delete all');
+                undoDeleteAll();
+                break;
+        }
+        yield db.removeActivityLogById(log.id);
     }
-    else {
-        res.send('Nothing to undo');
+    catch (error) {
+        res.send('Error trying to undo: ', error);
     }
+    res.send('Undo successful');
 }));
+function undoQuantityChange(itemId, oldQuantity, newQuantity) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Get item
+        const item = (yield db.getItemById(itemId))[0];
+        const value = Number(oldQuantity) * Number(item.price);
+        const quantityChange = newQuantity - oldQuantity;
+        const newValue = Number(item.quantity) - quantityChange;
+        let stockOrdered = item.stockOrdered;
+        if (stockOrdered == null)
+            stockOrdered = false;
+        // Reset stock ordered status if quantity is about minimum level
+        if (item.quantity > item.minimumLevel) {
+            stockOrdered = false;
+        }
+        yield db.updateItem(itemId, item.name, newValue, item.minimumLevel, item.price, value, item.barcode, item.notes, item.tags, stockOrdered);
+    });
+}
+function undoDeleteAll() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield db.overwriteItemsTableWithBackup();
+    });
+}
 exports.default = indexRouter;
 //# sourceMappingURL=indexRouter.js.map

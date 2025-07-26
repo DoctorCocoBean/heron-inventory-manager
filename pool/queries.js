@@ -301,10 +301,9 @@ async function logActivity(type, itemId, itemName, oldValue, newValue)
 {
     const now = new Date();
     const time = now.toTimeString();
-    const date = now.toDateString();
+    const date = now.toLocaleDateString();
 
     console.log('logging item name', itemName);
-    
 
     const SQL = `
         INSERT INTO "activity-log" (type, "itemId", "itemName", "oldValue", "newValue", "time", "date")
@@ -314,9 +313,18 @@ async function logActivity(type, itemId, itemName, oldValue, newValue)
     await pool.query(SQL);
 }
 
+async function removeActivityLogById(dbRowId)
+{
+    const SQL = `
+        DELETE FROM "activity-log" WHERE id = ${dbRowId};
+    `;
+
+    await pool.query(SQL);
+}
+
 async function getActivityLog()
 {
-    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY "date" DESC`);
+    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY "date" DESC, "time" DESC`);
     return rows;
 }
 
@@ -331,9 +339,11 @@ module.exports = {
     getItemById,
     deleteAllItems,
     backupItemsTable,
+    overwriteItemsTableWithBackup,
     deleteArrayOfItems,
     deleteItem,
     calculateItemsMetaData,
     logActivity,
+    removeActivityLogById,
     getActivityLog
 };
