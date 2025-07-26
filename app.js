@@ -5,13 +5,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Activity stores date in a way that can't be sorted
 // Activity log date is accurate enough to sort 
 // Undo stack should match up with activity log
-// Add "are you sure" prompt before deleting all items
+// Added "are you sure" prompt before deleting all items
+// Deleting all items while creating back up
 // ---------------------------------------------
 // Change itemIndex to itemId
 // Process bar when uploading
-// Deleting all items while creating back up
-// Ctrl z undo, delete, quantity
-// Downloading/export csv
+// Be able to undo full item edits
+// Ctrl z undo
+// Double check Downloading/export csv
 // View by tag
 // figure out how to normalize items table ids
 // ---------- Later ----------------- 
