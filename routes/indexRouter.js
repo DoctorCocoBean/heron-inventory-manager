@@ -13,7 +13,40 @@ const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
 const db = require("../pool/queries");
-console.log('get');
+class DeleteAllCommand {
+    undo() {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
+    }
+}
+class QuantityChangeCommand {
+    constructor(itemId, oldQuantity, newQuantity) {
+        this.itemId = itemId;
+        this.oldQuantity = oldQuantity;
+        this.newQuantity = newQuantity;
+    }
+    undo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Get item
+            const item = (yield db.getItemById(this.itemId))[0];
+            const value = Number(this.newQuantity) * Number(item.price);
+            const quantityChange = this.newQuantity - this.oldQuantity;
+            const newValue = Number(item.quantity) - quantityChange;
+            let stockOrdered = item.stockOrdered;
+            if (stockOrdered == null)
+                stockOrdered = false;
+            // Log activity if quantity has changed
+            yield db.logActivity('quantity', String(this.itemId), item.name, String(item.quantity), String(this.newQuantity));
+            // Reset stock ordered status if quantity is about minimum level
+            if (item.quantity > item.minimumLevel) {
+                stockOrdered = false;
+            }
+            yield db.updateItem(this.itemId, item.name, newValue, item.minimumLevel, item.price, value, item.barcode, item.notes, item.tags, stockOrdered);
+        });
+    }
+}
+// --- GLOBALS -----
+var commandStack = [];
 indexRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
 }));
@@ -34,6 +67,7 @@ function convertNumToString(num) {
 }
 indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('loading page');
+    console.log('commandStack', commandStack.length);
     const items = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
     metaData.totalValue = convertNumToString(metaData.totalValue);
@@ -109,6 +143,7 @@ indexRouter.get("/search/:itemName", (req, res) => __awaiter(void 0, void 0, voi
     res.send(items);
 }));
 indexRouter.post("/edit/:itemIndex", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('update');
     const itemIndex = Number(req.params.itemIndex);
     const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
     const oldItem = yield db.getItemById(req.params.itemIndex);
@@ -118,6 +153,11 @@ indexRouter.post("/edit/:itemIndex", (req, res) => __awaiter(void 0, void 0, voi
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.itemQuantity) {
         yield db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+        const oldQuantity = oldItem[0].quantity;
+        const newQuantity = req.body.itemQuantity;
+        let c = new QuantityChangeCommand(itemIndex, oldQuantity, newQuantity);
+        commandStack.push(c);
+        console.log('commandStack', commandStack);
     }
     // Reset stock ordered status if quantity is about minimum level
     if (req.body.itemQuantity > req.body.itemMinQuantity) {
@@ -204,6 +244,16 @@ indexRouter.get('/getActivityLog', (req, res) => __awaiter(void 0, void 0, void 
     const rows = yield db.getActivityLog();
     res.send(rows);
 }));
-// module.exports = { indexRouter }
+indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('trying to undo');
+    if (commandStack.length > 0) {
+        commandStack[commandStack.length - 1].undo();
+        commandStack.pop();
+        res.send('Undo successful');
+    }
+    else {
+        res.send('Nothing to undo');
+    }
+}));
 exports.default = indexRouter;
 //# sourceMappingURL=indexRouter.js.map

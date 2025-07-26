@@ -37,13 +37,6 @@ class QuanityChangeSummary {
         this.totalAdditions = 0;
     }
 }
-class QuantityChangeCommand {
-    constructor(quantity) {
-        this.quantity = quantity;
-    }
-    undo() {
-    }
-}
 var LogType;
 (function (LogType) {
     LogType[LogType["QUANTITY"] = 1] = "QUANTITY";
@@ -56,7 +49,6 @@ const popup = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
-var commandStack = [];
 function showPopup(msg) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -761,6 +753,7 @@ function searchForItem(name) {
 }
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('LOSD');
         const request = new Request(`/search/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
@@ -1219,6 +1212,24 @@ function loadActivityLog() {
                 tableHTML += html;
             }
             itemTable.innerHTML = tableHTML;
+        });
+    });
+}
+function undoCommand() {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('trying to undo command.');
+        const request = new Request(`/undoCommand`, {
+            method: "GET",
+            headers: { 'Accept': 'text/plain' }
+        });
+        const response = yield fetch(request);
+        const data = response.text().then((data) => {
+            console.log('data: ', data);
+            window.setTimeout(() => {
+                console.log('timeout');
+                loadItemTable();
+            }, 100);
+            showPopup(data);
         });
     });
 }

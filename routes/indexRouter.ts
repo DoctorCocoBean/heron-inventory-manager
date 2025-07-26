@@ -3,8 +3,66 @@ const indexRouter = Router();
 import * as papa from 'papaparse';
 import * as db from '../pool/queries';
 
+interface ICommand
+{
+    undo(): Promise<void>;
+}
 
-    console.log('get');
+class DeleteAllCommand implements ICommand
+{
+    async undo(): Promise<void> 
+    {
+    }
+}
+
+class QuantityChangeCommand implements ICommand
+{
+    itemId: number;
+    newQuantity: number;
+    oldQuantity: number;
+
+    constructor(itemId: number, oldQuantity: number, newQuantity: number) {
+        this.itemId = itemId;
+        this.oldQuantity = oldQuantity;
+        this.newQuantity = newQuantity;
+    }
+
+    async undo(): Promise<void> 
+    {
+        // Get item
+        const item = (await db.getItemById(this.itemId))[0];
+        const value   = Number(this.newQuantity) * Number(item.price);
+        const quantityChange = this.newQuantity - this.oldQuantity;
+        const newValue = Number(item.quantity) - quantityChange;
+
+        let stockOrdered = item.stockOrdered;
+        if (stockOrdered == null) 
+            stockOrdered = false;
+
+        // Log activity if quantity has changed
+        await db.logActivity('quantity', String(this.itemId), item.name, String(item.quantity), String(this.newQuantity));
+
+        // Reset stock ordered status if quantity is about minimum level
+        if (item.quantity > item.minimumLevel) {
+            stockOrdered = false;    
+        }
+
+        await db.updateItem(this.itemId,
+                            item.name,
+                            newValue,
+                            item.minimumLevel,
+                            item.price,
+                            value,
+                            item.barcode,
+                            item.notes,
+                            item.tags,
+                            stockOrdered
+                        );
+    }
+}
+
+// --- GLOBALS -----
+var commandStack: Array<ICommand> = [];
 
 indexRouter.get("/", async (req, res) => 
 {
@@ -34,6 +92,8 @@ function convertNumToString(num)
 indexRouter.get("/items", async (req, res) => 
 {
     console.log('loading page');
+    console.log('commandStack', commandStack.length);
+    
     const items = await db.getAllItems();
     var metaData = await db.calculateItemsMetaData();    
 
@@ -143,6 +203,8 @@ indexRouter.get("/search/:itemName", async (req, res) =>
 
 indexRouter.post("/edit/:itemIndex", async (req, res) =>
 {
+    console.log('update');
+    
     const itemIndex     = Number(req.params.itemIndex);
     const value   = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
     const oldItem = await db.getItemById(req.params.itemIndex);
@@ -154,6 +216,12 @@ indexRouter.post("/edit/:itemIndex", async (req, res) =>
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.itemQuantity) {
         await db.logActivity('quantity', String(itemIndex), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+
+        const oldQuantity = oldItem[0].quantity;
+        const newQuantity = req.body.itemQuantity;
+        let c = new QuantityChangeCommand(itemIndex, oldQuantity, newQuantity);
+        commandStack.push(c);
+        console.log('commandStack', commandStack);
     }
 
     // Reset stock ordered status if quantity is about minimum level
@@ -309,5 +377,17 @@ indexRouter.get('/getActivityLog', async (req, res) =>
     res.send(rows)
 });
 
-// module.exports = { indexRouter }
+indexRouter.get("/undoCommand", async (req, res) =>
+{
+    console.log('trying to undo');
+    
+    if (commandStack.length > 0) {
+        (commandStack[commandStack.length-1] as QuantityChangeCommand).undo();
+        commandStack.pop();
+        res.send('Undo successful');
+    } else {
+        res.send('Nothing to undo');
+    }
+});
+
 export default indexRouter;

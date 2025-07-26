@@ -27,24 +27,6 @@ class QuanityChangeSummary
     totalAdditions: number = 0;
 }
 
-interface ICommand
-{
-    undo(): void;
-}
-
-class QuantityChangeCommand implements ICommand
-{
-    quantity: number;
-
-    constructor(quantity: number) {
-        this.quantity = quantity;
-    }
-
-
-    undo(): void {
-
-    }
-}
 
 enum LogType 
 {
@@ -59,7 +41,6 @@ const popup     = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
-var commandStack = [];
 
 function showPopup(msg) 
 {
@@ -912,6 +893,8 @@ async function searchForItem(name: string)
 
 async function loadItemTable()
 {
+    console.log('LOSD');
+    
     const request = new Request(`/search/all`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
@@ -1443,4 +1426,26 @@ async function loadActivityLog()
 
         itemTable.innerHTML= tableHTML;
     });
+}
+
+async function undoCommand()
+{
+    console.log('trying to undo command.');
+    
+    const request = new Request(`/undoCommand`, {
+        method: "GET",
+        headers: { 'Accept': 'text/plain' }
+    })
+
+    const response = await fetch(request);
+    const data = response.text().then((data) => 
+    {
+        console.log('data: ', data);
+        window.setTimeout(() => {
+            console.log('timeout');
+            loadItemTable();
+        }, 100 );
+        showPopup(data);
+    });
+
 }

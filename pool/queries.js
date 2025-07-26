@@ -148,8 +148,6 @@ async function updateItemOrderedStatus(itemId, stockOrdered)
 async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
                           itemNotes, itemTags, stockOrdered)
 {
-    console.log("updating... item:" + itemIndex + " " + itemValue);
-
     const SQL = `
         UPDATE items
         SET name           = '${ name }', 
