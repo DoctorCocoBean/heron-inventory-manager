@@ -1,6 +1,20 @@
 "use strict";
-// Change itemIndex to itemId
+// TODO:
+//Database passwood: wCBrkihVgfbs9PGV
 Object.defineProperty(exports, "__esModule", { value: true });
+// ---------------------------------------------
+// Undo stack should match up with activity log
+// Change itemIndex to itemId
+// Process bar when uploading
+// Deleting all items while creating back up
+// Ctrl z undo, delete, quantity
+// Downloading/export csv
+// View by tag
+// ---------- Later ----------------- 
+// For transactions, limit results by date range
+// Be able to swtich data back and forth from sortly and InventoryAppss
+// Create icons for different pages
+// Use SolidJS
 const express = require("express");
 const path = require("node:path");
 const app = express();

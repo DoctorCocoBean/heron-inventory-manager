@@ -14,13 +14,19 @@ const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
 const db = require("../pool/queries");
 class DeleteAllCommand {
+    constructor() {
+        this.name = 'Delete All';
+    }
     undo() {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('undoing delete all');
+            yield db.overwrightItemsTableWithBackup();
         });
     }
 }
 class QuantityChangeCommand {
     constructor(itemId, oldQuantity, newQuantity) {
+        this.name = 'Quantity Change';
         this.itemId = itemId;
         this.oldQuantity = oldQuantity;
         this.newQuantity = newQuantity;
@@ -231,7 +237,9 @@ indexRouter.get("/getTableMetaData", (req, res) => __awaiter(void 0, void 0, voi
 }));
 indexRouter.post('/deleteAllItems', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting all items');
+    yield db.backupItemsTable();
     yield db.deleteAllItems();
+    commandStack.push(new DeleteAllCommand());
     res.redirect("/");
 }));
 indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -245,9 +253,8 @@ indexRouter.get('/getActivityLog', (req, res) => __awaiter(void 0, void 0, void 
     res.send(rows);
 }));
 indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('trying to undo');
     if (commandStack.length > 0) {
-        commandStack[commandStack.length - 1].undo();
+        (commandStack[commandStack.length - 1]).undo();
         commandStack.pop();
         res.send('Undo successful');
     }

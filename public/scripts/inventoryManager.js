@@ -401,6 +401,7 @@ function deleteAllItems() {
         });
         const response = yield fetch(request).then(() => {
             loadItemTable();
+            showPopup('Deleted all items');
         });
     });
 }
@@ -1224,7 +1225,6 @@ function undoCommand() {
         });
         const response = yield fetch(request);
         const data = response.text().then((data) => {
-            console.log('data: ', data);
             window.setTimeout(() => {
                 console.log('timeout');
                 loadItemTable();

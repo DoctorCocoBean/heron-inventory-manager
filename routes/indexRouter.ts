@@ -5,18 +5,25 @@ import * as db from '../pool/queries';
 
 interface ICommand
 {
+    name: string;
     undo(): Promise<void>;
 }
 
 class DeleteAllCommand implements ICommand
 {
+    name = 'Delete All';
+
     async undo(): Promise<void> 
     {
+        console.log('undoing delete all');
+        await db.overwrightItemsTableWithBackup();
     }
 }
 
 class QuantityChangeCommand implements ICommand
 {
+    name = 'Quantity Change';
+
     itemId: number;
     newQuantity: number;
     oldQuantity: number;
@@ -358,7 +365,9 @@ indexRouter.get("/getTableMetaData", async (req, res) =>
 indexRouter.post('/deleteAllItems', async (req, res) =>
 {
 	console.log('deleting all items');
+    await db.backupItemsTable();
     await db.deleteAllItems();
+    commandStack.push(new DeleteAllCommand());
     res.redirect("/");
 });
 
@@ -379,10 +388,8 @@ indexRouter.get('/getActivityLog', async (req, res) =>
 
 indexRouter.get("/undoCommand", async (req, res) =>
 {
-    console.log('trying to undo');
-    
     if (commandStack.length > 0) {
-        (commandStack[commandStack.length-1] as QuantityChangeCommand).undo();
+        (commandStack[commandStack.length-1]).undo();
         commandStack.pop();
         res.send('Undo successful');
     } else {

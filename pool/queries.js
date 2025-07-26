@@ -2,7 +2,7 @@ const pool = require("./pool");
 
 
 async function getAllItems() {
-    const { rows } = await pool.query("SELECT * FROM items ORDER BY id");
+    const { rows } = await pool.query("SELECT * FROM items ORDER BY name ASC");
     return rows;
 }
 
@@ -236,6 +236,30 @@ async function deleteAllItems()
     await pool.query(SQL);
 }
 
+async function backupItemsTable()
+{
+    await pool.query(`DELETE FROM "items-backup";`)
+
+    const SQL = `
+            INSERT INTO "items-backup" (id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered")
+            select id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered"
+            FROM "items";
+        `;
+
+    await pool.query(SQL);
+}
+
+async function overwriteItemsTableWithBackup()
+{
+    const SQL = `
+            INSERT INTO "items" (id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered")
+            select id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered"
+            FROM "items-backup";
+        `;
+
+    await pool.query(SQL);
+}
+
 async function calculateItemsMetaData()
 {
     const rows = await getAllItems();
@@ -306,6 +330,7 @@ module.exports = {
     searchForLowStockItem,
     getItemById,
     deleteAllItems,
+    backupItemsTable,
     deleteArrayOfItems,
     deleteItem,
     calculateItemsMetaData,

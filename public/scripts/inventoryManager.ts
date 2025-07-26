@@ -456,6 +456,7 @@ async function deleteAllItems()
 
     const response = await fetch(request).then(() => {
         loadItemTable();
+        showPopup('Deleted all items')
     });
 }
 
@@ -1440,7 +1441,6 @@ async function undoCommand()
     const response = await fetch(request);
     const data = response.text().then((data) => 
     {
-        console.log('data: ', data);
         window.setTimeout(() => {
             console.log('timeout');
             loadItemTable();
