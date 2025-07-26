@@ -9,11 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Deleting all items while creating back up
 // Change itemIndex to itemId
 // Dashboard
-// ---------------------------------------------
 // Try uploaded a downloaded csv
+// ---------------------------------------------
 // Create icons for different pages
 // Deploy version 1 of app
 // ---------- Later ----------------- 
+// Block undo if not an acceptable action
 // For transactions, limit results by date range
 // Be able to swtich data back and forth from sortly and InventoryApp
 // Use SolidJS

@@ -173,9 +173,21 @@ indexRouter.get("/downloadCSV", (req, res) => __awaiter(void 0, void 0, void 0, 
     try {
         const config = { delelimiter: "," };
         const rows = yield db.getAllItems();
-        const data = papa.unparse(rows, config);
-        console.log(data);
-        res.send(data);
+        let data = papa.unparse(rows, config);
+        // Convert column names to be the same as Sortly
+        let newlineCharIndex = data.indexOf('\n');
+        let columnNames = data.substring(0, newlineCharIndex);
+        columnNames = columnNames.replace('name', 'Entry Name');
+        columnNames = columnNames.replace('quantity', 'Quantity');
+        columnNames = columnNames.replace('minimumLevel', 'Min Level');
+        columnNames = columnNames.replace('price', 'Price');
+        columnNames = columnNames.replace('value', 'Value');
+        columnNames = columnNames.replace('notes', 'Notes');
+        columnNames = columnNames.replace('tags', 'Tags');
+        columnNames = columnNames.replace('barcode', 'Barcode/QR2-Data');
+        let rowData = data.slice(newlineCharIndex, data.length);
+        const newData = columnNames + rowData;
+        res.send(newData);
     }
     catch (_a) {
         console.log('Failed to download csv');

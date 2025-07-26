@@ -1340,7 +1340,7 @@ async function downloadCSV()
         var blob = new Blob([data], { type: 'text/plain'});
 
         var a = document.createElement('a');
-        a.download = 'items.txt';
+        a.download = 'items.csv';
         a.href = URL.createObjectURL(blob);
         a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':');
         a.style.display = 'none';
