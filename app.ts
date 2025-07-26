@@ -3,14 +3,13 @@
 //Database passwood: wCBrkihVgfbs9PGV
 
 // Activity stores date in a way that can't be sorted
+// Activity log date is accurate enough to sort 
+// Undo stack should match up with activity log
+// Add "are you sure" prompt before deleting all items
 // ---------------------------------------------
 
-// Activity log date is accurate enough to sort 
-
-// Undo stack should match up with activity log
 // Change itemIndex to itemId
 // Process bar when uploading
-// Add "are you sure" prompt before deleting all items
 
 // Deleting all items while creating back up
 // Ctrl z undo, delete, quantity

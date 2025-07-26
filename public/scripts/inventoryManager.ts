@@ -454,6 +454,38 @@ async function deleteSelectedItems()
     showPopup('Deleted selected items');
 }
 
+function showDeleteAllPrompt()
+{
+    $('#editItemModal').modal()
+
+    popup.innerHTML = `
+        <div class="modal-dialog" style="width: 400px">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete all items?
+                <br>
+                <br>
+                <div class="d-flex flex-row-reverse">
+                    <div class="px-2">
+                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="px-2">
+                        <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        </div>
+    `
+}
+
 async function deleteAllItems()
 {
     const request = new Request(`/deleteAllItems`, {
