@@ -2,21 +2,12 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 Object.defineProperty(exports, "__esModule", { value: true });
-// Activity stores date in a way that can't be sorted
-// Activity log date is accurate enough to sort 
-// Undo stack should match up with activity log
-// Added "are you sure" prompt before deleting all items
-// Deleting all items while creating back up
-// Change itemIndex to itemId
-// Dashboard
-// Try uploaded a downloaded csv
 // ---------------------------------------------
 // Create icons for different pages
 // Deploy version 1 of app
 // ---------- Later ----------------- 
 // Block undo if not an acceptable action
 // For transactions, limit results by date range
-// Be able to swtich data back and forth from sortly and InventoryApp
 // Use SolidJS
 // View by tag
 // Process bar when uploading
