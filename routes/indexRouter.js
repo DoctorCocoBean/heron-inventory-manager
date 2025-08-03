@@ -16,21 +16,6 @@ const db = require("../pool/queries");
 indexRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
 }));
-function convertNumToString(num) {
-    const decimalIndex = num.indexOf('.');
-    var beforeDecimalStr = num.substring(0, decimalIndex);
-    var afterDecimalStr = num.substring(decimalIndex, num.length);
-    var arr = beforeDecimalStr.toString().split("");
-    var numWithCommas = "";
-    for (let i = 0; i < arr.length; i++) {
-        numWithCommas += arr[i];
-        if (((arr.length - i - 1) % 3 == 0) && i < arr.length - 1) {
-            numWithCommas += ",";
-        }
-    }
-    var result = numWithCommas + afterDecimalStr;
-    return result;
-}
 indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('loading page');
     const items = yield db.getAllItems();
@@ -73,12 +58,7 @@ indexRouter.get("/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0
     }
     res.send(lowItems);
 }));
-indexRouter.get("/edit/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const itemId = req.params.itemId;
-    const items = yield db.getAllItems();
-    res.render("itemDetails", { itemId: itemId, items: items });
-}));
-indexRouter.get("/getItemById/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const item = yield db.getItemById(req.params.itemId);
         res.send(item);
@@ -87,7 +67,7 @@ indexRouter.get("/getItemById/:itemId", (req, res) => __awaiter(void 0, void 0, 
         console.log("error getting item by Id: ", req.params.itemId, error);
     }
 }));
-indexRouter.get("/searchLowStock/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var nameToSearch = req.params.itemName;
     var items;
     if (nameToSearch == "all") {
@@ -98,7 +78,7 @@ indexRouter.get("/searchLowStock/:itemName", (req, res) => __awaiter(void 0, voi
     }
     res.send(items);
 }));
-indexRouter.get("/search/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/itemsByName/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var nameToSearch = req.params.itemName;
     var items;
     if (nameToSearch == "all") {
@@ -109,7 +89,7 @@ indexRouter.get("/search/:itemName", (req, res) => __awaiter(void 0, void 0, voi
     }
     res.send(items);
 }));
-indexRouter.post("/edit/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.put("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const itemId = Number(req.params.itemId);
     const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
     const oldItem = yield db.getItemById(req.params.itemId);
@@ -129,20 +109,20 @@ indexRouter.post("/edit/:itemId", (req, res) => __awaiter(void 0, void 0, void 0
     yield db.updateItem(itemId, req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, value, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags, stockOrdered);
     res.send();
 }));
-indexRouter.post("/updateItemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.put("/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();
 }));
-indexRouter.post("/addItem", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.post("/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.addItem(req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, req.body.itemValue, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags);
     res.send();
 }));
-indexRouter.post("/deleteItem", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.delete("/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting', req.body.itemss);
     yield db.deleteItem(req.body.itemId);
     res.send();
 }));
-indexRouter.post("/deleteArrayOfItems", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.delete("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('trying');
     yield db.deleteArrayOfItems(req.body.items);
     res.send();
@@ -195,16 +175,7 @@ indexRouter.get("/downloadCSV", (req, res) => __awaiter(void 0, void 0, void 0, 
     }
     res.redirect("/");
 }));
-indexRouter.post("/new", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(`post ${req.body.name}`);
-    const item = req.body;
-    yield db.addItem(item.itemName, item.quantity, item.minLevel, item.price);
-    res.redirect("/");
-}));
-indexRouter.get("/getTableMetaData", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.calculateItemsMetaData();
-}));
-indexRouter.post('/deleteAllItems', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.delete('/allItems', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.backupItemsTable();
     yield db.deleteAllItems();
     yield db.logActivity('delete all', null, null, null, null);
@@ -214,7 +185,7 @@ indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0,
     yield db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 }));
-indexRouter.get('/getActivityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get('/activityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const rows = yield db.getActivityLog();
     res.send(rows);
 }));
@@ -259,6 +230,21 @@ function undoDeleteAll() {
     return __awaiter(this, void 0, void 0, function* () {
         yield db.overwriteItemsTableWithBackup();
     });
+}
+function convertNumToString(num) {
+    const decimalIndex = num.indexOf('.');
+    var beforeDecimalStr = num.substring(0, decimalIndex);
+    var afterDecimalStr = num.substring(decimalIndex, num.length);
+    var arr = beforeDecimalStr.toString().split("");
+    var numWithCommas = "";
+    for (let i = 0; i < arr.length; i++) {
+        numWithCommas += arr[i];
+        if (((arr.length - i - 1) % 3 == 0) && i < arr.length - 1) {
+            numWithCommas += ",";
+        }
+    }
+    var result = numWithCommas + afterDecimalStr;
+    return result;
 }
 exports.default = indexRouter;
 //# sourceMappingURL=indexRouter.js.map

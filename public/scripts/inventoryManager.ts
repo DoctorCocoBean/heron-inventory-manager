@@ -220,7 +220,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
     console.log('goto item', itemId)
     itemId = itemId;
 
-    const request = new Request(`/getItemById/${itemId}`, {
+    const request = new Request(`/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -382,7 +382,7 @@ async function addItem()
     const itemNotes         = getHTMLInputById('notesInput').value;
     const itemTags          = getHTMLInputById('tagsInput').value;
 
-    const request = new Request(`/addItem`, {
+    const request = new Request(`/item`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -412,8 +412,8 @@ async function deleteItem(itemId: number)
     const item = await getItemById(itemId);
     const name = item[0].name;
 
-    const request = new Request(`/deleteItem`, {
-        method: "POST",
+    const request = new Request(`/item`, {
+        method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             itemId: itemId,
@@ -436,8 +436,8 @@ async function deleteItem(itemId: number)
 
 async function deleteSelectedItems()
 {
-    const request = new Request(`/deleteArrayOfItems`, {
-        method: "POST",
+    const request = new Request(`/items`, {
+        method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             items: selectedItems,
@@ -489,8 +489,8 @@ function showDeleteAllPrompt()
 
 async function deleteAllItems()
 {
-    const request = new Request(`/deleteAllItems`, {
-        method: "POST",
+    const request = new Request(`/allItems`, {
+        method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ }),
     })
@@ -503,7 +503,7 @@ async function deleteAllItems()
 
 async function getItemById(itemId)
 {
-    const request = new Request(`/getItemById/${itemId}`, {
+    const request = new Request(`/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -521,7 +521,7 @@ async function getItemJson(itemId)
 {
     console.log('hello');
     
-    const request = new Request(`/getItemById/${itemId}`, {
+    const request = new Request(`/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -538,7 +538,7 @@ async function getItemJson(itemId)
 
 async function getItemNameById(itemId)
 {
-    const request = new Request(`/getItemById/${itemId}`, {
+    const request = new Request(`/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -557,8 +557,8 @@ async function updateItem(itemData: Item)
     console.log('upate item');
     
     const item    = await getItemById(itemData.itemId);
-    const request = new Request(`/edit/${itemData.itemId}`, {
-        method: "POST",
+    const request = new Request(`/item/${itemData.itemId}`, {
+        method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             itemName: itemData.name,
@@ -591,8 +591,8 @@ async function editItemDialogUpdate(itemId)
     const itemNotes         = getHTMLInputById('notesInput').value;
     const itemTags          = getHTMLInputById('tagsInput').value;
 
-    const request = new Request(`/edit/${itemId}`, {
-        method: "POST",
+    const request = new Request(`/item/${itemId}`, {
+        method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             itemName: itemName,
@@ -706,8 +706,8 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
 
         // submit edit request
         const item    = await getItemById(quantityChangeTimer.itemId);
-        const request = new Request(`/edit/${quantityChangeTimer.itemId}`, {
-            method: "POST",
+        const request = new Request(`/item/${quantityChangeTimer.itemId}`, {
+            method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 itemName: item[0]['name'],
@@ -779,8 +779,8 @@ async function onRowLoseFocus(itemId)
     const price        = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
     const value        = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
 
-    const request = new Request(`/edit/${itemId}`, {
-        method: "POST",
+    const request = new Request(`/item/${itemId}`, {
+        method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             itemName: name,
@@ -903,7 +903,7 @@ async function searchForLowStockItem(name: string)
         name = "all";
     }
 
-    const request = new Request(`/searchLowStock/${name}`, {
+    const request = new Request(`/lowStockitem/${name}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -925,13 +925,11 @@ async function searchForLowStockItem(name: string)
 
 async function searchForItem(name: string) 
 {
-    console.log('search?');
-    
     if (name == "") {
         name = "all";
     }
 
-    const request = new Request(`/search/${name}`, {
+    const request = new Request(`/itemsByName/${name}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -954,7 +952,7 @@ async function searchForItem(name: string)
 
 async function loadItemTable()
 {
-    const request = new Request(`/search/all`, {
+    const request = new Request(`/itemsByName/all`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -983,7 +981,6 @@ async function loadItemTable()
         }
 
         itemTable.innerHTML= tableHTML;
-        getItemJson(6051);
     });
 }
 
@@ -1068,8 +1065,8 @@ function itemSelectClick(itemId: number)
 
 async function updateItemOrderedStatus(itemId: number, stockOrdered: boolean)
 {
-    const request = new Request(`/updateItemOrderedStatus`, {
-        method: "POST",
+    const request = new Request(`/itemOrderedStatus`, {
+        method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             itemId: itemId,
@@ -1353,7 +1350,7 @@ async function downloadCSV()
 
 async function loadTransactionLog()
 {
-    const request = new Request(`/getActivityLog`, {
+    const request = new Request(`/activityLog`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })

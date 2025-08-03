@@ -2,9 +2,11 @@
 // TODO:
 //Database passwood: wCBrkihVgfbs9PGV
 Object.defineProperty(exports, "__esModule", { value: true });
-// ---------------------------------------------
-// Create icons for different pages
 // Deploy version 1 of app
+// ---------------------------------------------
+// Made get/post requests conform to rest api
+// Create icons for different pages
+// express set up api so iphone app can be mades
 // ---------- Later ----------------- 
 // Block undo if not an acceptable action
 // For transactions, limit results by date range

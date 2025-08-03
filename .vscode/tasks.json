@@ -31,7 +31,7 @@
 		{
 			"label": "Run NodeJS in watch mode",
 			"type": "shell",
-			"command": "tsc.cmd --project tsconfig.json",
+			"command": "tsc.cmd --project tsconfig.json --watch",
 			"presentation": {
 				"echo": true,
 				"reveal": "always",

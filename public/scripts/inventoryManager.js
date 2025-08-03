@@ -196,7 +196,7 @@ function openEditItemDialog(itemId) {
         }
         console.log('goto item', itemId);
         itemId = itemId;
-        const request = new Request(`/getItemById/${itemId}`, {
+        const request = new Request(`/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -336,7 +336,7 @@ function addItem() {
         const itemBarcode = getHTMLInputById('barcodeInput').value;
         const itemNotes = getHTMLInputById('notesInput').value;
         const itemTags = getHTMLInputById('tagsInput').value;
-        const request = new Request(`/addItem`, {
+        const request = new Request(`/item`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -362,8 +362,8 @@ function deleteItem(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         const item = yield getItemById(itemId);
         const name = item[0].name;
-        const request = new Request(`/deleteItem`, {
-            method: "POST",
+        const request = new Request(`/item`, {
+            method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemId: itemId,
@@ -382,8 +382,8 @@ function deleteItem(itemId) {
 }
 function deleteSelectedItems() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/deleteArrayOfItems`, {
-            method: "POST",
+        const request = new Request(`/items`, {
+            method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 items: selectedItems,
@@ -429,8 +429,8 @@ function showDeleteAllPrompt() {
 }
 function deleteAllItems() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/deleteAllItems`, {
-            method: "POST",
+        const request = new Request(`/allItems`, {
+            method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({}),
         });
@@ -442,7 +442,7 @@ function deleteAllItems() {
 }
 function getItemById(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/getItemById/${itemId}`, {
+        const request = new Request(`/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -456,7 +456,7 @@ function getItemById(itemId) {
 function getItemJson(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('hello');
-        const request = new Request(`/getItemById/${itemId}`, {
+        const request = new Request(`/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -470,7 +470,7 @@ function getItemJson(itemId) {
 }
 function getItemNameById(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/getItemById/${itemId}`, {
+        const request = new Request(`/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -485,8 +485,8 @@ function updateItem(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('upate item');
         const item = yield getItemById(itemData.itemId);
-        const request = new Request(`/edit/${itemData.itemId}`, {
-            method: "POST",
+        const request = new Request(`/item/${itemData.itemId}`, {
+            method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemName: itemData.name,
@@ -516,8 +516,8 @@ function editItemDialogUpdate(itemId) {
         const itemBarcode = getHTMLInputById('barcodeInput').value;
         const itemNotes = getHTMLInputById('notesInput').value;
         const itemTags = getHTMLInputById('tagsInput').value;
-        const request = new Request(`/edit/${itemId}`, {
-            method: "POST",
+        const request = new Request(`/item/${itemId}`, {
+            method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemName: itemName,
@@ -605,8 +605,8 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
         quantityChangeTimer.started = false;
         // submit edit request
         const item = yield getItemById(quantityChangeTimer.itemId);
-        const request = new Request(`/edit/${quantityChangeTimer.itemId}`, {
-            method: "POST",
+        const request = new Request(`/item/${quantityChangeTimer.itemId}`, {
+            method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemName: item[0]['name'],
@@ -662,8 +662,8 @@ function onRowLoseFocus(itemId) {
         const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
         const price = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
         const value = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
-        const request = new Request(`/edit/${itemId}`, {
-            method: "POST",
+        const request = new Request(`/item/${itemId}`, {
+            method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemName: name,
@@ -766,7 +766,7 @@ function searchForLowStockItem(name) {
         if (name == "") {
             name = "all";
         }
-        const request = new Request(`/searchLowStock/${name}`, {
+        const request = new Request(`/lowStockitem/${name}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -783,11 +783,10 @@ function searchForLowStockItem(name) {
 }
 function searchForItem(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('search?');
         if (name == "") {
             name = "all";
         }
-        const request = new Request(`/search/${name}`, {
+        const request = new Request(`/itemsByName/${name}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -804,7 +803,7 @@ function searchForItem(name) {
 }
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/search/all`, {
+        const request = new Request(`/itemsByName/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -827,7 +826,6 @@ function loadItemTable() {
                 tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
             }
             itemTable.innerHTML = tableHTML;
-            getItemJson(6051);
         });
     });
 }
@@ -899,8 +897,8 @@ function itemSelectClick(itemId) {
 }
 function updateItemOrderedStatus(itemId, stockOrdered) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/updateItemOrderedStatus`, {
-            method: "POST",
+        const request = new Request(`/itemOrderedStatus`, {
+            method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemId: itemId,
@@ -1152,7 +1150,7 @@ function downloadCSV() {
 }
 function loadTransactionLog() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/getActivityLog`, {
+        const request = new Request(`/activityLog`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });

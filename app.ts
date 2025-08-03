@@ -3,11 +3,14 @@
 //Database passwood: wCBrkihVgfbs9PGV
 
 
+// Deploy version 1 of app
 // ---------------------------------------------
+
+// Made get/post requests conform to rest api
 
 // Create icons for different pages
 
-// Deploy version 1 of app
+// express set up api so iphone app can be mades
 
 // ---------- Later ----------------- 
 

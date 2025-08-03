@@ -2,33 +2,12 @@ import express, { Router }  from 'express';
 const indexRouter = Router();
 import * as papa from 'papaparse';
 import * as db from '../pool/queries';
-import { log } from 'node:console';
 
 
 indexRouter.get("/", async (req, res) => 
 {
     res.redirect("/items");
 });
-
-function convertNumToString(num) 
-{
-    const decimalIndex   = num.indexOf('.');
-    var beforeDecimalStr = num.substring(0, decimalIndex);
-    var afterDecimalStr  = num.substring(decimalIndex, num.length);
-
-    var arr = beforeDecimalStr.toString().split("");
-    var numWithCommas = "";
-    for (let i=0; i < arr.length; i++)
-    {
-        numWithCommas += arr[i];
-        if (((arr.length-i-1) % 3 == 0) && i < arr.length-1) {
-            numWithCommas += ",";
-        }
-    }
-    var result = numWithCommas + afterDecimalStr;
-
-    return result;
-}
 
 indexRouter.get("/items", async (req, res) => 
 {
@@ -92,14 +71,7 @@ indexRouter.get("/lowStockItems", async (req, res) =>
     res.send(lowItems);
 });
 
-indexRouter.get("/edit/:itemId", async (req, res) => 
-{
-    const itemId = req.params.itemId;
-    const items     = await db.getAllItems();
-    res.render("itemDetails", { itemId: itemId, items: items });
-});
-
-indexRouter.get("/getItemById/:itemId", async (req, res) => 
+indexRouter.get("/item/:itemId", async (req, res) => 
 {
     try
     {
@@ -112,7 +84,7 @@ indexRouter.get("/getItemById/:itemId", async (req, res) =>
     }
 });
 
-indexRouter.get("/searchLowStock/:itemName", async (req, res) => 
+indexRouter.get("/lowStockitem/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;
     var items;
@@ -127,7 +99,7 @@ indexRouter.get("/searchLowStock/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.get("/search/:itemName", async (req, res) => 
+indexRouter.get("/itemsByName/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;
     var items;
@@ -142,7 +114,7 @@ indexRouter.get("/search/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.post("/edit/:itemId", async (req, res) =>
+indexRouter.put("/item/:itemId", async (req, res) =>
 {
     const itemId     = Number(req.params.itemId);
     const value   = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
@@ -181,13 +153,13 @@ indexRouter.post("/edit/:itemId", async (req, res) =>
 });
 
 
-indexRouter.post("/updateItemOrderedStatus", async (req, res) =>
+indexRouter.put("/itemOrderedStatus", async (req, res) =>
 {
     await db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();
 });
 
-indexRouter.post("/addItem", async (req, res) =>
+indexRouter.post("/item", async (req, res) =>
 {
     await db.addItem(
                         req.body.itemName,
@@ -203,7 +175,7 @@ indexRouter.post("/addItem", async (req, res) =>
     res.send();
 });
 
-indexRouter.post("/deleteItem", async (req, res) =>
+indexRouter.delete("/item", async (req, res) =>
 {
 	console.log('deleting', req.body.itemss);
 
@@ -211,7 +183,7 @@ indexRouter.post("/deleteItem", async (req, res) =>
     res.send();
 });
 
-indexRouter.post("/deleteArrayOfItems", async (req, res) =>
+indexRouter.delete("/items", async (req, res) =>
 {
     console.log('trying');
     
@@ -294,20 +266,7 @@ indexRouter.get("/downloadCSV", async (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.post("/new", async (req, res) => 
-{
-    console.log(`post ${req.body.name}`);
-    const item = req.body;
-    await db.addItem(item.itemName, item.quantity, item.minLevel, item.price);
-    res.redirect("/");
-});
-
-indexRouter.get("/getTableMetaData", async (req, res) => 
-{
-    await db.calculateItemsMetaData();    
-});
-
-indexRouter.post('/deleteAllItems', async (req, res) =>
+indexRouter.delete('/allItems', async (req, res) =>
 {
     await db.backupItemsTable();
     await db.deleteAllItems();
@@ -321,7 +280,7 @@ indexRouter.post('/logActivity', async (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.get('/getActivityLog', async (req, res) =>
+indexRouter.get('/activityLog', async (req, res) =>
 {
     const rows = await db.getActivityLog();
     res.send(rows)
@@ -385,6 +344,26 @@ async function undoQuantityChange(itemId, oldQuantity, newQuantity)
 async function undoDeleteAll()
 {
     await db.overwriteItemsTableWithBackup();
+}
+
+function convertNumToString(num) 
+{
+    const decimalIndex   = num.indexOf('.');
+    var beforeDecimalStr = num.substring(0, decimalIndex);
+    var afterDecimalStr  = num.substring(decimalIndex, num.length);
+
+    var arr = beforeDecimalStr.toString().split("");
+    var numWithCommas = "";
+    for (let i=0; i < arr.length; i++)
+    {
+        numWithCommas += arr[i];
+        if (((arr.length-i-1) % 3 == 0) && i < arr.length-1) {
+            numWithCommas += ",";
+        }
+    }
+    var result = numWithCommas + afterDecimalStr;
+
+    return result;
 }
 
 export default indexRouter;
