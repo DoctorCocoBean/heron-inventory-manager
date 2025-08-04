@@ -37,12 +37,6 @@ class QuanityChangeSummary {
         this.totalAdditions = 0;
     }
 }
-const now = new Date();
-const time = now.toTimeString();
-// const date = now.toDateString();
-// const date = now.toLocaleDateString();
-// const date = now.date();
-// console.log(date);
 var LogType;
 (function (LogType) {
     LogType[LogType["QUANTITY"] = 1] = "QUANTITY";

@@ -22,11 +22,8 @@ indexRouter.get("/items", async (req, res) =>
 
 indexRouter.get("/api/items", async (req, res) => 
 {
-    console.log('loading page');
-    
+    console.log('loading items');
     const items               = await db.getAllItems();
-    var   metaData            = await db.calculateItemsMetaData();
-          metaData.totalValue = convertNumToString(metaData.totalValue);
 
     res.send(items);
 });

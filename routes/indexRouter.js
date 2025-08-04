@@ -23,6 +23,16 @@ indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, functi
     metaData.totalValue = convertNumToString(metaData.totalValue);
     res.render("items", { items: items, metaData: metaData });
 }));
+indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('loading items');
+    const items = yield db.getAllItems();
+    res.send(items);
+}));
+indexRouter.delete("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('trying');
+    yield db.deleteArrayOfItems(req.body.items);
+    res.send();
+}));
 indexRouter.get("/dashboard", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var metaData = yield db.calculateItemsMetaData();
     metaData.totalValue = convertNumToString(metaData.totalValue);
@@ -78,7 +88,7 @@ indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 
     }
     res.send(items);
 }));
-indexRouter.get("/itemsByName/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var nameToSearch = req.params.itemName;
     var items;
     if (nameToSearch == "all") {
@@ -120,11 +130,6 @@ indexRouter.post("/item", (req, res) => __awaiter(void 0, void 0, void 0, functi
 indexRouter.delete("/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting', req.body.itemss);
     yield db.deleteItem(req.body.itemId);
-    res.send();
-}));
-indexRouter.delete("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('trying');
-    yield db.deleteArrayOfItems(req.body.items);
     res.send();
 }));
 indexRouter.post("/uploadCSV", (req, res) => {
