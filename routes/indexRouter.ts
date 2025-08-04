@@ -20,7 +20,7 @@ indexRouter.get("/items", async (req, res) =>
     res.render("items", { items: items, metaData: metaData });
 });
 
-indexRouter.get("/items", async (req, res) => 
+indexRouter.get("/api/items", async (req, res) => 
 {
     console.log('loading page');
     
