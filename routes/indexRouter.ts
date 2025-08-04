@@ -20,6 +20,25 @@ indexRouter.get("/items", async (req, res) =>
     res.render("items", { items: items, metaData: metaData });
 });
 
+indexRouter.get("/items", async (req, res) => 
+{
+    console.log('loading page');
+    
+    const items               = await db.getAllItems();
+    var   metaData            = await db.calculateItemsMetaData();
+          metaData.totalValue = convertNumToString(metaData.totalValue);
+
+    res.send(items);
+});
+
+indexRouter.delete("/items", async (req, res) =>
+{
+    console.log('trying');
+    
+    await db.deleteArrayOfItems(req.body.items);
+    res.send();
+});
+
 indexRouter.get("/dashboard", async (req, res) => 
 {
     var metaData            = await db.calculateItemsMetaData();
@@ -180,14 +199,6 @@ indexRouter.delete("/item", async (req, res) =>
 	console.log('deleting', req.body.itemss);
 
     await db.deleteItem(req.body.itemId);
-    res.send();
-});
-
-indexRouter.delete("/items", async (req, res) =>
-{
-    console.log('trying');
-    
-    await db.deleteArrayOfItems(req.body.items);
     res.send();
 });
 
