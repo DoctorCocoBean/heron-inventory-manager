@@ -118,7 +118,7 @@ indexRouter.get("/lowStockitem/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.get("/itemsByName/:itemName", async (req, res) => 
+indexRouter.get("/api/itemsByName/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;
     var items;

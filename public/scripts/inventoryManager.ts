@@ -28,15 +28,6 @@ class QuanityChangeSummary
     totalAdditions: number = 0;
 }
 
-    const now = new Date();
-    const time = now.toTimeString();
-    // const date = now.toDateString();
-    // const date = now.toLocaleDateString();
-    // const date = now.date();
-    // console.log(date);
-    
-
-
 enum LogType 
 {
     QUANTITY = 1,
