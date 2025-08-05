@@ -119,6 +119,30 @@ indexRouter.put("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0,
     yield db.updateItem(itemId, req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, value, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags, stockOrdered);
     res.send();
 }));
+indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const oldItem = yield db.getItemById(itemId);
+        const newQuantity = Number(oldItem[0].quantity) + Number(req.body.quantityChange);
+        const value = Number(oldItem[0].price) * newQuantity;
+        let stockOrdered = oldItem[0].stockOrdered;
+        if (stockOrdered == null)
+            stockOrdered = false;
+        // Log activity if quantity has changed
+        if (oldItem[0].quantity != newQuantity) {
+            yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
+        }
+        // Reset stock ordered status if quantity is about minimum level
+        if (req.body.itemQuantity > req.body.itemMinQuantity) {
+            stockOrdered = false;
+        }
+        yield db.updateItem(itemId, oldItem[0].name, newQuantity, oldItem[0].minimumLevel, oldItem[0].price, value, oldItem[0].barcode, oldItem[0].notes, oldItem[0].tags, stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error change quantity. ${error}`);
+    }
+}));
 indexRouter.put("/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();

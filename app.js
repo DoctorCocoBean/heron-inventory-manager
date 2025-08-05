@@ -3,10 +3,10 @@
 //Database passwood: wCBrkihVgfbs9PGV
 Object.defineProperty(exports, "__esModule", { value: true });
 // Deploy version 1 of app
+// Create api route for updating quantity /api/itemQuantity
 // ---------------------------------------------
-// Made get/post requests conform to rest api
+// Add api/ to api routes 
 // Create icons for different pages
-// express set up api so iphone app can be mades
 // ---------- Later ----------------- 
 // Block undo if not an acceptable action
 // For transactions, limit results by date range

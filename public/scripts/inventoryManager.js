@@ -795,9 +795,28 @@ function searchForItem(name) {
         });
     });
 }
+function quantityChange() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/api/changeQuantity`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemId: 380,
+                quantityChange: -5,
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    });
+}
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/itemsByName/all`, {
+        console.log('hello');
+        quantityChange();
+        const request = new Request(`/api/itemsByName/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
