@@ -209,6 +209,8 @@ indexRouter.put("/api/changeQuantity", async (req, res) =>
     {
         console.log(`Error change quantity. ${error}`);
     }
+
+    res.send();
 });
 
 indexRouter.put("/itemOrderedStatus", async (req, res) =>

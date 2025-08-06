@@ -142,6 +142,7 @@ indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, v
     catch (error) {
         console.log(`Error change quantity. ${error}`);
     }
+    res.send();
 }));
 indexRouter.put("/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
