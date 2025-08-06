@@ -194,7 +194,7 @@ indexRouter.put("/api/changeQuantity", async (req, res) =>
 
         await db.updateItem(itemId,
                             oldItem[0].name,
-                            newQuantity,
+                            String(newQuantity),
                             oldItem[0].minimumLevel,
                             oldItem[0].price,
                             value,

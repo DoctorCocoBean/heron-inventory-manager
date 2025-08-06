@@ -136,7 +136,7 @@ indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, v
         if (req.body.itemQuantity > req.body.itemMinQuantity) {
             stockOrdered = false;
         }
-        yield db.updateItem(itemId, oldItem[0].name, newQuantity, oldItem[0].minimumLevel, oldItem[0].price, value, oldItem[0].barcode, oldItem[0].notes, oldItem[0].tags, stockOrdered);
+        yield db.updateItem(itemId, oldItem[0].name, String(newQuantity), oldItem[0].minimumLevel, oldItem[0].price, value, oldItem[0].barcode, oldItem[0].notes, oldItem[0].tags, stockOrdered);
         res.send();
     }
     catch (error) {
