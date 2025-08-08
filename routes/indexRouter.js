@@ -117,6 +117,7 @@ indexRouter.put("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0,
     res.send();
 }));
 indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('trigger');
     try {
         const itemId = Number(req.body.itemId);
         const oldItem = yield db.getItemById(itemId);

@@ -5,7 +5,7 @@
                 "type": "node",
                 "request": "launch",
                 "name": "Debug with Watch Task",
-                "preLaunchTask": "Run NodeJS in watch mode", // Link to your task label
+                "preLaunchTask": "Build TypeScript Custom", // Link to your task label
                 "program": "${workspaceFolder}/app.js", // Your entry point
                 "console": "integratedTerminal"
             }

@@ -795,7 +795,7 @@ function searchForItem(name) {
         });
     });
 }
-function quantityChange() {
+function triggerQuantityChange() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/changeQuantity`, {
             method: "PUT",
@@ -815,7 +815,7 @@ function quantityChange() {
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('hello');
-        quantityChange();
+        triggerQuantityChange();
         const request = new Request(`/api/itemsByName/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
@@ -1244,7 +1244,6 @@ function loadTransactionLog() {
 }
 function loadActivityLog() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('trying to get log');
         const request = new Request(`/api/activityLog`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }

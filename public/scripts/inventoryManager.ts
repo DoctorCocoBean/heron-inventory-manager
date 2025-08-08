@@ -942,8 +942,9 @@ async function searchForItem(name: string)
 }
 
 
-async function quantityChange() 
+async function triggerQuantityChange() 
 {
+    
     const request = new Request(`/api/changeQuantity`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
@@ -965,7 +966,7 @@ async function loadItemTable()
 {
     console.log('hello');
     
-    quantityChange();
+    triggerQuantityChange();
     const request = new Request(`/api/itemsByName/all`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
@@ -1460,8 +1461,6 @@ async function loadTransactionLog()
 
 async function loadActivityLog()
 {
-    console.log('trying to get log');
-    
     const request = new Request(`/api/activityLog`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }

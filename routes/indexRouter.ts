@@ -166,6 +166,7 @@ indexRouter.put("/item/:itemId", async (req, res) =>
 
 indexRouter.put("/api/changeQuantity", async (req, res) =>
 {
+    
     try {
         const itemId  = Number(req.body.itemId);
         const oldItem = await db.getItemById(itemId);
@@ -176,10 +177,13 @@ indexRouter.put("/api/changeQuantity", async (req, res) =>
         if (stockOrdered == null) 
             stockOrdered = false;
 
+        console.log(`edit amount  is: ${req.body.quantityChange}`);
+        
         // Log activity if quantity has changed
         if (oldItem[0].quantity != newQuantity) 
         {
             await db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
+            console.log(`logging ${oldItem[0].name}`);
         }
 
         // Reset stock ordered status if quantity is about minimum level
