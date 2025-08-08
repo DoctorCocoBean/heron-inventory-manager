@@ -117,7 +117,6 @@ indexRouter.put("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0,
     res.send();
 }));
 indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('trigger');
     try {
         const itemId = Number(req.body.itemId);
         const oldItem = yield db.getItemById(itemId);
@@ -126,9 +125,11 @@ indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, v
         let stockOrdered = oldItem[0].stockOrdered;
         if (stockOrdered == null)
             stockOrdered = false;
+        console.log(`edit amount  is: ${req.body.quantityChange}`);
         // Log activity if quantity has changed
         if (oldItem[0].quantity != newQuantity) {
             yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
+            console.log(`logging ${oldItem[0].name}`);
         }
         // Reset stock ordered status if quantity is about minimum level
         if (req.body.itemQuantity > req.body.itemMinQuantity) {
