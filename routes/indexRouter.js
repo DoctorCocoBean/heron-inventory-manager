@@ -50,9 +50,6 @@ indexRouter.get("/lowstock", (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     res.render("lowstock", { items: null });
 }));
-indexRouter.get("/activityLog", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.render("activityLog", {});
-}));
 indexRouter.get("/transactionReport", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.render("transactionReport", {});
 }));
@@ -215,7 +212,10 @@ indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0,
     yield db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 }));
-indexRouter.get('/activityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/activityLog", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.render("activityLog", {});
+}));
+indexRouter.get('/api/activityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const rows = yield db.getActivityLog();
     res.send(rows);
 }));

@@ -60,11 +60,6 @@ indexRouter.get("/lowstock", async (req, res) =>
     res.render("lowstock", { items: null });
 });
 
-indexRouter.get("/activityLog", async (req, res) => 
-{
-    res.render("activityLog", { });
-});
-
 indexRouter.get("/transactionReport", async (req, res) => 
 {
     res.render("transactionReport", { });
@@ -332,7 +327,12 @@ indexRouter.post('/logActivity', async (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.get('/activityLog', async (req, res) =>
+indexRouter.get("/activityLog", async (req, res) => 
+{
+    res.render("activityLog", { });
+});
+
+indexRouter.get('/api/activityLog', async (req, res) =>
 {
     const rows = await db.getActivityLog();
     res.send(rows)

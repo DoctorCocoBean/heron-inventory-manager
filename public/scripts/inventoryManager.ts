@@ -920,7 +920,7 @@ async function searchForItem(name: string)
         name = "all";
     }
 
-    const request = new Request(`/itemsByName/${name}`, {
+    const request = new Request(`api/itemsByName/${name}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -941,6 +941,7 @@ async function searchForItem(name: string)
     });
 }
 
+
 async function quantityChange() 
 {
     const request = new Request(`/api/changeQuantity`, {
@@ -948,7 +949,7 @@ async function quantityChange()
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             itemId: 380,
-            quantityChange: -5,
+            quantityChange: -1,
         }),
     })
     
@@ -1363,7 +1364,7 @@ async function downloadCSV()
 
 async function loadTransactionLog()
 {
-    const request = new Request(`/activityLog`, {
+    const request = new Request(`/api/activityLog`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -1459,7 +1460,9 @@ async function loadTransactionLog()
 
 async function loadActivityLog()
 {
-    const request = new Request(`/getActivityLog`, {
+    console.log('trying to get log');
+    
+    const request = new Request(`/api/activityLog`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
