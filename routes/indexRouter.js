@@ -258,6 +258,11 @@ function undoQuantityChange(itemId, oldQuantity, newQuantity) {
         yield db.updateItem(itemId, item.name, newValue, item.minimumLevel, item.price, value, item.barcode, item.notes, item.tags, stockOrdered);
     });
 }
+indexRouter.get("/api/itemsMetaData", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('getting meta data');
+    var metaData = yield db.calculateItemsMetaData();
+    res.send(metaData);
+}));
 function undoDeleteAll() {
     return __awaiter(this, void 0, void 0, function* () {
         yield db.overwriteItemsTableWithBackup();

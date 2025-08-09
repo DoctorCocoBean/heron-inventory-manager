@@ -812,10 +812,23 @@ function triggerQuantityChange() {
         }
     });
 }
+function getMetaData() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/api/itemsMetaData`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        });
+        const response = yield fetch(request);
+        const data = response.json().then((data) => {
+            console.log(data);
+        });
+    });
+}
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('hello');
-        triggerQuantityChange();
+        // triggerQuantityChange();
+        // getMetaData();
         const request = new Request(`/api/itemsByName/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }

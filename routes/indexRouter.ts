@@ -397,6 +397,13 @@ async function undoQuantityChange(itemId, oldQuantity, newQuantity)
                     );
 }
 
+indexRouter.get("/api/itemsMetaData", async (req, res) => 
+{
+    console.log('getting meta data');
+    var metaData = await db.calculateItemsMetaData();
+    res.send(metaData);
+});
+
 async function undoDeleteAll()
 {
     await db.overwriteItemsTableWithBackup();
