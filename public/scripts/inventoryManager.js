@@ -1265,7 +1265,7 @@ function loadActivityLog() {
                 switch (data[i]['type']) {
                     case 'quantity':
                         {
-                            const quantityChange = Number(data[i]['oldValue']) - Number(data[i]['newValue']);
+                            const quantityChange = Number(data[i]['newValue']) - Number(data[i]['oldValue']);
                             html = `
                             <tr style="vertical-align: middle" id="tableRow_">
                                 <td class="typeRow">${data[i]['itemName']}</td>
