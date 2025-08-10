@@ -23,7 +23,7 @@ indexRouter.get("/items", async (req, res) =>
 indexRouter.get("/api/items", async (req, res) => 
 {
     console.log('loading items');
-    const items               = await db.getAllItems();
+    const items = await db.getAllItems();
 
     res.send(items);
 });
@@ -163,10 +163,85 @@ indexRouter.put("/item/:itemId", async (req, res) =>
     res.send();
 });
 
-
-indexRouter.put("/api/changeQuantity", async (req, res) =>
+indexRouter.put("/api/item/name", async (req, res) =>
 {
-    
+    try {
+        const itemId  = Number(req.body.itemId);
+        const item = await db.getItemById(itemId);
+        const oldName = String(item[0].name);
+        const newName = String(req.body.name);
+
+
+
+        console.log(`Editing is name from ${oldName} to ${newName}`);
+        
+        // Log activity if quantity has changed
+        if (oldName != newName) 
+        {
+            await db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
+        }
+
+        await db.updateItem(itemId,
+                            newName,
+                            item[0].quantity,
+                            item[0].minimumLevel,
+                            item[0].price,
+                            item[0].value,
+                            item[0].barcode,
+                            item[0].notes,
+                            item[0].tags,
+                            item[0].stockOrdered
+                        );
+        res.send();
+    } 
+    catch (error) 
+    {
+        console.log(`Error changing name. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+
+    res.send();
+});
+
+indexRouter.put("/api/item/minimumLevel", async (req, res) =>
+{
+    try {
+        const itemId  = Number(req.body.itemId);
+        const item = await db.getItemById(itemId);
+        const oldMinLevel = item[0].minimumLevel;
+        const newMinLevel = req.body.minimumLevel;
+
+        console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
+        
+        if (oldMinLevel != newMinLevel) 
+        {
+            await db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+        }
+
+        await db.updateItem(itemId,
+                            item[0].name,
+                            item[0].quantity,
+                            newMinLevel,
+                            item[0].price,
+                            item[0].value,
+                            item[0].barcode,
+                            item[0].notes,
+                            item[0].tags,
+                            item[0].stockOrdered
+                        );
+        res.send();
+    } 
+    catch (error) 
+    {
+        console.log(`Error changing minimum level. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+
+    res.send();
+});
+
+indexRouter.put("/api/item/quantity", async (req, res) =>
+{
     try {
         const itemId  = Number(req.body.itemId);
         const oldItem = await db.getItemById(itemId);

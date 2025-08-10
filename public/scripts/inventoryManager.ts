@@ -944,8 +944,8 @@ async function searchForItem(name: string)
 
 async function triggerQuantityChange() 
 {
-    
-    const request = new Request(`/api/changeQuantity`, {
+    console.log('triggering');
+    const request = new Request(`/api/item/quantity`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -962,11 +962,52 @@ async function triggerQuantityChange()
     }
 }
 
+async function triggerNameChange() 
+{
+    console.log('triggering');
+    const request = new Request(`/api/item/name`, {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            itemId: 380,
+            name: `${Math.random()}`,
+        }),
+    })
+    
+    const response = await fetch(request);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+    }
+}
+
+async function triggerMinimumLevelChange() 
+{
+    console.log('triggering');
+    const request = new Request(`/api/item/minimumLevel`, {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            itemId: 380,
+            minimumLevel: Math.floor(Math.random() * 100),
+        }),
+    })
+    
+    const response = await fetch(request);
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+    }
+}
+
 async function getMetaData() 
 {
     const request = new Request(`/api/itemsMetaData`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' },
+
     })
     
     const response = await fetch(request);
@@ -979,11 +1020,8 @@ async function getMetaData()
 
 async function loadItemTable()
 {
-    console.log('hello');
-    
-    // triggerQuantityChange();
-    // getMetaData();
-    
+    // triggerNameChange();
+    // triggerMinimumLevelChange();
 
     const request = new Request(`/api/itemsByName/all`, {
         method: "GET",

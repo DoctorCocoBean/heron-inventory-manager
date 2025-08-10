@@ -797,12 +797,49 @@ function searchForItem(name) {
 }
 function triggerQuantityChange() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/api/changeQuantity`, {
+        console.log('triggering');
+        const request = new Request(`/api/item/quantity`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 itemId: 380,
                 quantityChange: -1,
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    });
+}
+function triggerNameChange() {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('triggering');
+        const request = new Request(`/api/item/name`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemId: 380,
+                name: `${Math.random()}`,
+            }),
+        });
+        const response = yield fetch(request);
+        if (!response.ok) {
+            const errorData = yield response.json();
+            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        }
+    });
+}
+function triggerMinimumLevelChange() {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log('triggering');
+        const request = new Request(`/api/item/minimumLevel`, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                itemId: 380,
+                minimumLevel: Math.floor(Math.random() * 100),
             }),
         });
         const response = yield fetch(request);
@@ -826,9 +863,8 @@ function getMetaData() {
 }
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('hello');
-        // triggerQuantityChange();
-        // getMetaData();
+        // triggerNameChange();
+        // triggerMinimumLevelChange();
         const request = new Request(`/api/itemsByName/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }

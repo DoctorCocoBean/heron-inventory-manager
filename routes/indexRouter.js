@@ -116,7 +116,46 @@ indexRouter.put("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0,
     yield db.updateItem(itemId, req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, value, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags, stockOrdered);
     res.send();
 }));
-indexRouter.put("/api/changeQuantity", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = yield db.getItemById(itemId);
+        const oldName = String(item[0].name);
+        const newName = String(req.body.name);
+        console.log(`Editing is name from ${oldName} to ${newName}`);
+        // Log activity if quantity has changed
+        if (oldName != newName) {
+            yield db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
+        }
+        yield db.updateItem(itemId, newName, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error changing name. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+    res.send();
+}));
+indexRouter.put("/api/item/minimumLevel", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = yield db.getItemById(itemId);
+        const oldMinLevel = item[0].minimumLevel;
+        const newMinLevel = req.body.minimumLevel;
+        console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
+        if (oldMinLevel != newMinLevel) {
+            yield db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+        }
+        yield db.updateItem(itemId, item[0].name, item[0].quantity, newMinLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error changing minimum level. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+    res.send();
+}));
+indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const itemId = Number(req.body.itemId);
         const oldItem = yield db.getItemById(itemId);
