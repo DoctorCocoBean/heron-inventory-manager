@@ -171,11 +171,8 @@ indexRouter.put("/api/item/name", async (req, res) =>
         const oldName = String(item[0].name);
         const newName = String(req.body.name);
 
-
-
         console.log(`Editing is name from ${oldName} to ${newName}`);
         
-        // Log activity if quantity has changed
         if (oldName != newName) 
         {
             await db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
@@ -197,43 +194,6 @@ indexRouter.put("/api/item/name", async (req, res) =>
     catch (error) 
     {
         console.log(`Error changing name. ${error}`);
-        console.log(`Stack. ${error.stack}`);
-    }
-
-    res.send();
-});
-
-indexRouter.put("/api/item/minimumLevel", async (req, res) =>
-{
-    try {
-        const itemId  = Number(req.body.itemId);
-        const item = await db.getItemById(itemId);
-        const oldMinLevel = item[0].minimumLevel;
-        const newMinLevel = req.body.minimumLevel;
-
-        console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
-        
-        if (oldMinLevel != newMinLevel) 
-        {
-            await db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
-        }
-
-        await db.updateItem(itemId,
-                            item[0].name,
-                            item[0].quantity,
-                            newMinLevel,
-                            item[0].price,
-                            item[0].value,
-                            item[0].barcode,
-                            item[0].notes,
-                            item[0].tags,
-                            item[0].stockOrdered
-                        );
-        res.send();
-    } 
-    catch (error) 
-    {
-        console.log(`Error changing minimum level. ${error}`);
         console.log(`Stack. ${error.stack}`);
     }
 
@@ -282,6 +242,155 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
     catch (error) 
     {
         console.log(`Error change quantity. ${error}`);
+    }
+
+    res.send();
+});
+
+indexRouter.put("/api/item/minimumLevel", async (req, res) =>
+{
+    try {
+        const itemId  = Number(req.body.itemId);
+        const item = await db.getItemById(itemId);
+        const oldMinLevel = item[0].minimumLevel;
+        const newMinLevel = req.body.minimumLevel;
+
+        console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
+        
+        if (oldMinLevel != newMinLevel) 
+        {
+            await db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+        }
+
+        await db.updateItem(itemId,
+                            item[0].name,
+                            item[0].quantity,
+                            newMinLevel,
+                            item[0].price,
+                            item[0].value,
+                            item[0].barcode,
+                            item[0].notes,
+                            item[0].tags,
+                            item[0].stockOrdered
+                        );
+        res.send();
+    } 
+    catch (error) 
+    {
+        console.log(`Error changing minimum level. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+
+    res.send();
+});
+
+indexRouter.put("/api/item/price", async (req, res) =>
+{
+    try {
+        const itemId  = Number(req.body.itemId);
+        const item = await db.getItemById(itemId);
+        const oldPrice = item[0].price;
+        const newPrice = req.body.price;
+        const value = Number(newPrice) * Number(item[0].quantity);
+
+        console.log(`Editing price from ${oldPrice} to ${newPrice}`);
+        
+        if (oldPrice != newPrice) 
+        {
+            await db.logActivity('price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
+        }
+
+        await db.updateItem(itemId,
+                            item[0].name,
+                            item[0].quantity,
+                            item[0].minimumLevel,
+                            newPrice,
+                            value,
+                            item[0].barcode,
+                            item[0].notes,
+                            item[0].tags,
+                            item[0].stockOrdered
+                        );
+        res.send();
+    } 
+    catch (error) 
+    {
+        console.log(`Error changing price. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+
+    res.send();
+});
+
+indexRouter.put("/api/item/barcode", async (req, res) =>
+{
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = await db.getItemById(itemId);
+        const oldBarcode = item[0].barcode;
+        const newBarcode = req.body.barcode;
+
+        console.log(`Editing barcode from ${oldBarcode} to ${newBarcode}`);
+        
+        if (oldBarcode != newBarcode) 
+        {
+            await db.logActivity('barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
+        }
+
+        await db.updateItem(itemId,
+                            item[0].name,
+                            item[0].quantity,
+                            item[0].minimumLevel,
+                            item[0].price,
+                            item[0].value,
+                            newBarcode,
+                            item[0].notes,
+                            item[0].tags,
+                            item[0].stockOrdered
+                        );
+        res.send();
+    } 
+    catch (error) 
+    {
+        console.log(`Error changing barcode. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+
+    res.send();
+});
+
+indexRouter.put("/api/item/notes", async (req, res) =>
+{
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = await db.getItemById(itemId);
+        const oldNotes = item[0].notes;
+        const newNotes = req.body.notes;
+
+        console.log(`Editing notes from ${oldNotes} to ${newNotes}`);
+        
+        if (oldNotes != newNotes) 
+        {
+            await db.logActivity('notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
+        }
+
+        await db.updateItem(itemId,
+                            item[0].name,
+                            item[0].quantity,
+                            item[0].minimumLevel,
+                            item[0].price,
+                            item[0].value,
+                            item[0].barcode,
+                            newNotes,
+                            item[0].tags,
+                            item[0].stockOrdered
+                        );
+        res.send();
+    } 
+    catch (error) 
+    {
+        console.log(`Error changing notes. ${error}`);
+        console.log(`Stack. ${error.stack}`);
     }
 
     res.send();

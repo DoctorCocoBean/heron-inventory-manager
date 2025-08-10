@@ -123,7 +123,6 @@ indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0
         const oldName = String(item[0].name);
         const newName = String(req.body.name);
         console.log(`Editing is name from ${oldName} to ${newName}`);
-        // Log activity if quantity has changed
         if (oldName != newName) {
             yield db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
         }
@@ -132,25 +131,6 @@ indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0
     }
     catch (error) {
         console.log(`Error changing name. ${error}`);
-        console.log(`Stack. ${error.stack}`);
-    }
-    res.send();
-}));
-indexRouter.put("/api/item/minimumLevel", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const itemId = Number(req.body.itemId);
-        const item = yield db.getItemById(itemId);
-        const oldMinLevel = item[0].minimumLevel;
-        const newMinLevel = req.body.minimumLevel;
-        console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
-        if (oldMinLevel != newMinLevel) {
-            yield db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
-        }
-        yield db.updateItem(itemId, item[0].name, item[0].quantity, newMinLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
-        res.send();
-    }
-    catch (error) {
-        console.log(`Error changing minimum level. ${error}`);
         console.log(`Stack. ${error.stack}`);
     }
     res.send();
@@ -179,6 +159,83 @@ indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, vo
     }
     catch (error) {
         console.log(`Error change quantity. ${error}`);
+    }
+    res.send();
+}));
+indexRouter.put("/api/item/minimumLevel", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = yield db.getItemById(itemId);
+        const oldMinLevel = item[0].minimumLevel;
+        const newMinLevel = req.body.minimumLevel;
+        console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
+        if (oldMinLevel != newMinLevel) {
+            yield db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+        }
+        yield db.updateItem(itemId, item[0].name, item[0].quantity, newMinLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error changing minimum level. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+    res.send();
+}));
+indexRouter.put("/api/item/price", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = yield db.getItemById(itemId);
+        const oldPrice = item[0].price;
+        const newPrice = req.body.price;
+        const value = Number(newPrice) * Number(item[0].quantity);
+        console.log(`Editing price from ${oldPrice} to ${newPrice}`);
+        if (oldPrice != newPrice) {
+            yield db.logActivity('price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
+        }
+        yield db.updateItem(itemId, item[0].name, item[0].quantity, item[0].minimumLevel, newPrice, value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error changing price. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+    res.send();
+}));
+indexRouter.put("/api/item/barcode", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = yield db.getItemById(itemId);
+        const oldBarcode = item[0].barcode;
+        const newBarcode = req.body.barcode;
+        console.log(`Editing barcode from ${oldBarcode} to ${newBarcode}`);
+        if (oldBarcode != newBarcode) {
+            yield db.logActivity('barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
+        }
+        yield db.updateItem(itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, newBarcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error changing barcode. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
+    res.send();
+}));
+indexRouter.put("/api/item/notes", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const itemId = Number(req.body.itemId);
+        const item = yield db.getItemById(itemId);
+        const oldNotes = item[0].notes;
+        const newNotes = req.body.notes;
+        console.log(`Editing notes from ${oldNotes} to ${newNotes}`);
+        if (oldNotes != newNotes) {
+            yield db.logActivity('notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
+        }
+        yield db.updateItem(itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, newNotes, item[0].tags, item[0].stockOrdered);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error changing notes. ${error}`);
+        console.log(`Stack. ${error.stack}`);
     }
     res.send();
 }));
