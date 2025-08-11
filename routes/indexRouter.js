@@ -98,22 +98,22 @@ indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, vo
 }));
 indexRouter.put("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const itemId = Number(req.params.itemId);
-    const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
+    const value = Number(req.body.quantity) * Number(req.body.price);
     const oldItem = yield db.getItemById(req.params.itemId);
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null)
         stockOrdered = false;
     // Log activity if quantity has changed
-    if (oldItem[0].quantity != req.body.itemQuantity) {
-        yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+    if (oldItem[0].quantity != req.body.quantity) {
+        yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
         const oldQuantity = oldItem[0].quantity;
-        const newQuantity = req.body.itemQuantity;
+        const newQuantity = req.body.quantity;
     }
     // Reset stock ordered status if quantity is about minimum level
     if (req.body.itemQuantity > req.body.itemMinQuantity) {
         stockOrdered = false;
     }
-    yield db.updateItem(itemId, req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, value, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags, stockOrdered);
+    yield db.updateItem(itemId, req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags, stockOrdered);
     res.send();
 }));
 indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

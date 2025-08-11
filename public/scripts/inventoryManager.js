@@ -322,26 +322,26 @@ function getHTMLInputById(id) {
 }
 function addItem() {
     return __awaiter(this, void 0, void 0, function* () {
-        const itemName = getHTMLInputById('nameInput').value;
-        const itemQuantity = getHTMLInputById('quantityInput').value;
-        const itemMinQuantity = getHTMLInputById('minQuantityInput').value;
-        const itemPrice = getHTMLInputById('priceInput').value;
-        const itemValue = getHTMLInputById('valueInput').value;
-        const itemBarcode = getHTMLInputById('barcodeInput').value;
-        const itemNotes = getHTMLInputById('notesInput').value;
-        const itemTags = getHTMLInputById('tagsInput').value;
+        const name = getHTMLInputById('nameInput').value;
+        const quantity = getHTMLInputById('quantityInput').value;
+        const minimumLevel = getHTMLInputById('minQuantityInput').value;
+        const price = getHTMLInputById('priceInput').value;
+        const value = getHTMLInputById('valueInput').value;
+        const barcode = getHTMLInputById('barcodeInput').value;
+        const notes = getHTMLInputById('notesInput').value;
+        const tags = getHTMLInputById('tagsInput').value;
         const request = new Request(`/item`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                itemName: itemName,
-                itemQuantity: itemQuantity,
-                itemMinQuantity: itemMinQuantity,
-                itemPrice: itemPrice,
-                itemValue: itemValue,
-                itemBarcode: itemBarcode,
-                itemNotes: itemNotes,
-                itemTags: itemTags,
+                name: name,
+                quantity: quantity,
+                minimumLevel: minimumLevel,
+                price: price,
+                value: value,
+                barcode: barcode,
+                notes: notes,
+                tags: tags,
             }),
         });
         const response = yield fetch(request);
@@ -483,15 +483,15 @@ function updateItem(itemData) {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                itemName: itemData.name,
-                itemQuantity: itemData.quantity,
-                itemMinQuantity: itemData.minimumLevel,
-                itemPrice: itemData.price,
-                itemValue: itemData.value,
-                itemBarcode: item[0].barcode,
-                itemNotes: item[0].notes,
-                itemTags: item[0].tags,
-                itemStockOrdered: itemData.stockOrdered,
+                name: itemData.name,
+                quanity: itemData.quantity,
+                minimumLevel: itemData.minimumLevel,
+                price: itemData.price,
+                value: itemData.value,
+                barcode: item[0].barcode,
+                notes: item[0].notes,
+                tags: item[0].tags,
+                stockOrdered: itemData.stockOrdered,
             }),
         });
         const response = yield fetch(request);
@@ -503,24 +503,24 @@ function updateItem(itemData) {
 }
 function editItemDialogUpdate(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const itemName = getHTMLInputById('nameInput').value;
-        const itemQuantity = Number(getHTMLInputById('quantityInput').value);
-        const itemMinQuantity = Number(getHTMLInputById('minimumLevelInput').value);
-        const itemPrice = Number(getHTMLInputById('priceInput').value);
-        const itemBarcode = getHTMLInputById('barcodeInput').value;
-        const itemNotes = getHTMLInputById('notesInput').value;
-        const itemTags = getHTMLInputById('tagsInput').value;
-        const request = new Request(`/item/${itemId}`, {
+        const name = getHTMLInputById('nameInput').value;
+        const quantity = Number(getHTMLInputById('quantityInput').value);
+        const minimumLevel = Number(getHTMLInputById('minimumLevelInput').value);
+        const price = Number(getHTMLInputById('priceInput').value);
+        const barcode = getHTMLInputById('barcodeInput').value;
+        const notes = getHTMLInputById('notesInput').value;
+        const tags = getHTMLInputById('tagsInput').value;
+        const request = new Request(`api/item/${itemId}`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                itemName: itemName,
-                itemQuantity: itemQuantity,
-                itemMinQuantity: itemMinQuantity,
-                itemPrice: itemPrice,
-                itemBarcode: itemBarcode,
-                itemNotes: itemNotes,
-                itemTags: itemTags,
+                name: name,
+                quantity: quantity,
+                minimumLevel: minimumLevel,
+                price: price,
+                barcode: barcode,
+                notes: notes,
+                tags: tags,
             }),
         });
         const response = yield fetch(request);
@@ -530,8 +530,8 @@ function editItemDialogUpdate(itemId) {
         }
         $('#editItemModal').modal('hide');
         const tableRow = document.getElementById(`tableRow_${itemId}`);
-        const itemValue = Number(itemQuantity) * Number(itemPrice);
-        tableRow.innerHTML = createTableRowHTML(itemId, itemName, itemQuantity, itemMinQuantity, itemPrice, itemValue);
+        const itemValue = Number(quantity) * Number(price);
+        tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, itemValue);
     });
 }
 function editPopupDecreaseQuantity() {
@@ -603,14 +603,14 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                itemName: item[0]['name'],
-                itemQuantity: quantityChangeTimer.finalQuantity,
-                itemMinQuantity: item[0]['minimumLevel'],
-                itemPrice: item[0]['price'],
+                name: item[0]['name'],
+                quantity: quantityChangeTimer.finalQuantity,
+                minimumLevel: item[0]['minimumLevel'],
+                price: item[0]['price'],
                 itemValue: item[0]['value'],
-                itemBarcode: item[0]['barcode'],
-                itemNotes: item[0]['notes'],
-                itemTags: item[0]['tags'],
+                barcode: item[0]['barcode'],
+                notes: item[0]['notes'],
+                tags: item[0]['tags'],
             }),
         });
         const response = yield fetch(request);
@@ -660,14 +660,14 @@ function onRowLoseFocus(itemId) {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                itemName: name,
-                itemQuantity: quantity,
-                itemMinQuantity: minimumLevel,
-                itemPrice: price,
+                name: name,
+                quantity: quantity,
+                minimumLevel: minimumLevel,
+                price: price,
                 itemValue: value,
-                itemBarcode: item[0].barcode,
-                itemNotes: item[0].notes,
-                itemTags: item[0].tags,
+                barcode: item[0].barcode,
+                notes: item[0].notes,
+                tags: item[0].tags,
             }),
         });
         const response = yield fetch(request);

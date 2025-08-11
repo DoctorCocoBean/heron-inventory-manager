@@ -128,7 +128,7 @@ indexRouter.get("/api/itemsByName/:itemName", async (req, res) =>
 indexRouter.put("/api/item/:itemId", async (req, res) =>
 {
     const itemId     = Number(req.params.itemId);
-    const value   = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
+    const value   = Number(req.body.quantity) * Number(req.body.price);
     const oldItem = await db.getItemById(req.params.itemId);
 
     let stockOrdered = oldItem[0].stockOrdered;
@@ -136,12 +136,12 @@ indexRouter.put("/api/item/:itemId", async (req, res) =>
         stockOrdered = false;
 
     // Log activity if quantity has changed
-    if (oldItem[0].quantity != req.body.itemQuantity) 
+    if (oldItem[0].quantity != req.body.quantity) 
     {
-        await db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.itemQuantity));
+        await db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
 
         const oldQuantity = oldItem[0].quantity;
-        const newQuantity = req.body.itemQuantity;
+        const newQuantity = req.body.quantity;
     }
 
     // Reset stock ordered status if quantity is about minimum level
@@ -150,14 +150,14 @@ indexRouter.put("/api/item/:itemId", async (req, res) =>
     }
 
     await db.updateItem(itemId,
-                        req.body.itemName,
-                        req.body.itemQuantity,
-                        req.body.itemMinQuantity,
-                        req.body.itemPrice,
+                        req.body.name,
+                        req.body.quantity,
+                        req.body.minimumLevel,
+                        req.body.price,
                         value,
-                        req.body.itemBarcode,
-                        req.body.itemNotes,
-                        req.body.itemTags,
+                        req.body.barcode,
+                        req.body.notes,
+                        req.body.tags,
                         stockOrdered
                     );
     res.send();
