@@ -190,7 +190,7 @@ function openEditItemDialog(itemId) {
         }
         console.log('goto item', itemId);
         itemId = itemId;
-        const request = new Request(`/item/${itemId}`, {
+        const request = new Request(`api/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -479,7 +479,7 @@ function updateItem(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('upate item');
         const item = yield getItemById(itemData.itemId);
-        const request = new Request(`/item/${itemData.itemId}`, {
+        const request = new Request(`api/item/${itemData.itemId}`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -211,7 +211,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
     console.log('goto item', itemId)
     itemId = itemId;
 
-    const request = new Request(`/item/${itemId}`, {
+    const request = new Request(`api/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -548,7 +548,7 @@ async function updateItem(itemData: Item)
     console.log('upate item');
     
     const item    = await getItemById(itemData.itemId);
-    const request = new Request(`/item/${itemData.itemId}`, {
+    const request = new Request(`api/item/${itemData.itemId}`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
