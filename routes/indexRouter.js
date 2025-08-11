@@ -243,7 +243,7 @@ indexRouter.put("/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, vo
     yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();
 }));
-indexRouter.post("/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.post("api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.addItem(req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, req.body.itemValue, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags);
     res.send();
 }));

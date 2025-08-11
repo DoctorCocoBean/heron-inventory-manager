@@ -402,7 +402,7 @@ indexRouter.put("/itemOrderedStatus", async (req, res) =>
     res.send();
 });
 
-indexRouter.post("/item", async (req, res) =>
+indexRouter.post("api/item", async (req, res) =>
 {
     await db.addItem(
                         req.body.itemName,
