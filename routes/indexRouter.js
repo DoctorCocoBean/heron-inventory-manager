@@ -96,7 +96,7 @@ indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, vo
     }
     res.send(items);
 }));
-indexRouter.put("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.put("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const itemId = Number(req.params.itemId);
     const value = Number(req.body.itemQuantity) * Number(req.body.itemPrice);
     const oldItem = yield db.getItemById(req.params.itemId);

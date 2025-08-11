@@ -125,7 +125,7 @@ indexRouter.get("/api/itemsByName/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.put("/item/:itemId", async (req, res) =>
+indexRouter.put("/api/item/:itemId", async (req, res) =>
 {
     const itemId     = Number(req.params.itemId);
     const value   = Number(req.body.itemQuantity) * Number(req.body.itemPrice);

@@ -190,7 +190,7 @@ function openEditItemDialog(itemId) {
         }
         console.log('goto item', itemId);
         itemId = itemId;
-        const request = new Request(`api/item/${itemId}`, {
+        const request = new Request(`/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -479,7 +479,7 @@ function updateItem(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('upate item');
         const item = yield getItemById(itemData.itemId);
-        const request = new Request(`api/item/${itemData.itemId}`, {
+        const request = new Request(`/api/item/${itemData.itemId}`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -599,7 +599,7 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
         quantityChangeTimer.started = false;
         // submit edit request
         const item = yield getItemById(quantityChangeTimer.itemId);
-        const request = new Request(`/item/${quantityChangeTimer.itemId}`, {
+        const request = new Request(`/api/item/${quantityChangeTimer.itemId}`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -656,7 +656,7 @@ function onRowLoseFocus(itemId) {
         const minimumLevel = tableRow.getElementsByClassName("minimumLevelRow")[0].innerHTML;
         const price = tableRow.getElementsByClassName("priceRow")[0].innerHTML;
         const value = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
-        const request = new Request(`/item/${itemId}`, {
+        const request = new Request(`/api/item/${itemId}`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
