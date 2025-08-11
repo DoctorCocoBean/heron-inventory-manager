@@ -109,6 +109,20 @@ indexRouter.put("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, voi
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.quantity;
     }
+    // Log all variables
+    console.log({
+        'Item ID': itemId,
+        'Item Value': value,
+        'Previous Item Data': oldItem[0],
+        'Stock Ordered Status': stockOrdered,
+        'Item Name': req.body.name,
+        'Item Quantity': req.body.quantity,
+        'Minimum Level': req.body.minimumLevel,
+        'Item Price': req.body.price,
+        'Item Barcode': req.body.barcode,
+        'Item Notes': req.body.notes,
+        'Item Tags': req.body.tags
+    });
     // Reset stock ordered status if quantity is about minimum level
     if (req.body.itemQuantity > req.body.itemMinQuantity) {
         stockOrdered = false;
