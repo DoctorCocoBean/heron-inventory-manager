@@ -479,10 +479,11 @@ function updateItem(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('upate item');
         const item = yield getItemById(itemData.itemId);
-        const request = new Request(`/api/item/${itemData.itemId}`, {
+        const request = new Request(`/api/item`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                id: itemData.itemId,
                 name: itemData.name,
                 quanity: itemData.quantity,
                 minimumLevel: itemData.minimumLevel,
@@ -510,10 +511,11 @@ function editItemDialogUpdate(itemId) {
         const barcode = getHTMLInputById('barcodeInput').value;
         const notes = getHTMLInputById('notesInput').value;
         const tags = getHTMLInputById('tagsInput').value;
-        const request = new Request(`api/item/${itemId}`, {
+        const request = new Request(`api/item`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                id: itemId,
                 name: name,
                 quantity: quantity,
                 minimumLevel: minimumLevel,
@@ -600,10 +602,11 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
         quantityChangeTimer.started = false;
         // submit edit request
         const item = yield getItemById(quantityChangeTimer.itemId);
-        const request = new Request(`/api/item/${quantityChangeTimer.itemId}`, {
+        const request = new Request(`/api/item`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                id: quantityChangeTimer.itemId,
                 name: item[0]['name'],
                 quantity: quantityChangeTimer.finalQuantity,
                 minimumLevel: item[0]['minimumLevel'],
@@ -864,6 +867,7 @@ function getMetaData() {
 }
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
+        // triggerQuantityChange();
         // triggerNameChange();
         // triggerMinimumLevelChange();
         const request = new Request(`/api/itemsByName/all`, {

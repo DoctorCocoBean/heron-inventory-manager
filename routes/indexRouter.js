@@ -96,10 +96,11 @@ indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, vo
     }
     res.send(items);
 }));
-indexRouter.put("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const itemId = Number(req.params.itemId);
+indexRouter.put("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('updating item 2');
+    const itemId = Number(req.body.id);
     const value = Number(req.body.quantity) * Number(req.body.price);
-    const oldItem = yield db.getItemById(req.params.itemId);
+    const oldItem = yield db.getItemById(itemId);
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null)
         stockOrdered = false;
@@ -156,6 +157,7 @@ indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0
     res.send();
 }));
 indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('changing quantity');
     try {
         const itemId = Number(req.body.itemId);
         const oldItem = yield db.getItemById(itemId);

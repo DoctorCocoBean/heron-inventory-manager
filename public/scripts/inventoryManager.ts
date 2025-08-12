@@ -548,10 +548,11 @@ async function updateItem(itemData: Item)
     console.log('upate item');
     
     const item    = await getItemById(itemData.itemId);
-    const request = new Request(`/api/item/${itemData.itemId}`, {
+    const request = new Request(`/api/item`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+            id: itemData.itemId,
             name: itemData.name,
             quanity: itemData.quantity,
             minimumLevel: itemData.minimumLevel,
@@ -582,10 +583,11 @@ async function editItemDialogUpdate(itemId)
     const notes         = getHTMLInputById('notesInput').value;
     const tags          = getHTMLInputById('tagsInput').value;
 
-    const request = new Request(`api/item/${itemId}`, {
+    const request = new Request(`api/item`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+            id: itemId,
             name: name,
             quantity: quantity ,
             minimumLevel: minimumLevel,
@@ -698,10 +700,11 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
 
         // submit edit request
         const item    = await getItemById(quantityChangeTimer.itemId);
-        const request = new Request(`/api/item/${quantityChangeTimer.itemId}`, {
+        const request = new Request(`/api/item`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
+                id: quantityChangeTimer.itemId,
                 name: item[0]['name'],
                 quantity: quantityChangeTimer.finalQuantity,
                 minimumLevel: item[0]['minimumLevel'],
@@ -966,6 +969,7 @@ async function triggerQuantityChange()
 async function triggerNameChange() 
 {
     console.log('triggering');
+
     const request = new Request(`/api/item/name`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
@@ -1021,6 +1025,7 @@ async function getMetaData()
 
 async function loadItemTable()
 {
+    // triggerQuantityChange();
     // triggerNameChange();
     // triggerMinimumLevelChange();
 

@@ -125,11 +125,13 @@ indexRouter.get("/api/itemsByName/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.put("/api/item/:itemId", async (req, res) =>
+indexRouter.put("/api/item", async (req, res) =>
 {
-    const itemId     = Number(req.params.itemId);
+    console.log('updating item 2');
+    
+    const itemId  = Number(req.body.id);
     const value   = Number(req.body.quantity) * Number(req.body.price);
-    const oldItem = await db.getItemById(req.params.itemId);
+    const oldItem = await db.getItemById(itemId);
 
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null) 
@@ -225,6 +227,7 @@ indexRouter.put("/api/item/name", async (req, res) =>
 
 indexRouter.put("/api/item/quantity", async (req, res) =>
 {
+    console.log('changing quantity');
     try {
         const itemId  = Number(req.body.itemId);
         const oldItem = await db.getItemById(itemId);
