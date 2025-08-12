@@ -164,6 +164,14 @@ indexRouter.put("/api/item/:itemId", async (req, res) =>
         stockOrdered = false;    
     }
 
+    // If this items barcode is changing but the new barcode already exists, throw an error
+    if (req.body.barcode != oldItem[0].barcode) {
+        console.log('ran into error');
+        
+        res.status(500).json({message: "Barcode already exists for another item."});
+        return;
+    }
+
     await db.updateItem(itemId,
                         req.body.name,
                         req.body.quantity,

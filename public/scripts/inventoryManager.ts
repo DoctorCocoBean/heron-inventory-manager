@@ -392,7 +392,7 @@ async function addItem()
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        throw new Error(`HTTP Error: Status ${response.status}, ${response.body} Message: ${errorData.message || 'Unknow err'}`);
     }
 
     $('#editItemModal').modal('hide');
@@ -600,7 +600,8 @@ async function editItemDialogUpdate(itemId)
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
+        showPopup(`Error Status ${response.status}: ${errorData.message || 'Unknown error'}`);
+        return;
     }
 
     $('#editItemModal').modal('hide');

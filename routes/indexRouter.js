@@ -127,6 +127,12 @@ indexRouter.put("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, voi
     if (req.body.itemQuantity > req.body.itemMinQuantity) {
         stockOrdered = false;
     }
+    // If this items barcode is changing but the new barcode already exists, throw an error
+    if (req.body.barcode != oldItem[0].barcode) {
+        console.log('ran into error');
+        res.status(500).json({ message: "Barcode already exists for another item." });
+        return;
+    }
     yield db.updateItem(itemId, req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags, stockOrdered);
     res.send();
 }));
