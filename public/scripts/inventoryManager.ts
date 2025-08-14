@@ -48,6 +48,20 @@ const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
 
+
+// On page load
+document.addEventListener('keydown', (event) => {
+    if (event.key == 'Enter') 
+    {
+        console.log(popup.style.display == 'none' || popup.style.display == '');
+        if (popup.style.display == 'block') {
+            var saveBtn = document.getElementById('saveButton');
+            console.log('saveBtn: ', saveBtn);
+            saveBtn.click();
+        }
+    }
+});
+
 function showPopupMessage(msg) 
 {
     const popup = document.getElementById('msgPopup');
@@ -202,15 +216,11 @@ function calculateInputField(inputData: string): number
 
 async function openEditItemDialog(itemId: number): Promise<void>
 { 
-    console.log('opening');
-    
     if (isEditingRow) {
         return;
     }
 
-    console.log('goto item', itemId)
     itemId = itemId;
-
     const request = new Request(`/api/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
@@ -292,7 +302,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
                         </div>
                         <div class="">
                         <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
-                        <button type="button" class="btn btn-primary inventoryBtn" onclick="editItemDialogUpdate(${data[0]['id']})">Save</button>
+                        <button type="button" id="saveButton" class="btn btn-primary inventoryBtn" onclick="editItemDialogUpdate(${data[0]['id']})">Save</button>
                         </div>
                     </div>
                 </div>
@@ -308,7 +318,6 @@ async function openEditItemDialog(itemId: number): Promise<void>
         {
             const input: HTMLInputElement = document.getElementById('quantityInput') as HTMLInputElement;
             console.log(input.value);
-            
 
             if (event.key == 'Enter') 
             {
@@ -542,13 +551,13 @@ async function editItemDialogUpdate(itemId)
 {
     const name          = getHTMLInputById('nameInput').value;
     const quantity      = Number(getHTMLInputById('quantityInput').value);
-    const minimumLevel   = Number(getHTMLInputById('minimumLevelInput').value);
+    const minimumLevel  = Number(getHTMLInputById('minimumLevelInput').value);
     const price         = Number(getHTMLInputById('priceInput').value);
     const barcode       = getHTMLInputById('barcodeInput').value;
     const notes         = getHTMLInputById('notesInput').value;
     const tags          = getHTMLInputById('tagsInput').value;
 
-    const request = new Request(`api/item`, {
+    const request = new Request(`/api/item`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
