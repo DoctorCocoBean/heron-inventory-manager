@@ -49,7 +49,7 @@ const popup = document.getElementById("editItemModal");
 const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
-function showPopup(msg) {
+function showPopupMessage(msg) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
     popup.classList.remove('msgPopup-hide');
@@ -146,7 +146,7 @@ function calculateInputField(inputData) {
             else // Error
              {
                 console.log('Error: text input contains invalid input');
-                showPopup('Error: text input contains invalid input');
+                showPopupMessage('Error: text input contains invalid input');
                 return null;
             }
             if (result == null) // Check if two numbers can be calcuated together
@@ -190,7 +190,7 @@ function openEditItemDialog(itemId) {
         }
         console.log('goto item', itemId);
         itemId = itemId;
-        const request = new Request(`/item/${itemId}`, {
+        const request = new Request(`/api/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -356,7 +356,7 @@ function deleteItem(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         const item = yield getItemById(itemId);
         const name = item[0].name;
-        const request = new Request(`/item`, {
+        const request = new Request(`/api/item`, {
             method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -371,7 +371,7 @@ function deleteItem(itemId) {
         $('#editItemModal').modal('hide');
         loadItemTable();
         const msg = 'Item: ' + name + ' deleted.';
-        showPopup(msg);
+        showPopupMessage(msg);
     });
 }
 function deleteSelectedItems() {
@@ -389,7 +389,7 @@ function deleteSelectedItems() {
             throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
         }
         loadItemTable();
-        showPopup('Deleted selected items');
+        showPopupMessage('Deleted selected items');
     });
 }
 function showDeleteAllPrompt() {
@@ -430,13 +430,13 @@ function deleteAllItems() {
         });
         const response = yield fetch(request).then(() => {
             loadItemTable();
-            showPopup('Deleted all items');
+            showPopupMessage('Deleted all items');
         });
     });
 }
 function getItemById(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/item/${itemId}`, {
+        const request = new Request(`api/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -450,7 +450,7 @@ function getItemById(itemId) {
 function getItemJson(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('hello');
-        const request = new Request(`/item/${itemId}`, {
+        const request = new Request(`api/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -464,7 +464,7 @@ function getItemJson(itemId) {
 }
 function getItemNameById(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/item/${itemId}`, {
+        const request = new Request(`api/item/${itemId}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -485,7 +485,7 @@ function updateItem(itemData) {
             body: JSON.stringify({
                 id: itemData.itemId,
                 name: itemData.name,
-                quanity: itemData.quantity,
+                quantity: itemData.quantity,
                 minimumLevel: itemData.minimumLevel,
                 price: itemData.price,
                 value: itemData.value,
@@ -528,7 +528,7 @@ function editItemDialogUpdate(itemId) {
         const response = yield fetch(request);
         if (!response.ok) {
             const errorData = yield response.json();
-            showPopup(`Error Status ${response.status}: ${errorData.message || 'Unknown error'}`);
+            showPopupMessage(`Error Status ${response.status}: ${errorData.message || 'Unknown error'}`);
             return;
         }
         $('#editItemModal').modal('hide');
@@ -764,7 +764,7 @@ function searchForLowStockItem(name) {
         if (name == "") {
             name = "all";
         }
-        const request = new Request(`/lowStockitem/${name}`, {
+        const request = new Request(`api/lowStockitem/${name}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -817,42 +817,6 @@ function triggerQuantityChange() {
         }
     });
 }
-function triggerNameChange() {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log('triggering');
-        const request = new Request(`/api/item/name`, {
-            method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                itemId: 380,
-                name: `${Math.random()}`,
-            }),
-        });
-        const response = yield fetch(request);
-        if (!response.ok) {
-            const errorData = yield response.json();
-            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-        }
-    });
-}
-function triggerMinimumLevelChange() {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log('triggering');
-        const request = new Request(`/api/item/minimumLevel`, {
-            method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                itemId: 380,
-                minimumLevel: Math.floor(Math.random() * 100),
-            }),
-        });
-        const response = yield fetch(request);
-        if (!response.ok) {
-            const errorData = yield response.json();
-            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-        }
-    });
-}
 function getMetaData() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/itemsMetaData`, {
@@ -867,9 +831,6 @@ function getMetaData() {
 }
 function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        // triggerQuantityChange();
-        // triggerNameChange();
-        // triggerMinimumLevelChange();
         const request = new Request(`/api/itemsByName/all`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
@@ -898,7 +859,7 @@ function loadItemTable() {
 }
 function loadLowStockItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/lowStockItems`, {
+        const request = new Request(`api/lowStockItems`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -964,7 +925,7 @@ function itemSelectClick(itemId) {
 }
 function updateItemOrderedStatus(itemId, stockOrdered) {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/itemOrderedStatus`, {
+        const request = new Request(`/api/itemOrderedStatus`, {
             method: "PUT",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1364,7 +1325,7 @@ function undoCommand() {
                 console.log('timeout');
                 loadItemTable();
             }, 100);
-            showPopup(data);
+            showPopupMessage(data);
         });
     });
 }

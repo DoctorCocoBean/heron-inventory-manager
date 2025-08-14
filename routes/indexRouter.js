@@ -16,23 +16,6 @@ const db = require("../pool/queries");
 indexRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
 }));
-indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('loading page');
-    const items = yield db.getAllItems();
-    var metaData = yield db.calculateItemsMetaData();
-    metaData.totalValue = convertNumToString(metaData.totalValue);
-    res.render("items", { items: items, metaData: metaData });
-}));
-indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('loading items');
-    const items = yield db.getAllItems();
-    res.send(items);
-}));
-indexRouter.delete("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('trying');
-    yield db.deleteArrayOfItems(req.body.items);
-    res.send();
-}));
 indexRouter.get("/dashboard", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var metaData = yield db.calculateItemsMetaData();
     metaData.totalValue = convertNumToString(metaData.totalValue);
@@ -53,7 +36,7 @@ indexRouter.get("/lowstock", (req, res) => __awaiter(void 0, void 0, void 0, fun
 indexRouter.get("/transactionReport", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.render("transactionReport", {});
 }));
-indexRouter.get("/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/api/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allItems = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
     var lowItems = [];
@@ -65,15 +48,6 @@ indexRouter.get("/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0
     }
     res.send(lowItems);
 }));
-indexRouter.get("/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const item = yield db.getItemById(req.params.itemId);
-        res.send(item);
-    }
-    catch (error) {
-        console.log("error getting item by Id: ", req.params.itemId, error);
-    }
-}));
 indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var nameToSearch = req.params.itemName;
     var items;
@@ -84,6 +58,33 @@ indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 
         items = yield db.searchForLowStockItem(req.params.itemName);
     }
     res.send(items);
+}));
+indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('loading page');
+    const items = yield db.getAllItems();
+    var metaData = yield db.calculateItemsMetaData();
+    metaData.totalValue = convertNumToString(metaData.totalValue);
+    res.render("items", { items: items, metaData: metaData });
+}));
+indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('trying');
+    yield db.deleteArrayOfItems(req.body.items);
+    res.send();
+}));
+indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('loading items');
+    const items = yield db.getAllItems();
+    res.send(items);
+}));
+indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const item = yield db.getItemById(req.params.itemId);
+        res.send(item);
+    }
+    catch (error) {
+        res.send.status(500).send({ message: "Error getting item by Id" });
+        console.log("error getting item by Id: ", req.params.itemId, error);
+    }
 }));
 indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var nameToSearch = req.params.itemName;
@@ -261,17 +262,17 @@ indexRouter.put("/api/item/notes", (req, res) => __awaiter(void 0, void 0, void 
     }
     res.send();
 }));
-indexRouter.put("/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
-    res.send();
-}));
-indexRouter.post("api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.post("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.addItem(req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, req.body.itemValue, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags);
     res.send();
 }));
-indexRouter.delete("/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('deleting', req.body.itemss);
+indexRouter.delete("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('deleting', req.body.items);
     yield db.deleteItem(req.body.itemId);
+    res.send();
+}));
+indexRouter.put("/api/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();
 }));
 indexRouter.post("/uploadCSV", (req, res) => {

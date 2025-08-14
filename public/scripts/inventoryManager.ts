@@ -42,7 +42,7 @@ const editItemDialog = document.getElementById("editItemModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
 
-function showPopup(msg) 
+function showPopupMessage(msg) 
 {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -156,7 +156,7 @@ function calculateInputField(inputData: string): number
             else // Error
             {
                 console.log('Error: text input contains invalid input');
-                showPopup('Error: text input contains invalid input')
+                showPopupMessage('Error: text input contains invalid input')
                 return null;
             }
 
@@ -211,7 +211,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
     console.log('goto item', itemId)
     itemId = itemId;
 
-    const request = new Request(`/item/${itemId}`, {
+    const request = new Request(`/api/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -403,7 +403,7 @@ async function deleteItem(itemId: number)
     const item = await getItemById(itemId);
     const name = item[0].name;
 
-    const request = new Request(`/item`, {
+    const request = new Request(`/api/item`, {
         method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -422,7 +422,7 @@ async function deleteItem(itemId: number)
     loadItemTable();
 
     const msg = 'Item: ' + name + ' deleted.'
-    showPopup(msg);
+    showPopupMessage(msg);
 }
 
 async function deleteSelectedItems()
@@ -443,7 +443,7 @@ async function deleteSelectedItems()
     }
 
     loadItemTable();
-    showPopup('Deleted selected items');
+    showPopupMessage('Deleted selected items');
 }
 
 function showDeleteAllPrompt()
@@ -488,13 +488,13 @@ async function deleteAllItems()
 
     const response = await fetch(request).then(() => {
         loadItemTable();
-        showPopup('Deleted all items')
+        showPopupMessage('Deleted all items')
     });
 }
 
 async function getItemById(itemId)
 {
-    const request = new Request(`/item/${itemId}`, {
+    const request = new Request(`api/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -512,7 +512,7 @@ async function getItemJson(itemId)
 {
     console.log('hello');
     
-    const request = new Request(`/item/${itemId}`, {
+    const request = new Request(`api/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -529,7 +529,7 @@ async function getItemJson(itemId)
 
 async function getItemNameById(itemId)
 {
-    const request = new Request(`/item/${itemId}`, {
+    const request = new Request(`api/item/${itemId}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -554,7 +554,7 @@ async function updateItem(itemData: Item)
         body: JSON.stringify({ 
             id: itemData.itemId,
             name: itemData.name,
-            quanity: itemData.quantity,
+            quantity: itemData.quantity,
             minimumLevel: itemData.minimumLevel,
             price: itemData.price,
             value: itemData.value,
@@ -602,7 +602,7 @@ async function editItemDialogUpdate(itemId)
 
     if (!response.ok) {
         const errorData = await response.json();
-        showPopup(`Error Status ${response.status}: ${errorData.message || 'Unknown error'}`);
+        showPopupMessage(`Error Status ${response.status}: ${errorData.message || 'Unknown error'}`);
         return;
     }
 
@@ -898,7 +898,7 @@ async function searchForLowStockItem(name: string)
         name = "all";
     }
 
-    const request = new Request(`/lowStockitem/${name}`, {
+    const request = new Request(`api/lowStockitem/${name}`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -966,47 +966,6 @@ async function triggerQuantityChange()
     }
 }
 
-async function triggerNameChange() 
-{
-    console.log('triggering');
-
-    const request = new Request(`/api/item/name`, {
-        method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            itemId: 380,
-            name: `${Math.random()}`,
-        }),
-    })
-    
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-    }
-}
-
-async function triggerMinimumLevelChange() 
-{
-    console.log('triggering');
-    const request = new Request(`/api/item/minimumLevel`, {
-        method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            itemId: 380,
-            minimumLevel: Math.floor(Math.random() * 100),
-        }),
-    })
-    
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-    }
-}
-
 async function getMetaData() 
 {
     const request = new Request(`/api/itemsMetaData`, {
@@ -1025,10 +984,6 @@ async function getMetaData()
 
 async function loadItemTable()
 {
-    // triggerQuantityChange();
-    // triggerNameChange();
-    // triggerMinimumLevelChange();
-
     const request = new Request(`/api/itemsByName/all`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
@@ -1063,7 +1018,7 @@ async function loadItemTable()
 
 async function loadLowStockItemTable()
 {
-    const request = new Request(`/lowStockItems`, {
+    const request = new Request(`api/lowStockItems`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
     })
@@ -1142,7 +1097,7 @@ function itemSelectClick(itemId: number)
 
 async function updateItemOrderedStatus(itemId: number, stockOrdered: boolean)
 {
-    const request = new Request(`/itemOrderedStatus`, {
+    const request = new Request(`/api/itemOrderedStatus`, {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -1599,7 +1554,7 @@ async function undoCommand()
             console.log('timeout');
             loadItemTable();
         }, 100 );
-        showPopup(data);
+        showPopupMessage(data);
     });
 
 }

@@ -9,33 +9,6 @@ indexRouter.get("/", async (req, res) =>
     res.redirect("/items");
 });
 
-indexRouter.get("/items", async (req, res) => 
-{
-    console.log('loading page');
-    
-    const items               = await db.getAllItems();
-    var   metaData            = await db.calculateItemsMetaData();
-          metaData.totalValue = convertNumToString(metaData.totalValue);
-
-    res.render("items", { items: items, metaData: metaData });
-});
-
-indexRouter.get("/api/items", async (req, res) => 
-{
-    console.log('loading items');
-    const items = await db.getAllItems();
-
-    res.send(items);
-});
-
-indexRouter.delete("/items", async (req, res) =>
-{
-    console.log('trying');
-    
-    await db.deleteArrayOfItems(req.body.items);
-    res.send();
-});
-
 indexRouter.get("/dashboard", async (req, res) => 
 {
     var metaData            = await db.calculateItemsMetaData();
@@ -65,7 +38,7 @@ indexRouter.get("/transactionReport", async (req, res) =>
     res.render("transactionReport", { });
 });
 
-indexRouter.get("/lowStockItems", async (req, res) => 
+indexRouter.get("/api/lowStockItems", async (req, res) => 
 {
     const allItems = await db.getAllItems();
     var metaData = await db.calculateItemsMetaData();    
@@ -82,19 +55,6 @@ indexRouter.get("/lowStockItems", async (req, res) =>
     res.send(lowItems);
 });
 
-indexRouter.get("/item/:itemId", async (req, res) => 
-{
-    try
-    {
-        const item = await db.getItemById(req.params.itemId);
-        res.send(item);
-    } 
-    catch (error) 
-    {
-        console.log("error getting item by Id: ", req.params.itemId,  error);
-    }
-});
-
 indexRouter.get("/lowStockitem/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;
@@ -108,6 +68,47 @@ indexRouter.get("/lowStockitem/:itemName", async (req, res) =>
     }
 
     res.send(items);
+});
+
+indexRouter.get("/items", async (req, res) => 
+{
+    console.log('loading page');
+    
+    const items               = await db.getAllItems();
+    var   metaData            = await db.calculateItemsMetaData();
+          metaData.totalValue = convertNumToString(metaData.totalValue);
+
+    res.render("items", { items: items, metaData: metaData });
+});
+
+indexRouter.delete("/api/items", async (req, res) =>
+{
+    console.log('trying');
+    
+    await db.deleteArrayOfItems(req.body.items);
+    res.send();
+});
+
+indexRouter.get("/api/items", async (req, res) => 
+{
+    console.log('loading items');
+    const items = await db.getAllItems();
+
+    res.send(items);
+});
+
+indexRouter.get("/api/item/:itemId", async (req, res) => 
+{
+    try
+    {
+        const item = await db.getItemById(req.params.itemId);
+        res.send(item);
+    } 
+    catch (error) 
+    {
+        res.send.status(500).send({message: "Error getting item by Id"});
+        console.log("error getting item by Id: ", req.params.itemId,  error);
+    }
 });
 
 indexRouter.get("/api/itemsByName/:itemName", async (req, res) => 
@@ -422,13 +423,7 @@ indexRouter.put("/api/item/notes", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/itemOrderedStatus", async (req, res) =>
-{
-    await db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
-    res.send();
-});
-
-indexRouter.post("api/item", async (req, res) =>
+indexRouter.post("/api/item", async (req, res) =>
 {
     await db.addItem(
                         req.body.itemName,
@@ -444,11 +439,17 @@ indexRouter.post("api/item", async (req, res) =>
     res.send();
 });
 
-indexRouter.delete("/item", async (req, res) =>
+indexRouter.delete("/api/item", async (req, res) =>
 {
-	console.log('deleting', req.body.itemss);
+	console.log('deleting', req.body.items);
 
     await db.deleteItem(req.body.itemId);
+    res.send();
+});
+
+indexRouter.put("/api/itemOrderedStatus", async (req, res) =>
+{
+    await db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
     res.send();
 });
 
