@@ -41,6 +41,12 @@ var LogType;
 (function (LogType) {
     LogType[LogType["QUANTITY"] = 1] = "QUANTITY";
 })(LogType || (LogType = {}));
+var Operation;
+(function (Operation) {
+    Operation[Operation["NONE"] = 0] = "NONE";
+    Operation[Operation["ADD"] = 1] = "ADD";
+    Operation[Operation["SUBTRACT"] = 2] = "SUBTRACT";
+})(Operation || (Operation = {}));
 // --- GLOBALS -----
 var isEditingRow = false;
 var searchBar = document.getElementById("searchBar");
@@ -103,12 +109,6 @@ function openNewItemDialog() {
         </div>
     `;
 }
-var Operation;
-(function (Operation) {
-    Operation[Operation["NONE"] = 0] = "NONE";
-    Operation[Operation["ADD"] = 1] = "ADD";
-    Operation[Operation["SUBTRACT"] = 2] = "SUBTRACT";
-})(Operation || (Operation = {}));
 function calculate(numA, numB, op) {
     if (op == Operation.SUBTRACT) {
         return numA - numB;
@@ -447,34 +447,6 @@ function getItemById(itemId) {
         return data;
     });
 }
-function getItemJson(itemId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log('hello');
-        const request = new Request(`api/item/${itemId}`, {
-            method: "GET",
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const response = yield fetch(request);
-        const data = yield response.json().then((data) => {
-            const s = JSON.stringify(data[0]);
-            console.log(JSON.parse(s));
-            return data;
-        });
-    });
-}
-function getItemNameById(itemId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`api/item/${itemId}`, {
-            method: "GET",
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const response = yield fetch(request);
-        const data = yield response.json().then((data) => {
-            return data;
-        });
-        return data.name;
-    });
-}
 function updateItem(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('upate item');
@@ -797,24 +769,6 @@ function searchForItem(name) {
             }
             itemTable.innerHTML = tableHTML;
         });
-    });
-}
-function triggerQuantityChange() {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log('triggering');
-        const request = new Request(`/api/item/quantity`, {
-            method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                itemId: 380,
-                quantityChange: -1,
-            }),
-        });
-        const response = yield fetch(request);
-        if (!response.ok) {
-            const errorData = yield response.json();
-            throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-        }
     });
 }
 function getMetaData() {

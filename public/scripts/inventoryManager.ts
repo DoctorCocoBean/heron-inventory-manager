@@ -33,6 +33,12 @@ enum LogType
     QUANTITY = 1,
 }
 
+enum Operation {
+    NONE = 0,
+    ADD,
+    SUBTRACT,
+}
+
 // --- GLOBALS -----
 var isEditingRow = false;
 var searchBar   = document.getElementById("searchBar");
@@ -101,12 +107,6 @@ function openNewItemDialog()
         
         </div>
     `
-}
-
-enum Operation {
-    NONE = 0,
-    ADD,
-    SUBTRACT,
 }
 
 function calculate(numA: number, numB: number, op: Operation): number
@@ -508,41 +508,6 @@ async function getItemById(itemId)
     return data;
 }
 
-async function getItemJson(itemId) 
-{
-    console.log('hello');
-    
-    const request = new Request(`api/item/${itemId}`, {
-        method: "GET",
-        headers: { 'Content-Type': 'application/json' }
-    })
-
-    const response = await fetch(request);
-    const data = await response.json().then((data) => 
-    { 
-        const s = JSON.stringify(data[0]);
-        console.log(JSON.parse(s));
-        
-        return data;
-    });
-}
-
-async function getItemNameById(itemId)
-{
-    const request = new Request(`api/item/${itemId}`, {
-        method: "GET",
-        headers: { 'Content-Type': 'application/json' }
-    })
-
-    const response = await fetch(request);
-    const data = await response.json().then((data) => 
-    {
-        return data;
-    });
-
-    return data.name;
-}
-
 async function updateItem(itemData: Item)
 {
     console.log('upate item');
@@ -612,7 +577,6 @@ async function editItemDialogUpdate(itemId)
     const itemValue = Number(quantity) * Number(price);
     tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, itemValue);
 }
-
 
 function editPopupDecreaseQuantity()
 {
@@ -943,27 +907,6 @@ async function searchForItem(name: string)
 
         itemTable.innerHTML= tableHTML;
     });
-}
-
-
-async function triggerQuantityChange() 
-{
-    console.log('triggering');
-    const request = new Request(`/api/item/quantity`, {
-        method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            itemId: 380,
-            quantityChange: -1,
-        }),
-    })
-    
-    const response = await fetch(request);
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
-    }
 }
 
 async function getMetaData() 
