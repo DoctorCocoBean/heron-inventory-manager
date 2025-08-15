@@ -1,4 +1,3 @@
-
 class QuantityChangeTimer
 {
     id: number = -1;
@@ -690,6 +689,12 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
         }) 
         
         const response = await fetch(request);
+            // .then(res => res.json())
+            // .then(data => console.log('response: ', response))
+            // .catch(error => {
+            //     console.error('Error updating item:', error);
+            //     console.log(`Error updating item: ${error.message}`);
+            // });
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -1334,102 +1339,135 @@ async function downloadCSV()
 
 async function loadTransactionLog()
 {
-    const request = new Request(`/api/activityLog`, {
-        method: "GET",
-        headers: { 'Content-Type': 'application/json' }
-    })
+    console.log('load transaction log');
+    
+    try {
+        const request = new Request(`/api/activityLog`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        })
 
-    const response = await fetch(request);
-    const data = response.json().then((data) => 
-    {
-        
-        var tableHTML = `
-            <thead>
-                <td style="opacity: 50%;">Name</td>
-                <td style="opacity: 50%;">Total Additions</td>
-                <td style="opacity: 50%;">Total Subtractions</td>
-            </thead>
-        `
-
-        let oldValue = 0;
-        let newValue = 0;
-        let transaction = 0;
-        let quantityChangeSummaries: Array<QuanityChangeSummary> = [];
-
-        for (let i=0; i<data.length; i++) 
+        const response = await fetch(request);
+        const data = response.json().then((data) => 
         {
-            oldValue = Number(data[i]['oldValue']);
-            newValue = Number(data[i]['newValue']);
-            transaction = oldValue - newValue;
+            
+            var tableHTML = `
+                <thead>
+                    <td style="opacity: 50%;">Name</td>
+                    <td style="opacity: 50%;">Total Additions</td>
+                    <td style="opacity: 50%;">Total Subtractions</td>
+                </thead>
+            `
 
-            let alreadyAdded = false;
-            for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+            let oldValue = 0;
+            let newValue = 0;
+            let transaction = 0;
+            let quantityChangeSummaries: Array<QuanityChangeSummary> = [];
+
+            const date1 = new Date(data[0]['date']);
+            const daysAgo30 = new Date();
+            daysAgo30.setDate(daysAgo30.getDate() - 30);
+            // daysAgo30.setDate(daysAgo30.getDate() - 5); // 10 days ago for testing
+
+
+            console.log(typeof data);
+            for (let i=0; i<data.length; i++) 
             {
-                if (quantityChangeSummaries[j].name == data[i]['itemName'])
+                const date = new Date(data[i]['date']);
+                if (date < daysAgo30) {
+                    console.log('removing old data: ', data[i]['data']);
+                    // 
+                    // data.remove(i);
+                }
+            }
+
+            for (let i=0; i<data.length; i++) 
+            {
+                // Skip if date is older than filtered days
+                const date = new Date(data[i]['date']);
+                if (date < daysAgo30) {
+                    continue;
+                }
+
+                oldValue = Number(data[i]['oldValue']);
+                newValue = Number(data[i]['newValue']);
+                transaction = oldValue - newValue;
+
+                let alreadyAdded = false;
+                for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
                 {
+                    if (quantityChangeSummaries[j].name == data[i]['itemName'])
+                    {
+                        if (transaction > 0) {
+                            quantityChangeSummaries[j].totalAdditions += transaction;
+                        }
+                        if (transaction < 0) {
+                            quantityChangeSummaries[j].totalSubtactions += transaction;
+                        }
+                        alreadyAdded = true;
+                    }
+                }
+
+                // Add if not already added to list
+                if (!alreadyAdded) 
+                {
+                    let t = new QuanityChangeSummary();
+                    t.name = data[i]['itemName'];
+
                     if (transaction > 0) {
-                        quantityChangeSummaries[j].totalAdditions += transaction;
+                        t.totalAdditions += transaction;
                     }
                     if (transaction < 0) {
-                        quantityChangeSummaries[j].totalSubtactions += transaction;
+                        t.totalSubtactions += Math.abs(transaction);
+                        
                     }
-                    alreadyAdded = true;
+                    quantityChangeSummaries.push(t);
                 }
             }
 
-            // Add if not already added to list
-            if (!alreadyAdded) 
+            // Sort items by total subtractions
+            const sortItems = (itemA: QuanityChangeSummary, itemB: QuanityChangeSummary) => 
             {
-                let t = new QuanityChangeSummary();
-                t.name = data[i]['itemName'];
-
-                if (transaction > 0) {
-                    t.totalAdditions += transaction;
+                if (Math.abs(itemA.totalSubtactions) > Math.abs(itemB.totalSubtactions)) {
+                    return -1;
+                } 
+                else if (Math.abs(itemA.totalSubtactions) > Math.abs(itemB.totalSubtactions)) {
+                    return -1;
+                } else {
+                    return 0;
                 }
-                if (transaction < 0) {
-                    t.totalSubtactions += Math.abs(transaction);
-                    
-                }
-                quantityChangeSummaries.push(t);
+            };
+            quantityChangeSummaries.sort(sortItems);
+
+            // Add merged quantity change summaries
+            for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+            {
+                const element = quantityChangeSummaries[j];
+                const html = `
+                        <tr style="vertical-align: middle" id="tableRow_">
+
+                            <td class="typeRow">${quantityChangeSummaries[j].name}</td>
+                            <td style=""> ${quantityChangeSummaries[j].totalAdditions}</td>
+                            <td style=""> ${quantityChangeSummaries[j].totalSubtactions}</td>
+
+                        </tr>
+                `
+                tableHTML += html;
+
+                itemTable.innerHTML= tableHTML;
             }
-        }
-
-        // Sort items by total subtractions
-        const sortItems = (itemA: QuanityChangeSummary, itemB: QuanityChangeSummary) => 
-        {
-            if (Math.abs(itemA.totalSubtactions) > Math.abs(itemB.totalSubtactions)) {
-                return -1;
-            } 
-            else if (Math.abs(itemA.totalSubtactions) > Math.abs(itemB.totalSubtactions)) {
-                return -1;
-            } else {
-                return 0;
-            }
-        };
-        quantityChangeSummaries.sort(sortItems);
-
-        // Add merged quantity change summaries
-        for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
-        {
-            const element = quantityChangeSummaries[j];
-            const html = `
-                    <tr style="vertical-align: middle" id="tableRow_">
-
-                        <td class="typeRow">${quantityChangeSummaries[j].name}</td>
-                        <td style=""> ${quantityChangeSummaries[j].totalAdditions}</td>
-                        <td style=""> ${quantityChangeSummaries[j].totalSubtactions}</td>
-
-                    </tr>
-            `
-            tableHTML += html;
-
-            itemTable.innerHTML= tableHTML;
-        }
-    });
+        });
+    } catch (error) {
+        console.error('Error loading transaction log:', error);
+        showPopupMessage(`Error loading transaction log: ${error.message}`);
+    }
 }
 
 async function loadActivityLog()
 {
+    const dateTimestampt = Date.now();
+    const date = new Date(dateTimestampt);
+
     const request = new Request(`/api/activityLog`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }
@@ -1438,33 +1476,36 @@ async function loadActivityLog()
     const response = await fetch(request);
     const data = response.json().then((data) => 
     {
-        console.log(data);
-        
         var tableHTML = `
             <thead>
-                <td style="opacity: 50%; width: 30%;">Name</td>
-                <td style="opacity: 50%; width: 15%;">Type</td>
+                <td style="opacity: 50%; width: 15%;">Activity Type</td>
+                <td style="opacity: 50%; width: 30%;">Item Name</td>
                 <td style="opacity: 50%; width: 20%;">Activity</td>
                 <td style="opacity: 50%;">Time</td>
-                <td style="opacity: 50%;">Date</td>
             </thead>
         `
-
         for (let i=0; i<data.length; i++) 
         {
+            if (data[i]['timestamp'] == 0) { continue; }
+
+            const date = new Date(Number(data[i]['timestamp']));
+            const time = date.toLocaleString();
+            console.log(time);
+            
+
             let html = '';
             switch (data[i]['type']) 
             {
+
                 case 'quantity':
                 {
                     const quantityChange = Number(data[i]['newValue']) - Number(data[i]['oldValue']);
                     html = `
                             <tr style="vertical-align: middle" id="tableRow_">
-                                <td class="typeRow">${data[i]['itemName']}</td>
                                 <td class="typeRow">${data[i]['type']}</td>
+                                <td class="typeRow">${data[i]['itemName']}</td>
                                 <td> Quanity change:   ${quantityChange} </td>
-                                <td> ${data[i]['time']} </td>
-                                <td> ${data[i]['date']} </td>
+                                <td> ${time} </td>
                             </tr>
                     `
                     break;
@@ -1476,8 +1517,7 @@ async function loadActivityLog()
                                 <td class="typeRow">Delete All</td>
                                 <td class="typeRow">${data[i]['type']}</td>
                                 <td> Delete all items </td>
-                                <td> ${data[i]['time']} </td>
-                                <td> ${data[i]['date']} </td>
+                                <td> ${time} </td>
                             </tr>
                     `
                     break;

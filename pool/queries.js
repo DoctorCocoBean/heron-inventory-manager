@@ -306,12 +306,13 @@ async function logActivity(type, itemId, itemName, oldValue, newValue)
     const now = new Date();
     const time = now.toTimeString();
     const date = now.toLocaleDateString();
+    const timestamp = Date.now();
 
-    console.log('logging item name', itemName);
+    console.log('logging item name', itemName, 'timestamp:', timestamp);
 
     const SQL = `
-        INSERT INTO "activity-log" (type, "itemId", "itemName", "oldValue", "newValue", "time", "date")
-        VALUES ('${type}', '${itemId}', '${itemName}', '${oldValue}', '${newValue}', '${time}', '${date}');
+        INSERT INTO "activity-log" (type, "itemId", "itemName", "oldValue", "newValue", "timestamp")
+        VALUES ('${type}', '${itemId}', '${itemName}', '${oldValue}', '${newValue}', '${timestamp}');
    `;
 
     await pool.query(SQL);
@@ -328,7 +329,7 @@ async function removeActivityLogById(dbRowId)
 
 async function getActivityLog()
 {
-    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY "date" DESC, "time" DESC`);
+    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY "timestamp" DESC;`);
     return rows;
 }
 
