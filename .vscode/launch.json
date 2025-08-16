@@ -6,7 +6,7 @@
                 "request": "launch",
                 "name": "Debug with Watch Task",
                 "preLaunchTask": "Build TypeScript Custom", // Link to your task label
-                "program": "${workspaceFolder}/app.js", // Your entry point
+                "program": "${workspaceFolder}/app.ts", // Your entry point
                 "console": "integratedTerminal"
             }
         ]

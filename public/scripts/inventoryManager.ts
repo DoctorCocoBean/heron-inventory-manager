@@ -1364,37 +1364,34 @@ async function loadTransactionLog()
             let transaction = 0;
             let quantityChangeSummaries: Array<QuanityChangeSummary> = [];
 
-            const date1 = new Date(data[0]['date']);
-            const daysAgo30 = new Date();
-            daysAgo30.setDate(daysAgo30.getDate() - 30);
-            // daysAgo30.setDate(daysAgo30.getDate() - 5); // 10 days ago for testing
+            // const date1 = new Date(data[0]['date']);
+            // const daysAgo30 = new Date();
+            // daysAgo30.setDate(daysAgo30.getDate() - 30);
 
-
-            console.log(typeof data);
-            for (let i=0; i<data.length; i++) 
-            {
-                const date = new Date(data[i]['date']);
-                if (date < daysAgo30) {
-                    console.log('removing old data: ', data[i]['data']);
-                    // 
-                    // data.remove(i);
-                }
-            }
+            // for (let i=0; i<data.length; i++) 
+            // {
+            //     const date = new Date(data[i]['date']);
+            //     if (date < daysAgo30) {
+            //         console.log('removing old data: ', data[i]['data']);
+            //         // 
+            //         // data.remove(i);
+            //     }
+            // }
 
             for (let i=0; i<data.length; i++) 
             {
                 // Skip if date is older than filtered days
-                const date = new Date(data[i]['date']);
-                if (date < daysAgo30) {
-                    continue;
-                }
+                // const date = new Date(data[i]['date']);
+                // if (date < daysAgo30) {
+                //     continue;
+                // }
 
                 oldValue = Number(data[i]['oldValue']);
                 newValue = Number(data[i]['newValue']);
-                transaction = oldValue - newValue;
+                transaction = newValue - oldValue;
 
                 let alreadyAdded = false;
-                for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two tranctions if same item
+                for (let j=0; j<quantityChangeSummaries.length; j++) // Merge two transactions if same item
                 {
                     if (quantityChangeSummaries[j].name == data[i]['itemName'])
                     {
@@ -1402,7 +1399,7 @@ async function loadTransactionLog()
                             quantityChangeSummaries[j].totalAdditions += transaction;
                         }
                         if (transaction < 0) {
-                            quantityChangeSummaries[j].totalSubtactions += transaction;
+                            quantityChangeSummaries[j].totalSubtactions += Math.abs(transaction);
                         }
                         alreadyAdded = true;
                     }
@@ -1490,8 +1487,6 @@ async function loadActivityLog()
 
             const date = new Date(Number(data[i]['timestamp']));
             const time = date.toLocaleString();
-            console.log(time);
-            
 
             let html = '';
             switch (data[i]['type']) 
@@ -1500,6 +1495,7 @@ async function loadActivityLog()
                 case 'quantity':
                 {
                     const quantityChange = Number(data[i]['newValue']) - Number(data[i]['oldValue']);
+                    
                     html = `
                             <tr style="vertical-align: middle" id="tableRow_">
                                 <td class="typeRow">${data[i]['type']}</td>

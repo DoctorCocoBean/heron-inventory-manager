@@ -6,6 +6,5 @@
     "resolveJsonModule": true,
     "incremental": true,
     "sourceMap": true,
-    "sourceRoot": "/public/scripts/."
   }
 }
