@@ -1250,7 +1250,7 @@ function loadTransactionLog() {
         }
     });
 }
-function loadActivityLog() {
+function loadActivityLog(startDate, endDate) {
     return __awaiter(this, void 0, void 0, function* () {
         const dateTimestampt = Date.now();
         const date = new Date(dateTimestampt);
@@ -1260,6 +1260,32 @@ function loadActivityLog() {
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
+            if (startDate === undefined || endDate === undefined) {
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 1);
+                endDate = new Date();
+                console.log(startDate.toLocaleString());
+            }
+            else {
+                // startDate.setDate(startDate.getDate() - 1);
+                console.log('dates given: ', startDate.toLocaleString(), endDate.toLocaleString());
+            }
+            // Filter data based on start date
+            let filteredData = [];
+            for (let i = 0; i < data.length; i++) {
+                const date = new Date(Number(data[i]['timestamp']));
+                // console.log(startDate.toDateString());
+                console.log(date > startDate, date.toDateString(), '>', startDate.toLocaleString());
+                console.log(date < endDate, date.toDateString(), '<', endDate.toLocaleString());
+                if (date > startDate && date < endDate) {
+                    filteredData.push(data[i]);
+                }
+                else {
+                    continue;
+                    // console.log('removing old data: ', data[i]['itemName']);
+                    // console.log('pushing: ', data[i]['itemName']);
+                }
+            }
             var tableHTML = `
             <thead>
                 <td style="opacity: 50%; width: 15%;">Activity Type</td>
@@ -1268,21 +1294,21 @@ function loadActivityLog() {
                 <td style="opacity: 50%;">Time</td>
             </thead>
         `;
-            for (let i = 0; i < data.length; i++) {
-                if (data[i]['timestamp'] == 0) {
+            for (let i = 0; i < filteredData.length; i++) {
+                if (filteredData[i]['timestamp'] == 0) {
                     continue;
                 }
-                const date = new Date(Number(data[i]['timestamp']));
+                const date = new Date(Number(filteredData[i]['timestamp']));
                 const time = date.toLocaleString();
                 let html = '';
-                switch (data[i]['type']) {
+                switch (filteredData[i]['type']) {
                     case 'quantity':
                         {
-                            const quantityChange = Number(data[i]['newValue']) - Number(data[i]['oldValue']);
+                            const quantityChange = Number(filteredData[i]['newValue']) - Number(filteredData[i]['oldValue']);
                             html = `
                             <tr style="vertical-align: middle" id="tableRow_">
-                                <td class="typeRow">${data[i]['type']}</td>
-                                <td class="typeRow">${data[i]['itemName']}</td>
+                                <td class="typeRow">${filteredData[i]['type']}</td>
+                                <td class="typeRow">${filteredData[i]['itemName']}</td>
                                 <td> Quanity change:   ${quantityChange} </td>
                                 <td> ${time} </td>
                             </tr>
@@ -1294,7 +1320,7 @@ function loadActivityLog() {
                             html = `
                             <tr style="vertical-align: middle" id="tableRow_">
                                 <td class="typeRow">Delete All</td>
-                                <td class="typeRow">${data[i]['type']}</td>
+                                <td class="typeRow">${filteredData[i]['type']}</td>
                                 <td> Delete all items </td>
                                 <td> ${time} </td>
                             </tr>
@@ -1304,6 +1330,7 @@ function loadActivityLog() {
                 }
                 tableHTML += html;
             }
+            console.log('filetered data: ', filteredData.length);
             itemTable.innerHTML = tableHTML;
         });
     });

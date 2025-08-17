@@ -52,8 +52,6 @@
                         <input type="text" placeholder="search" id="searchBar" class="searchBar" style="width: 300px"></input>
                         <div class="datepicker"> </div>
                     </div>
-                    <button class="btn btn-primary inventoryBtn" id="test" onclick="">test</button>
-
                     <div class="scrollable" >
                         <table class="table table-hover  itemsTable" style=""; id="itemTable">
                         </table>
@@ -78,23 +76,12 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <script>
         datePickerCallback = (startDate, endDate) => {
-            console.log('Date picker callback executed', startDate, endDate);
+            var momentStartDate = moment(startDate);
+            var momentEndDate = moment(endDate);
+            
+            loadActivityLog(momentStartDate, momentEndDate);        
         }
         
-        $(document).ready(function() {
-            $('#test').daterangepicker({
-                opens: 'left',
-                autoUpdateInput: false,
-                locale: {
-                    cancelLabel: 'Clear'
-                }
-            }, function(start, end, label) 
-            {
-                console.log('Date range selected:', start.format('MM/DD/YYYY'), end.format('MM/DD/YYYY'));
-            });
-        });
-
-
         // Keyboard events
         searchBar.addEventListener("keypress", function(event) {
             if (event.key == "Enter") {

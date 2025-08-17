@@ -33,7 +33,6 @@ window.onload = function () {
         // On click, toggle the dropdown menu position
         const dropdownMenu = elements[i].querySelector(".datePicker-dropdown");
         elements[i].addEventListener("click", function () {
-            console.log("Date picker clicked");
             const rect = elements[i].getBoundingClientRect();
             const margin = 10;
             dropdownMenu.style.top = `${rect.bottom + window.scrollY + margin}px`;
@@ -44,16 +43,20 @@ window.onload = function () {
         $(`#customDateBtn_${id}`).daterangepicker({
             alwaysShowCalendars: true,
         }, function (start, end, label) {
-            const startDate = start.format('MM/DD/YYYY');
-            const endDate = end.format('MM/DD/YYYY');
+            const startDate = start.toDate();
+            const endDate = end.toDate();
             const picker = pickers.find(p => p.id === id);
-            picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startDate} - ${endDate}</span>`;
+            picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}</span>`;
             if (datePickerCallback) {
                 datePickerCallback(startDate, endDate);
             }
             datePickerIsOpen = false;
         });
         pickers.push(new DatePicker(id, elements[i]));
+    }
+    for (let i = 0; i < pickers.length; i++) {
+        const picker = pickers[i];
+        setDateThisMonth(picker.id); // Set default date range to this month
     }
 };
 // Close dropdown if clicked outside
@@ -62,7 +65,6 @@ window.addEventListener("click", (event) => {
     if (!targetElement.matches(".datePickerBtn") &&
         !targetElement.closest(".datePicker-dropdown") &&
         !datePickerIsOpen) {
-        console.log("Clicked outside the date picker, closing dropdown");
         for (let i = 0; i < pickers.length; i++) {
             const picker = pickers[i];
             const dropdown = picker.self.querySelector(".datePicker-dropdown");
@@ -73,93 +75,107 @@ window.addEventListener("click", (event) => {
     }
 });
 function showCustomDatePicker(datePickerId) {
-    console.log(`Showing custom date picker for ${datePickerId}`);
     $(`#${datePickerId}`).children(".datePicker-dropdown").addClass("show");
     datePickerIsOpen = true;
 }
 function setDateToday(datePickerId) {
-    const today = moment().format('MM/DD/YYYY');
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0); // Reset time to midnight
+    const todayEnd = new Date();
+    todayEnd.setHours(24, 60, 60, 60); // Reset time to midnight
     const picker = pickers.find(p => p.id === datePickerId);
     if (picker) {
-        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${today} - ${today}</span>`;
+        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${todayStart.toLocaleDateString()} - ${todayEnd.toLocaleDateString()}</span>`;
     }
     const dropdown = picker.self.querySelector(".datePicker-dropdown");
     if (dropdown.classList.contains("show")) {
-        console.log("Hiding dropdown menu for today selection");
         dropdown.classList.remove("show");
     }
-    datePickerCallback(today, today);
+    datePickerCallback(todayStart, todayEnd);
     event.stopPropagation(); // Prevent the click event from propagating to the window
 }
 function setDateYesterday(datePickerId) {
-    const yesterday = moment().subtract(1, 'days').format('MM/DD/YYYY');
+    const yesterdayStart = new Date();
+    yesterdayStart.setHours(0, 0, 0, 0); // Reset time to midnight
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1); // Set to yesterday
+    const yesterdayEnd = new Date();
+    yesterdayEnd.setHours(24, 60, 60, 60); // Reset time to midnight
+    yesterdayEnd.setDate(yesterdayEnd.getDate() - 1); // Set to yesterday
     const picker = pickers.find(p => p.id === datePickerId);
     if (picker) {
-        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${yesterday} - ${yesterday}</span>`;
+        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${yesterdayStart.toLocaleDateString()} - ${yesterdayEnd.toLocaleDateString()}</span>`;
     }
     const dropdown = picker.self.querySelector(".datePicker-dropdown");
     if (dropdown.classList.contains("show")) {
-        console.log("Hiding dropdown menu for today selection");
         dropdown.classList.remove("show");
     }
-    datePickerCallback(yesterday, yesterday);
+    datePickerCallback(yesterdayStart, yesterdayEnd);
     event.stopPropagation(); // Prevent the click event from propagating to the window
 }
 function setDateThisMonth(datePickerId) {
-    const startOfMonth = moment().startOf('month').format('MM/DD/YYYY');
-    const endOfMonth = moment().endOf('month').format('MM/DD/YYYY');
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1); // Set to the first day of the month
+    const endOfMonth = new Date();
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1); // Move to the next month
+    endOfMonth.setDate(0); // Set to the last day of the current month
     const picker = pickers.find(p => p.id === datePickerId);
     if (picker) {
-        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfMonth} - ${endOfMonth}</span>`;
+        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfMonth.toLocaleDateString()} - ${endOfMonth.toLocaleDateString()}</span>`;
     }
     const dropdown = picker.self.querySelector(".datePicker-dropdown");
     if (dropdown.classList.contains("show")) {
-        console.log("Hiding dropdown menu for today selection");
         dropdown.classList.remove("show");
     }
     datePickerCallback(startOfMonth, endOfMonth);
     event.stopPropagation(); // Prevent the click event from propagating to the window
 }
 function setDateLastMonth(datePickerId) {
-    const startOfLastMonth = moment().subtract(1, 'month').startOf('month').format('MM/DD/YYYY');
-    const endOfLastMonth = moment().subtract(1, 'month').endOf('month').format('MM/DD/YYYY');
+    const startOfLastMonth = new Date();
+    startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1); // Move to the last month
+    startOfLastMonth.setDate(1); // Set to the first day of the month
+    const endOfLastMonth = new Date();
+    endOfLastMonth.setMonth(endOfLastMonth.getMonth()); // Move to the next month
+    endOfLastMonth.setDate(1);
     const picker = pickers.find(p => p.id === datePickerId);
     if (picker) {
-        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfLastMonth} - ${endOfLastMonth}</span>`;
+        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfLastMonth.toLocaleDateString()} - ${endOfLastMonth.toLocaleDateString()}</span>`;
     }
     const dropdown = picker.self.querySelector(".datePicker-dropdown");
     if (dropdown.classList.contains("show")) {
-        console.log("Hiding dropdown menu for today selection");
         dropdown.classList.remove("show");
     }
     datePickerCallback(startOfLastMonth, endOfLastMonth);
     event.stopPropagation(); // Prevent the click event from propagating to the window
 }
 function setDateLast3Months(datePickerId) {
-    const startOfLast3Months = moment().subtract(3, 'months').startOf('month').format('MM/DD/YYYY');
-    const endOfLast3Months = moment().endOf('month').format('MM/DD/YYYY');
+    const endOfThisMonth = new Date();
+    const startOfLast3Months = new Date();
+    startOfLast3Months.setMonth(startOfLast3Months.getMonth() - 3); // Move to the last month
+    startOfLast3Months.setDate(1); // Set to the first day of the month
     const picker = pickers.find(p => p.id === datePickerId);
     if (picker) {
-        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfLast3Months} - ${endOfLast3Months}</span>`;
+        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfLast3Months.toLocaleDateString()} - ${endOfThisMonth.toLocaleDateString()}</span>`;
     }
     const dropdown = picker.self.querySelector(".datePicker-dropdown");
     if (dropdown.classList.contains("show")) {
-        console.log("Hiding dropdown menu for today selection");
         dropdown.classList.remove("show");
     }
-    datePickerCallback(startOfLast3Months, endOfLast3Months);
+    datePickerCallback(startOfLast3Months, endOfThisMonth);
     event.stopPropagation(); // Prevent the click event from propagating to the window
 }
 function setDateThisYear(datePickerId) {
-    const startOfYear = moment().startOf('year').format('MM/DD/YYYY');
-    const endOfYear = moment().endOf('year').format('MM/DD/YYYY');
+    const startOfYear = new Date();
+    startOfYear.setMonth(0); // Set to January
+    startOfYear.setDate(1);
+    const endOfYear = new Date();
+    endOfYear.setMonth(11); // Set to December
+    endOfYear.setDate(31); // Set to the last day of the year
     const picker = pickers.find(p => p.id === datePickerId);
     if (picker) {
-        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfYear} - ${endOfYear}</span>`;
+        picker.self.querySelector(".datePickerBtn").innerHTML = `Date Range: <span class="greyText">${startOfYear.toLocaleDateString()} - ${endOfYear.toLocaleDateString()}</span>`;
     }
     const dropdown = picker.self.querySelector(".datePicker-dropdown");
     if (dropdown.classList.contains("show")) {
-        console.log("Hiding dropdown menu for today selection");
         dropdown.classList.remove("show");
     }
     datePickerCallback(startOfYear, endOfYear);
