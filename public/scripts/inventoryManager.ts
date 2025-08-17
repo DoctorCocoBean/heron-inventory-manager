@@ -456,34 +456,36 @@ async function deleteSelectedItems()
 
 function showDeleteAllPrompt()
 {
-    $('#editItemModal').modal()
+    $('#editItemModal').modal('show');
 
     popup.innerHTML = `
         <div class="modal-dialog" style="width: 400px">
 
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-            <h4 class="modal-title">Confirmation</h4>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete all items?
-                <br>
-                <br>
-                <div class="d-flex flex-row-reverse">
-                    <div class="px-2">
-                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>
-                    </div>
-                    <div class="px-2">
-                        <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete all items?
+                    <br>
+                    <br>
+                    <div class="d-flex flex-row-reverse">
+                        <div class="px-2">
+                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closeDeleteAllPrompt()" data-dismiss="modal">Close</button>
+                        </div>
+                        <div class="px-2">
+                            <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
+                        </div>
                     </div>
                 </div>
             </div>
-
-        </div>
         
-        </div>
-    `
+        </div> `
+}
+
+function closeDeleteAllPrompt() {
+        $('#editItemModal').modal('hide');
 }
 
 async function deleteAllItems()
@@ -1252,37 +1254,41 @@ async function readFileAsText(file)
 
 async function showUploadDialog()
 {
-    $('#editItemModal').modal()
+    $('#editItemModal').modal('show');
 
     popup.innerHTML = `
         <div class="modal-dialog">
 
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-            <h4 class="modal-title">Edit Item</h4>
-            </div>
-            <div class="modal-body">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h4 class="modal-title">Edit Item</h4>
+                </div>
+                <div class="modal-body">
 
-                <div class="container">
-                <div class="row">
-                    <div class="col-md p-3" style="line-height: 1.8">
-                    <input type="file" id="csvFileInput" accept=".csv">
+                    <div class="container">
+                    <div class="row">
+                        <div class="col-md p-3" style="line-height: 1.8">
+                        <input type="file" id="csvFileInput" accept=".csv">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <div class="">
+                        <button type="button" class="btn btn-default" onclick="closeUploadDialog()" data-dismiss="modal">Close</button>
+                    </div>
+                    <div class="">
+                        <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-between">
-                <div class="">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-                <div class="">
-                    <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>
-                </div>
-            </div>
-        </div>
-        
-        </div>
-    `
+
+        </div> `
+}
+
+function closeUploadDialog() {
+    $('#editItemModal').modal('hide');
 }
 
 async function uploadCSV()

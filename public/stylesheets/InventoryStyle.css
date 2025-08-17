@@ -195,3 +195,20 @@
     font-family: var(--primary-font);
     pointer-events: none;
 }
+
+.extraOptionsBtn {
+    background-color: rgb(231, 231, 231);
+    color: rgb(59, 59, 59);
+    border-color: rgb(231, 231, 231);
+    border-radius: 5px;
+
+    font-family: var(--primary-font);
+    font-size: 16px;
+    align-items: center;
+    text-align: center;
+}
+
+.extraOptionsBtn:hover {
+    background-color: rgb(179, 178, 178);
+    border-color: rgb(179, 178, 178);
+}
