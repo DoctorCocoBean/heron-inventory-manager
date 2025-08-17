@@ -46,8 +46,7 @@
 
                         <hr style="opacity: 10%;">
 
-                        <div class="d-flex m-1 justify-content-between">
-                            <input type="text" placeholder="search" id="searchBar" class="searchBar" style="width: 300px"></input>
+                        <div class="d-flex m-1 justify-content-end">
                             <div class="datepicker"> </div>
                         </div>
 
@@ -75,25 +74,6 @@
         datePickerCallback = (startDate, endDate) => {
             loadTransactionLog(startDate, endDate);        
         }
-
-        // Keyboard events
-        searchBar.addEventListener("keypress", function(event) {
-            if (event.key == "Enter") {
-                event.preventDefault();
-                searchForItem(searchBar.value)
-            }
-        });
-
-        $(document).keyup(function(e) 
-        {
-            if (e.key === "Escape") { // escape key maps to keycode `27`
-                $('#editItemModal').modal('hide');
-            }
-
-            if (e.key === "/") {
-                searchBar.focus();
-            }
-        });
 
        loadTransactionLog();        
     </script>
