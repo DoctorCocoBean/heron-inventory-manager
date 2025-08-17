@@ -60,7 +60,7 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-function showPopupMessage(msg, duration = 1500) 
+function showPopupMessage(msg, duration = 2500) 
 {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -820,6 +820,15 @@ async function changeRowStateToEditQuantity(itemId)
         if (event.key == 'Enter') 
         {
             const input  = getHTMLInputById('tempInput');
+            const inputValue: number = Number(input.value);
+
+            if (!Number.isInteger(inputValue)) {
+                showPopupMessage('Error: text input contains invalid input');
+                console.log('Error: text input contains invalid input');
+                input.value = initialValue;
+                return;
+            }
+
             const result = calculateInputField(input.value);
             isEditingRow = false; 
 

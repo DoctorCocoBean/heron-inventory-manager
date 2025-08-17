@@ -65,7 +65,7 @@ document.addEventListener('keydown', (event) => {
         }
     }
 });
-function showPopupMessage(msg, duration = 1500) {
+function showPopupMessage(msg, duration = 2500) {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
     popup.classList.remove('msgPopup-hide');
@@ -705,6 +705,13 @@ function changeRowStateToEditQuantity(itemId) {
         quantityInput.addEventListener('keydown', function (event) {
             if (event.key == 'Enter') {
                 const input = getHTMLInputById('tempInput');
+                const inputValue = Number(input.value);
+                if (!Number.isInteger(inputValue)) {
+                    showPopupMessage('Error: text input contains invalid input');
+                    console.log('Error: text input contains invalid input');
+                    input.value = initialValue;
+                    return;
+                }
                 const result = calculateInputField(input.value);
                 isEditingRow = false;
                 if (result == null)
