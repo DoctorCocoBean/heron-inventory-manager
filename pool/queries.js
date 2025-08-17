@@ -101,6 +101,7 @@ async function addItem(name, quantity, minLevel, price, value, barcode, notes, t
         await pool.query(SQL);
     }
     catch (err) {
+        next(err);
         throw new Error(`${err}: couldnt add item. SQL: ${SQL}`); 
     }
 }

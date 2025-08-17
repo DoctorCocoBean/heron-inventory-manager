@@ -13,6 +13,7 @@ const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
 const db = require("../pool/queries");
+const express_validator_1 = require("express-validator");
 indexRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
 }));
@@ -82,7 +83,7 @@ indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, voi
         res.send(item);
     }
     catch (error) {
-        res.send.status(500).send({ message: "Error getting item by Id" });
+        res.status(500).send({ message: "Error getting item by Id" });
         console.log("error getting item by Id: ", req.params.itemId, error);
     }
 }));
@@ -262,9 +263,16 @@ indexRouter.put("/api/item/notes", (req, res) => __awaiter(void 0, void 0, void 
     }
     res.send();
 }));
-indexRouter.post("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.post("/api/item", [
+    (0, express_validator_1.body)('quantity').isInt().withMessage("Quantity must be an integer."),
+    (0, express_validator_1.body)('minimumLevel').isInt().withMessage("Minimum level must be an integer."),
+    (0, express_validator_1.body)('price').isFloat().withMessage("Price must be a number."),
+], (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('adding item', req.body.name);
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).send({ message: `Invalid input - ${errors.array()[0].msg}` });
+        }
         const value = Number(req.body.price) * Number(req.body.quantity);
         yield db.addItem(req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags);
         res.send();
@@ -272,6 +280,8 @@ indexRouter.post("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, fu
     catch (error) {
         console.log(`Error adding item. ${error}`);
         console.log(`Stack. ${error.stack}`);
+        next(error);
+        return res.status(400).send({ message: `Error adding item ${error}` });
     }
 }));
 indexRouter.delete("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -364,7 +374,7 @@ indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, 
         yield db.removeActivityLogById(log.id);
     }
     catch (error) {
-        res.send('Error trying to undo: ', error);
+        res.send('Error trying to undo: ' + error);
     }
     res.send('Undo successful');
 }));

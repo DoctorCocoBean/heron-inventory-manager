@@ -1,7 +1,8 @@
-import express, { Router }  from 'express';
+import { Router }  from 'express';
 const indexRouter = Router();
 import * as papa from 'papaparse';
 import * as db from '../pool/queries';
+import { body, validationResult } from 'express-validator';
 
 
 indexRouter.get("/", async (req, res) => 
@@ -106,7 +107,7 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
     } 
     catch (error) 
     {
-        res.send.status(500).send({message: "Error getting item by Id"});
+        res.status(500).send({message: "Error getting item by Id"});
         console.log("error getting item by Id: ", req.params.itemId,  error);
     }
 });
@@ -423,11 +424,19 @@ indexRouter.put("/api/item/notes", async (req, res) =>
     res.send();
 });
 
-indexRouter.post("/api/item", async (req, res) =>
+indexRouter.post("/api/item", [
+        body('quantity').isInt().withMessage("Quantity must be an integer."),
+        body('minimumLevel').isInt().withMessage("Minimum level must be an integer."),
+        body('price').isFloat().withMessage("Price must be a number."),
+], async (req, res, next) =>
 {
     try {
-        console.log('adding item', req.body.name);
-        const value   = Number(req.body.price) * Number(req.body.quantity);
+        const errors = validationResult(req);   
+        if (!errors.isEmpty()) {
+            return res.status(400).send({ message: `Invalid input - ${errors.array()[0].msg}` });
+        }
+
+        const value = Number(req.body.price) * Number(req.body.quantity);
         await db.addItem(
                             req.body.name,
                             req.body.quantity,
@@ -443,6 +452,8 @@ indexRouter.post("/api/item", async (req, res) =>
     } catch(error) {
         console.log(`Error adding item. ${error}`);
         console.log(`Stack. ${error.stack}`);
+        next(error);
+        return res.status(400).send({ message: `Error adding item ${error}` });
     }
 });
 
@@ -579,7 +590,7 @@ indexRouter.get("/undoCommand", async (req, res) =>
 
         await db.removeActivityLogById(log.id);
     } catch (error) {
-        res.send('Error trying to undo: ', error)
+        res.send('Error trying to undo: ' + error)
     }
 
      res.send('Undo successful');

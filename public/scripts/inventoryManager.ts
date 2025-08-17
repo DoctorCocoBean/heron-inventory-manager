@@ -60,7 +60,7 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-function showPopupMessage(msg) 
+function showPopupMessage(msg, duration = 1500) 
 {
     const popup = document.getElementById('msgPopup');
     popup.innerHTML = msg;
@@ -69,7 +69,7 @@ function showPopupMessage(msg)
     setTimeout(() => 
     {
         popup.classList.add('msgPopup-hide');
-    }, 1500);
+    }, duration);
 }
 
 function closePopupModal() {
@@ -399,7 +399,9 @@ async function addItem()
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`HTTP Error: Status ${response.status}, ${response.body} Message: ${errorData.message || 'Unknow err'}`);
+        showPopupMessage(`Error adding item: ${errorData.message || 'Unknown error'}`, 5000);
+        console.log(`Error adding item: ${errorData.message || 'Unknown error'}`);
+        return;
     }
 
     $('#popupModal').modal('hide');
@@ -686,13 +688,6 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
         }) 
         
         const response = await fetch(request);
-            // .then(res => res.json())
-            // .then(data => console.log('response: ', response))
-            // .catch(error => {
-            //     console.error('Error updating item:', error);
-            //     console.log(`Error updating item: ${error.message}`);
-            // });
-
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
@@ -980,8 +975,6 @@ async function loadLowStockItemTable()
     const response = await fetch(request);
     const data = response.json().then((data) => 
     {
-        console.log(data);
-        
         var tableHTML = `
             <thead>
                 <td style="opacity: 50%; width: 25%;">Name</td>
