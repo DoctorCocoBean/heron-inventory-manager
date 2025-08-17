@@ -41,6 +41,7 @@ enum Operation {
 // --- GLOBALS -----
 var isEditingRow        = false;
 var searchBar           = document.getElementById("searchBar");
+const itemTable = document.getElementById("itemTable");
 const popup             = document.getElementById("popupModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems       = [];
@@ -71,53 +72,54 @@ function showPopupMessage(msg)
     }, 1500);
 }
 
-function openNewItemDialog()
+function closePopupModal() {
+    $('#popupModal').modal('hide');
+}
+
+function showAddItemDialog()
 {
+    $('#popupModal').modal('show')
+
     const popup = document.getElementById('popupModal');
-
-    $('#popupModal').modal()
-
     popup.innerHTML = `
         <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h4 class="modal-title">Edit Item</h4>
+                </div>
+                <div class="modal-body">
 
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-            <h4 class="modal-title">Edit Item</h4>
-            </div>
-            <div class="modal-body">
+                    <div class="container">
+                    <div class="row">
+                        <div class="col-md" style="line-height: 2.5">
+                            <span class="">Name:</span> <br>
+                            <span class="">Quantity:</span> <br>
+                            <span class="">Minimum Level:</span> <br>
+                            <span class="">Price:</span> <br>
+                            <span class="">Barcode:</span> <br>
+                            <span class="">Tags:</span> <br>
+                            <span class="">Notes:</span> <br>
+                        </div>
 
-                <div class="container">
-                <div class="row">
-                    <div class="col-md p-3" style="line-height: 1.8">
-                    Name: <br>
-                    Quantity: <br>
-                    Minimum Level: <br>
-                    Price: <br>
-                    Value: <br>
-                    Barcode: <br>
-                    </div>
-                    <div class="col-sm">
-                        <input type="text" id="nameInput" ></input> <br>
-                        <input type="text" id="quantityInput"  ></input> <br>
-                        <input type="text" id="minQuantityInput" ></input> <br>
-                        <input type="text" id="priceInput" ></input> <br>
-                        <input type="text" id="valueInput" ></input> <br>
-                        <input type="text" id="barcodeInput" ></input> <br>
-                        <input type="text" id="notesInput" ></input> <br>
-                        <input type="text" id="tagsInput" ></input> <br>
+                        <div class="col-sm" style="line-height: 2.5">
+                            <input class="editInput" type="text" value="Untitled" id="nameInput" ></input> <br>
+                            <input class="editInput" type="text" value="0" id="quantityInput"  ></input> <br>
+                            <input class="editInput" type="text" value="0" id="minQuantityInput" ></input> <br>
+                            <input class="editInput" type="text" value="0" id="priceInput" ></input> <br>
+                            <input class="editInput" type="text" value="0" id="barcodeInput" ></input> <br>
+                            <input class="editInput" type="text" value="" id="tagsInput" ></input> <br>
+                            <textarea id="notesInput" value="" rows="5" col="100" class="editInput my-2" style="height: 50px; width: 200px"></textarea>
+                            <br>
+                        </div>
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="closePopupModal()" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addItem()">Save</button>
+                </div>
             </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-default" onclick="addItem()">Save</button>
-
-            </div>
-        </div>
-        
-        </div>
-    `
+        </div> `
 }
 
 function calculate(numA: number, numB: number, op: Operation): number
@@ -211,7 +213,7 @@ function calculateInputField(inputData: string): number
     return result;
 }
 
-async function openEditItemDialog(itemId: number): Promise<void>
+async function showEditItemDialog(itemId: number): Promise<void>
 { 
     if (isEditingRow) {
         return;
@@ -233,7 +235,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
             return;
         }
 
-        $('#popupModal').modal()
+        $('#popupModal').modal('show')
 
         popup.innerHTML = `
             <div class="modal-dialog">
@@ -284,7 +286,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
 
                             <input type="text" id="barcodeInput" value="${data[0]['barcode']}" class="editInput" style="height: 40px; width: 300px"></input> 
 
-                            <textarea id="notesInput" value="${data[0]['notes']} rows="5" col="100" class="editInput" style="width: 300px">${data[0]['notes']}</textarea>
+                            <textarea id="notesInput" value="${data[0]['notes']} rows="5" col="100" class="editInput" style="height: 50px; width: 300px">${data[0]['notes']}</textarea>
                         </div>
                     </div>
 
@@ -295,7 +297,7 @@ async function openEditItemDialog(itemId: number): Promise<void>
 
                     <div class="d-flex justify-content-between">
                         <div class="">
-                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModal()" data-dismiss="modal">Close</button>
                         </div>
                         <div class="">
                         <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
@@ -372,14 +374,13 @@ async function addItem()
 {
     const name          = getHTMLInputById('nameInput').value;
     const quantity      = getHTMLInputById('quantityInput').value;
-    const minimumLevel   = getHTMLInputById('minQuantityInput').value;
+    const minimumLevel  = getHTMLInputById('minQuantityInput').value;
     const price         = getHTMLInputById('priceInput').value;
-    const value         = getHTMLInputById('valueInput').value;
     const barcode       = getHTMLInputById('barcodeInput').value;
     const notes         = getHTMLInputById('notesInput').value;
     const tags          = getHTMLInputById('tagsInput').value;
 
-    const request = new Request(`/item`, {
+    const request = new Request(`/api/item`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -387,7 +388,7 @@ async function addItem()
             quantity: quantity ,
             minimumLevel: minimumLevel,
             price: price,
-            value: value,
+            value: 0,
             barcode: barcode,
             notes: notes,
             tags: tags,
@@ -470,7 +471,7 @@ function showDeleteAllPrompt()
                     <br>
                     <div class="d-flex flex-row-reverse">
                         <div class="px-2">
-                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closeDeleteAllPrompt()" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModel()" data-dismiss="modal">Close</button>
                         </div>
                         <div class="px-2">
                             <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
@@ -480,10 +481,6 @@ function showDeleteAllPrompt()
             </div>
         
         </div> `
-}
-
-function closeDeleteAllPrompt() {
-        $('#popupModal').modal('hide');
 }
 
 async function deleteAllItems()
@@ -1193,7 +1190,7 @@ function createTableRowHTML(itemId: number, name: string, quantity: number, mini
 
     const html = `
     
-            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="openEditItemDialog(${itemId})" >
+            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="showEditItemDialog(${itemId})" >
 
                 <td class="checkboxRow">
                     <input type="checkbox" class="selectedCheckbox" value="" onclick="itemSelectClick(${itemId})" ></input>
@@ -1274,7 +1271,7 @@ async function showUploadDialog()
 
                 <div class="d-flex justify-content-between">
                     <div class="">
-                        <button type="button" class="btn btn-default" onclick="closeUploadDialog()" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default" onclick="closePopupModal()" data-dismiss="modal">Close</button>
                     </div>
                     <div class="">
                         <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>
@@ -1283,10 +1280,6 @@ async function showUploadDialog()
             </div>
 
         </div> `
-}
-
-function closeUploadDialog() {
-    $('#popupModal').modal('hide');
 }
 
 async function uploadCSV()

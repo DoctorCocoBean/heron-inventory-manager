@@ -425,18 +425,25 @@ indexRouter.put("/api/item/notes", async (req, res) =>
 
 indexRouter.post("/api/item", async (req, res) =>
 {
-    await db.addItem(
-                        req.body.itemName,
-                        req.body.itemQuantity,
-                        req.body.itemMinQuantity,
-                        req.body.itemPrice,
-                        req.body.itemValue,
-                        req.body.itemBarcode,
-                        req.body.itemNotes,
-                        req.body.itemTags
-    );
+    try {
+        console.log('adding item', req.body.name);
+        const value   = Number(req.body.price) * Number(req.body.quantity);
+        await db.addItem(
+                            req.body.name,
+                            req.body.quantity,
+                            req.body.minimumLevel,
+                            req.body.price,
+                            value,
+                            req.body.barcode,
+                            req.body.notes,
+                            req.body.tags
+        );
 
-    res.send();
+        res.send();
+    } catch(error) {
+        console.log(`Error adding item. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
 });
 
 indexRouter.delete("/api/item", async (req, res) =>

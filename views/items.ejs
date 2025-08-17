@@ -59,7 +59,7 @@
                         </div>
 
                         <button class="btn btn-primary inventoryBtn d-none" id="deleteSelectedBtn" onclick="deleteSelectedItems(selectedItems)">Delete Selected</button>
-                        <button onclick="openNewItemDialog()" class="btn btn-primary inventoryBtn" >Add Item</button>
+                        <button onclick="showAddItemDialog()" class="btn btn-primary inventoryBtn" >Add Item</button>
                     </div>
                     </div>
 
@@ -108,7 +108,7 @@
         $(document).keyup(function(e) 
         {
             if (e.key === "Escape") { // escape key maps to keycode `27`
-                $('#editItemModal').modal('hide');
+                $('#popupModal').modal('hide');
             }
 
             if (e.key === "/") {

@@ -263,8 +263,16 @@ indexRouter.put("/api/item/notes", (req, res) => __awaiter(void 0, void 0, void 
     res.send();
 }));
 indexRouter.post("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.addItem(req.body.itemName, req.body.itemQuantity, req.body.itemMinQuantity, req.body.itemPrice, req.body.itemValue, req.body.itemBarcode, req.body.itemNotes, req.body.itemTags);
-    res.send();
+    try {
+        console.log('adding item', req.body.name);
+        const value = Number(req.body.price) * Number(req.body.quantity);
+        yield db.addItem(req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error adding item. ${error}`);
+        console.log(`Stack. ${error.stack}`);
+    }
 }));
 indexRouter.delete("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting', req.body.items);

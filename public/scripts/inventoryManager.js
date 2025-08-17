@@ -51,8 +51,7 @@ var Operation;
 var isEditingRow = false;
 var searchBar = document.getElementById("searchBar");
 const itemTable = document.getElementById("itemTable");
-const popup = document.getElementById("editItemModal");
-const editItemDialog = document.getElementById("editItemModal");
+const popup = document.getElementById("popupModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
 // On page load
@@ -75,50 +74,51 @@ function showPopupMessage(msg) {
         popup.classList.add('msgPopup-hide');
     }, 1500);
 }
-function openNewItemDialog() {
-    const popup = document.getElementById('editItemModal');
-    $('#editItemModal').modal();
+function closePopupModal() {
+    $('#popupModal').modal('hide');
+}
+function showAddItemDialog() {
+    $('#popupModal').modal('show');
+    const popup = document.getElementById('popupModal');
     popup.innerHTML = `
         <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h4 class="modal-title">Edit Item</h4>
+                </div>
+                <div class="modal-body">
 
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-            <h4 class="modal-title">Edit Item</h4>
-            </div>
-            <div class="modal-body">
+                    <div class="container">
+                    <div class="row">
+                        <div class="col-md" style="line-height: 2.5">
+                            <span class="">Name:</span> <br>
+                            <span class="">Quantity:</span> <br>
+                            <span class="">Minimum Level:</span> <br>
+                            <span class="">Price:</span> <br>
+                            <span class="">Barcode:</span> <br>
+                            <span class="">Tags:</span> <br>
+                            <span class="">Notes:</span> <br>
+                        </div>
 
-                <div class="container">
-                <div class="row">
-                    <div class="col-md p-3" style="line-height: 1.8">
-                    Name: <br>
-                    Quantity: <br>
-                    Minimum Level: <br>
-                    Price: <br>
-                    Value: <br>
-                    Barcode: <br>
-                    </div>
-                    <div class="col-sm">
-                        <input type="text" id="nameInput" ></input> <br>
-                        <input type="text" id="quantityInput"  ></input> <br>
-                        <input type="text" id="minQuantityInput" ></input> <br>
-                        <input type="text" id="priceInput" ></input> <br>
-                        <input type="text" id="valueInput" ></input> <br>
-                        <input type="text" id="barcodeInput" ></input> <br>
-                        <input type="text" id="notesInput" ></input> <br>
-                        <input type="text" id="tagsInput" ></input> <br>
+                        <div class="col-sm" style="line-height: 2.5">
+                            <input class="editInput" type="text" value="Untitled" id="nameInput" ></input> <br>
+                            <input class="editInput" type="text" value="0" id="quantityInput"  ></input> <br>
+                            <input class="editInput" type="text" value="0" id="minQuantityInput" ></input> <br>
+                            <input class="editInput" type="text" value="0" id="priceInput" ></input> <br>
+                            <input class="editInput" type="text" value="0" id="barcodeInput" ></input> <br>
+                            <input class="editInput" type="text" value="" id="tagsInput" ></input> <br>
+                            <textarea id="notesInput" value="" rows="5" col="100" class="editInput my-2" style="height: 50px; width: 200px"></textarea>
+                            <br>
+                        </div>
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="closePopupModal()" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addItem()">Save</button>
+                </div>
             </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-default" onclick="addItem()">Save</button>
-
-            </div>
-        </div>
-        
-        </div>
-    `;
+        </div> `;
 }
 function calculate(numA, numB, op) {
     if (op == Operation.SUBTRACT) {
@@ -193,7 +193,7 @@ function calculateInputField(inputData) {
     }
     return result;
 }
-function openEditItemDialog(itemId) {
+function showEditItemDialog(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         if (isEditingRow) {
             return;
@@ -210,8 +210,8 @@ function openEditItemDialog(itemId) {
                 console.log('Error. data is empty');
                 return;
             }
-            $('#editItemModal').modal();
-            editItemDialog.innerHTML = `
+            $('#popupModal').modal('show');
+            popup.innerHTML = `
             <div class="modal-dialog">
 
             <!-- Modal content-->
@@ -260,7 +260,7 @@ function openEditItemDialog(itemId) {
 
                             <input type="text" id="barcodeInput" value="${data[0]['barcode']}" class="editInput" style="height: 40px; width: 300px"></input> 
 
-                            <textarea id="notesInput" value="${data[0]['notes']} rows="5" col="100" class="editInput" style="width: 300px">${data[0]['notes']}</textarea>
+                            <textarea id="notesInput" value="${data[0]['notes']} rows="5" col="100" class="editInput" style="height: 50px; width: 300px">${data[0]['notes']}</textarea>
                         </div>
                     </div>
 
@@ -271,7 +271,7 @@ function openEditItemDialog(itemId) {
 
                     <div class="d-flex justify-content-between">
                         <div class="">
-                        <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModal()" data-dismiss="modal">Close</button>
                         </div>
                         <div class="">
                         <button type="button" class="btn btn-primary inventoryBtn" data-dismiss="modal" onclick="deleteItem(${data[0]['id']})">Delete</button>
@@ -335,11 +335,10 @@ function addItem() {
         const quantity = getHTMLInputById('quantityInput').value;
         const minimumLevel = getHTMLInputById('minQuantityInput').value;
         const price = getHTMLInputById('priceInput').value;
-        const value = getHTMLInputById('valueInput').value;
         const barcode = getHTMLInputById('barcodeInput').value;
         const notes = getHTMLInputById('notesInput').value;
         const tags = getHTMLInputById('tagsInput').value;
-        const request = new Request(`/item`, {
+        const request = new Request(`/api/item`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -347,7 +346,7 @@ function addItem() {
                 quantity: quantity,
                 minimumLevel: minimumLevel,
                 price: price,
-                value: value,
+                value: 0,
                 barcode: barcode,
                 notes: notes,
                 tags: tags,
@@ -358,7 +357,7 @@ function addItem() {
             const errorData = yield response.json();
             throw new Error(`HTTP Error: Status ${response.status}, ${response.body} Message: ${errorData.message || 'Unknow err'}`);
         }
-        $('#editItemModal').modal('hide');
+        $('#popupModal').modal('hide');
     });
 }
 function deleteItem(itemId) {
@@ -377,7 +376,7 @@ function deleteItem(itemId) {
             const errorData = yield response.json();
             throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
         }
-        $('#editItemModal').modal('hide');
+        $('#popupModal').modal('hide');
         loadItemTable();
         const msg = 'Item: ' + name + ' deleted.';
         showPopupMessage(msg);
@@ -402,7 +401,7 @@ function deleteSelectedItems() {
     });
 }
 function showDeleteAllPrompt() {
-    $('#editItemModal').modal('show');
+    $('#popupModal').modal('show');
     popup.innerHTML = `
         <div class="modal-dialog" style="width: 400px">
 
@@ -417,7 +416,7 @@ function showDeleteAllPrompt() {
                     <br>
                     <div class="d-flex flex-row-reverse">
                         <div class="px-2">
-                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closeDeleteAllPrompt()" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModel()" data-dismiss="modal">Close</button>
                         </div>
                         <div class="px-2">
                             <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
@@ -427,9 +426,6 @@ function showDeleteAllPrompt() {
             </div>
         
         </div> `;
-}
-function closeDeleteAllPrompt() {
-    $('#editItemModal').modal('hide');
 }
 function deleteAllItems() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -513,7 +509,7 @@ function editItemDialogUpdate(itemId) {
             showPopupMessage(`Error Status ${response.status}: ${errorData.message || 'Unknown error'}`);
             return;
         }
-        $('#editItemModal').modal('hide');
+        $('#popupModal').modal('hide');
         const tableRow = document.getElementById(`tableRow_${itemId}`);
         const itemValue = Number(quantity) * Number(price);
         tableRow.innerHTML = createTableRowHTML(itemId, name, quantity, minimumLevel, price, itemValue);
@@ -1013,7 +1009,7 @@ function createTableRowHTML(itemId, name, quantity, minimumLevel, price, value) 
     }
     const html = `
     
-            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="openEditItemDialog(${itemId})" >
+            <tr style="vertical-align: middle" id="tableRow_${itemId}" onmouseover="onMouseOverRow(${itemId}, ${isLowStock})" onmouseleave="onMouseLeaveRow(${itemId}, ${isLowStock})" onclick="showEditItemDialog(${itemId})" >
 
                 <td class="checkboxRow">
                     <input type="checkbox" class="selectedCheckbox" value="" onclick="itemSelectClick(${itemId})" ></input>
@@ -1067,7 +1063,7 @@ function readFileAsText(file) {
 }
 function showUploadDialog() {
     return __awaiter(this, void 0, void 0, function* () {
-        $('#editItemModal').modal('show');
+        $('#popupModal').modal('show');
         popup.innerHTML = `
         <div class="modal-dialog">
 
@@ -1088,7 +1084,7 @@ function showUploadDialog() {
 
                 <div class="d-flex justify-content-between">
                     <div class="">
-                        <button type="button" class="btn btn-default" onclick="closeUploadDialog()" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default" onclick="closePopupModal()" data-dismiss="modal">Close</button>
                     </div>
                     <div class="">
                         <button type="button" class="btn btn-default" onclick="uploadCSV()">Upload</button>
@@ -1098,9 +1094,6 @@ function showUploadDialog() {
 
         </div> `;
     });
-}
-function closeUploadDialog() {
-    $('#editItemModal').modal('hide');
 }
 function uploadCSV() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1123,7 +1116,7 @@ function uploadCSV() {
         catch (error) {
             console.log("error reading file: ", error);
         }
-        $('#editItemModal').modal('hide');
+        $('#popupModal').modal('hide');
         loadItemTable();
     });
 }
