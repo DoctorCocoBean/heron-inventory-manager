@@ -39,13 +39,11 @@ enum Operation {
 }
 
 // --- GLOBALS -----
-var isEditingRow = false;
-var searchBar   = document.getElementById("searchBar");
-const itemTable = document.getElementById("itemTable");
-const popup     = document.getElementById("editItemModal");
-const editItemDialog = document.getElementById("editItemModal");
+var isEditingRow        = false;
+var searchBar           = document.getElementById("searchBar");
+const popup             = document.getElementById("popupModal");
 var quantityChangeTimer = new QuantityChangeTimer();
-var selectedItems = [];
+var selectedItems       = [];
 
 
 // On page load
@@ -75,9 +73,9 @@ function showPopupMessage(msg)
 
 function openNewItemDialog()
 {
-    const popup = document.getElementById('editItemModal');
+    const popup = document.getElementById('popupModal');
 
-    $('#editItemModal').modal()
+    $('#popupModal').modal()
 
     popup.innerHTML = `
         <div class="modal-dialog">
@@ -235,9 +233,9 @@ async function openEditItemDialog(itemId: number): Promise<void>
             return;
         }
 
-        $('#editItemModal').modal()
+        $('#popupModal').modal()
 
-        editItemDialog.innerHTML = `
+        popup.innerHTML = `
             <div class="modal-dialog">
 
             <!-- Modal content-->
@@ -403,7 +401,7 @@ async function addItem()
         throw new Error(`HTTP Error: Status ${response.status}, ${response.body} Message: ${errorData.message || 'Unknow err'}`);
     }
 
-    $('#editItemModal').modal('hide');
+    $('#popupModal').modal('hide');
 }
 
 async function deleteItem(itemId: number)
@@ -426,7 +424,7 @@ async function deleteItem(itemId: number)
         throw new Error(`HTTP Error: Status ${response.status}, Message: ${errorData.message || 'Unknow err'}`);
     }
 
-    $('#editItemModal').modal('hide');
+    $('#popupModal').modal('hide');
     loadItemTable();
 
     const msg = 'Item: ' + name + ' deleted.'
@@ -456,7 +454,7 @@ async function deleteSelectedItems()
 
 function showDeleteAllPrompt()
 {
-    $('#editItemModal').modal('show');
+    $('#popupModal').modal('show');
 
     popup.innerHTML = `
         <div class="modal-dialog" style="width: 400px">
@@ -485,7 +483,7 @@ function showDeleteAllPrompt()
 }
 
 function closeDeleteAllPrompt() {
-        $('#editItemModal').modal('hide');
+        $('#popupModal').modal('hide');
 }
 
 async function deleteAllItems()
@@ -581,7 +579,7 @@ async function editItemDialogUpdate(itemId)
         return;
     }
 
-    $('#editItemModal').modal('hide');
+    $('#popupModal').modal('hide');
 
     const tableRow = document.getElementById(`tableRow_${itemId}`);
     const itemValue = Number(quantity) * Number(price);
@@ -1254,7 +1252,7 @@ async function readFileAsText(file)
 
 async function showUploadDialog()
 {
-    $('#editItemModal').modal('show');
+    $('#popupModal').modal('show');
 
     popup.innerHTML = `
         <div class="modal-dialog">
@@ -1288,7 +1286,7 @@ async function showUploadDialog()
 }
 
 function closeUploadDialog() {
-    $('#editItemModal').modal('hide');
+    $('#popupModal').modal('hide');
 }
 
 async function uploadCSV()
@@ -1314,7 +1312,7 @@ async function uploadCSV()
         console.log("error reading file: ", error);
     }
 
-    $('#editItemModal').modal('hide');
+    $('#popupModal').modal('hide');
     loadItemTable();
 }
 
