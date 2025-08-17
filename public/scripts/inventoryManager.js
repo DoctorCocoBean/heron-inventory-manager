@@ -1145,9 +1145,8 @@ function downloadCSV() {
         });
     });
 }
-function loadTransactionLog() {
+function loadTransactionLog(startDate, endDate) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('load transaction log');
         try {
             const request = new Request(`/api/activityLog`, {
                 method: "GET",
@@ -1155,6 +1154,12 @@ function loadTransactionLog() {
             });
             const response = yield fetch(request);
             const data = response.json().then((data) => {
+                if (startDate === undefined || endDate === undefined) {
+                    startDate = new Date();
+                    startDate.setDate(1);
+                    endDate = new Date();
+                    endDate.setMonth(endDate.getMonth() + 1, 0);
+                }
                 var tableHTML = `
                 <thead>
                     <td style="opacity: 50%;">Name</td>
@@ -1166,31 +1171,26 @@ function loadTransactionLog() {
                 let newValue = 0;
                 let transaction = 0;
                 let quantityChangeSummaries = [];
-                // const date1 = new Date(data[0]['date']);
-                // const daysAgo30 = new Date();
-                // daysAgo30.setDate(daysAgo30.getDate() - 30);
-                // for (let i=0; i<data.length; i++) 
-                // {
-                //     const date = new Date(data[i]['date']);
-                //     if (date < daysAgo30) {
-                //         console.log('removing old data: ', data[i]['data']);
-                //         // 
-                //         // data.remove(i);
-                //     }
-                // }
+                // Filter data based on start and end date
+                let filteredData = [];
                 for (let i = 0; i < data.length; i++) {
-                    // Skip if date is older than filtered days
-                    // const date = new Date(data[i]['date']);
-                    // if (date < daysAgo30) {
-                    //     continue;
-                    // }
-                    oldValue = Number(data[i]['oldValue']);
-                    newValue = Number(data[i]['newValue']);
+                    const date = new Date(Number(data[i]['timestamp']));
+                    if (date > startDate && date < endDate) {
+                        filteredData.push(data[i]);
+                    }
+                    else {
+                        continue;
+                    }
+                }
+                for (let i = 0; i < filteredData.length; i++) {
+                    const date = new Date(Number(filteredData[i]['timestamp']));
+                    oldValue = Number(filteredData[i]['oldValue']);
+                    newValue = Number(filteredData[i]['newValue']);
                     transaction = newValue - oldValue;
                     let alreadyAdded = false;
                     for (let j = 0; j < quantityChangeSummaries.length; j++) // Merge two transactions if same item
                      {
-                        if (quantityChangeSummaries[j].name == data[i]['itemName']) {
+                        if (quantityChangeSummaries[j].name == filteredData[i]['itemName']) {
                             if (transaction > 0) {
                                 quantityChangeSummaries[j].totalAdditions += transaction;
                             }
@@ -1203,7 +1203,7 @@ function loadTransactionLog() {
                     // Add if not already added to list
                     if (!alreadyAdded) {
                         let t = new QuanityChangeSummary();
-                        t.name = data[i]['itemName'];
+                        t.name = filteredData[i]['itemName'];
                         if (transaction > 0) {
                             t.totalAdditions += transaction;
                         }
@@ -1252,8 +1252,6 @@ function loadTransactionLog() {
 }
 function loadActivityLog(startDate, endDate) {
     return __awaiter(this, void 0, void 0, function* () {
-        const dateTimestampt = Date.now();
-        const date = new Date(dateTimestampt);
         const request = new Request(`/api/activityLog`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
@@ -1266,24 +1264,15 @@ function loadActivityLog(startDate, endDate) {
                 endDate = new Date();
                 console.log(startDate.toLocaleString());
             }
-            else {
-                // startDate.setDate(startDate.getDate() - 1);
-                console.log('dates given: ', startDate.toLocaleString(), endDate.toLocaleString());
-            }
             // Filter data based on start date
             let filteredData = [];
             for (let i = 0; i < data.length; i++) {
                 const date = new Date(Number(data[i]['timestamp']));
-                // console.log(startDate.toDateString());
-                console.log(date > startDate, date.toDateString(), '>', startDate.toLocaleString());
-                console.log(date < endDate, date.toDateString(), '<', endDate.toLocaleString());
                 if (date > startDate && date < endDate) {
                     filteredData.push(data[i]);
                 }
                 else {
                     continue;
-                    // console.log('removing old data: ', data[i]['itemName']);
-                    // console.log('pushing: ', data[i]['itemName']);
                 }
             }
             var tableHTML = `

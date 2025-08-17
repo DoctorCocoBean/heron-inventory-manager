@@ -16,66 +16,66 @@
         }
     </style>
     <body>
-
-    <!-- Popup -->
-    <div id='msgPopup' class="msgPopup">
-        Default
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="editItemModal" role="dialog">
-        <div class="modal-dialog">
+        <!-- Popup -->
+        <div id='msgPopup' class="msgPopup">
             Default
         </div>
-    </div>
 
-
-    <div class="container-fluid min-vh-100 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
-        <div class="row flex-fill">
-
-            <!-- Side bar -->
-            <%- include('sideBar'); %>
-        
-            <!-- content -->
-            <main class="col overflow-auto min-vh-100 p-0">
-                <div class="bg-light rounded-3 p-3" style="height: 300px">
-
-                    <div class="d-flex justify-content-between">
-
-                    <div class="">
-                        <h3 style="opacity: 20%;">Transaction Report</h3>
-                    </div>
-
-                    <div class="m-1">
-                        <button onclick="openNewItemDialog()" class="btn btn-primary inventoryBtn" >Add Item</button>
-                        <button class="btn btn-primary inventoryBtn" id="readCVSButton" onclick="showUploadDialog()">Upload</button>
-                        <button class="btn btn-primary inventoryBtn" id="deleteAllButton" onclick="deleteAllItems()">Delete All</button>
-                    </div>
-                    </div>
-
-                    <hr style="opacity: 10%;">
-
-                    <div class="m-1">
-                        <input type="text" placeholder="search" id="searchBar" class="searchBar" style="width: 300px"></input>
-                    </div>
-
-                    <div class="scrollable" >
-                        <table class="table table-hover  itemsTable" style=""; id="itemTable">
-                        </table>
-                    </div>
-
-                </div>
-            </main>
+        <!-- Modal -->
+        <div class="modal" id="editItemModal" role="dialog">
+            <div class="modal-dialog">
+                Default
+            </div>
         </div>
-    </div>
 
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <div class="container-fluid min-vh-100 flex-grow-1 d-flex flex-column flex-sm-row overflow-auto">
+            <div class="row flex-fill">
+
+                <!-- Side bar -->
+                <%- include('sideBar'); %>
+            
+                <!-- content -->
+                <main class="col overflow-auto min-vh-100 p-0">
+                    <div class="bg-light rounded-3 p-3" style="height: 300px">
+
+                        <div class="d-flex justify-content-between">
+                            <div class="">
+                                <h3 style="opacity: 20%;">Transaction Report</h3>
+                            </div>
+                        </div>
+
+                        <hr style="opacity: 10%;">
+
+                        <div class="d-flex m-1 justify-content-between">
+                            <input type="text" placeholder="search" id="searchBar" class="searchBar" style="width: 300px"></input>
+                            <div class="datepicker"> </div>
+                        </div>
+
+                        <div class="scrollable" >
+                            <table class="table table-hover  itemsTable" style=""; id="itemTable">
+                            </table>
+                        </div>
+
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
         <script src="../scripts/inventoryManager.js"></script>
+        <script src="../scripts/datePicker.js"></script>
     </body>
 
     <script>
+        datePickerCallback = (startDate, endDate) => {
+            loadTransactionLog(startDate, endDate);        
+        }
+
         // Keyboard events
         searchBar.addEventListener("keypress", function(event) {
             if (event.key == "Enter") {

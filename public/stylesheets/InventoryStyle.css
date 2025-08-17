@@ -143,6 +143,10 @@
     place-items: center;
 }
 
+.datepicker {
+    z-index: 9999;
+}
+
 .datePickerBtn {
     background-color: rgb(231, 231, 231);
     color: rgb(59, 59, 59);
