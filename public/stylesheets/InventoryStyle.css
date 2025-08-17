@@ -1,4 +1,5 @@
 :root {
+    --bs-primary: #5595ec;
     --primary-color: #5595ec;
     --primary-font: roboto;
     --dashboard-tile-size: 200px;
