@@ -2,23 +2,84 @@ import { Router }  from 'express';
 const indexRouter = Router();
 import * as papa from 'papaparse';
 import * as db from '../pool/queries';
+import * as passport from 'passport';
 import { body, validationResult } from 'express-validator';
 
+interface User {
+  id: number;
+  username: string;
+  password: string;
+}
 
-indexRouter.get("/", async (req, res) => 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+    interface Request {
+      logout(callback: (err: any) => void): void;
+    }
+  }
+}
+
+function ensureAuthenticated(req, res, next) 
+{
+    console.log('User is authenticated:', req.isAuthenticated());
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/sign-up");
+}
+
+indexRouter.get("/", ensureAuthenticated, async (req, res) => 
 {
     res.redirect("/items");
 });
 
-indexRouter.get("/dashboard", async (req, res) => 
+indexRouter.get("/sign-up", async (req, res) => 
 {
-    var metaData            = await db.calculateItemsMetaData();
-        metaData.totalValue = convertNumToString(metaData.totalValue);
-    res.render("dashboard", { metaData });
+    console.log('sign up page loading');
+    res.render("signupForm");
 });
 
-indexRouter.get("/lowstock", async (req, res) => 
+indexRouter.get('/log-out', (req, res, next) => {
+    req.logout((err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("/sign-up");
+    });
+});
+
+indexRouter.post("/sign-up", async (req, res) => 
 {
+    try {
+        await db.addUser(req.body.username, req.body.password);
+        res.redirect("/");
+    } catch (error) {
+        console.error("Error signing up:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+indexRouter.post("/log-in", 
+    passport.authenticate('local', {
+        successRedirect: '/items',
+        failureRedirect: '/sign-up'
+    })
+);
+
+indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) => 
+{
+    let username = req.user ? req.user.username : "Guest";
+    var metaData            = await db.calculateItemsMetaData();
+        metaData.totalValue = convertNumToString(metaData.totalValue);
+    res.render("dashboard", { metaData, user: username });
+});
+
+indexRouter.get("/lowstock", ensureAuthenticated, async (req, res) => 
+{
+    let username = req.user ? req.user.username : "Guest";
     const allItems = await db.getAllItems();
     var metaData = await db.calculateItemsMetaData();    
     var lowItems = [];
@@ -31,12 +92,13 @@ indexRouter.get("/lowstock", async (req, res) =>
         }
     }
 
-    res.render("lowstock", { items: null });
+    res.render("lowstock", { user: username });
 });
 
-indexRouter.get("/transactionReport", async (req, res) => 
+indexRouter.get("/transactionReport", ensureAuthenticated, async (req, res) => 
 {
-    res.render("transactionReport", { });
+    let username = req.user ? req.user.username : "Guest";
+    res.render("transactionReport", { user: username });
 });
 
 indexRouter.get("/api/lowStockItems", async (req, res) => 
@@ -71,15 +133,15 @@ indexRouter.get("/lowStockitem/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.get("/items", async (req, res) => 
+indexRouter.get("/items", ensureAuthenticated, async (req, res) => 
 {
-    console.log('loading page');
+    let username = req.user ? req.user.username : "Guest";
     
     const items               = await db.getAllItems();
     var   metaData            = await db.calculateItemsMetaData();
           metaData.totalValue = convertNumToString(metaData.totalValue);
 
-    res.render("items", { items: items, metaData: metaData });
+    res.render("items", { user: username, items: items, metaData: metaData });
 });
 
 indexRouter.delete("/api/items", async (req, res) =>
@@ -560,9 +622,10 @@ indexRouter.post('/logActivity', async (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.get("/activityLog", async (req, res) => 
+indexRouter.get("/activityLog", ensureAuthenticated, async (req, res) => 
 {
-    res.render("activityLog", { });
+    let username = req.user ? req.user.username : "Guest";
+    res.render("activityLog", { user: username});
 });
 
 indexRouter.get('/api/activityLog', async (req, res) =>

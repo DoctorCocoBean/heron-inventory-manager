@@ -1,30 +1,10 @@
 
-// TODO:
-//Database passwood: wCBrkihVgfbs9PGV
-
-
-// Deploy version 1 of app
-// Create api route for updating quantity /api/itemQuantity
-// ---------------------------------------------
-
-// Add api/ to api routes 
-
-// Create icons for different pages
-
-// ---------- Later ----------------- 
-
-// Block undo if not an acceptable action
-// For transactions, limit results by date range
-// Use SolidJS
-// View by tag
-// Process bar when uploading
-// Be able to undo full item edits by using JSON.stringify to conversion json to string for old and new valuess
-// Normalize items table after deleting all items? alter sequence public.books_id_seq restart with 1;
-// Use gallery of images like pinterest
-// Dashbaord show low stock items in mini tables
-
 import * as express from 'express';
 import * as path from 'node:path';
+import * as session from 'express-session';
+import * as passport from 'passport';
+import * as localStrategy from 'passport-local';
+import * as db from './pool/queries';
 const app   = express();
 
 const assetsPath = path.join(__dirname, "public");
@@ -36,6 +16,42 @@ app.use(express.static('public'));
 // Views
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(passport.session());
+
+passport.use(
+    new localStrategy(async (username, password, done) => {
+        try {
+            const user = await db.getUserByUsername(username);
+
+            if (!user) {
+                return done(null, false, { message: "Incorrect username." });
+            }
+
+            if (user.password !== password) {
+                return done(null, false, { message: "Incorrect password." });
+            }
+
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    })
+);
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await db.getUserById(id);
+        done(null, user);
+    } catch (error) {
+        done(error);
+    }
+});
 
 // Routers
 import indexRouter from './routes/indexRouter';

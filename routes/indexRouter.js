@@ -13,16 +13,52 @@ const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
 const db = require("../pool/queries");
+const passport = require("passport");
 const express_validator_1 = require("express-validator");
-indexRouter.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+function ensureAuthenticated(req, res, next) {
+    console.log('User is authenticated:', req.isAuthenticated());
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/sign-up");
+}
+indexRouter.get("/", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
 }));
-indexRouter.get("/dashboard", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('sign up page loading');
+    res.render("signupForm");
+}));
+indexRouter.get('/log-out', (req, res, next) => {
+    req.logout((err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect("/sign-up");
+    });
+});
+indexRouter.post("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield db.addUser(req.body.username, req.body.password);
+        res.redirect("/");
+    }
+    catch (error) {
+        console.error("Error signing up:", error);
+        res.status(500).send("Internal Server Error");
+    }
+}));
+indexRouter.post("/log-in", passport.authenticate('local', {
+    successRedirect: '/items',
+    failureRedirect: '/sign-up'
+}));
+indexRouter.get("/dashboard", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let username = req.user ? req.user.username : "Guest";
     var metaData = yield db.calculateItemsMetaData();
     metaData.totalValue = convertNumToString(metaData.totalValue);
-    res.render("dashboard", { metaData });
+    res.render("dashboard", { metaData, user: username });
 }));
-indexRouter.get("/lowstock", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/lowstock", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let username = req.user ? req.user.username : "Guest";
     const allItems = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
     var lowItems = [];
@@ -32,10 +68,11 @@ indexRouter.get("/lowstock", (req, res) => __awaiter(void 0, void 0, void 0, fun
             lowItems.push(allItems[i]);
         }
     }
-    res.render("lowstock", { items: null });
+    res.render("lowstock", { user: username });
 }));
-indexRouter.get("/transactionReport", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.render("transactionReport", {});
+indexRouter.get("/transactionReport", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let username = req.user ? req.user.username : "Guest";
+    res.render("transactionReport", { user: username });
 }));
 indexRouter.get("/api/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allItems = yield db.getAllItems();
@@ -60,12 +97,12 @@ indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 
     }
     res.send(items);
 }));
-indexRouter.get("/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('loading page');
+indexRouter.get("/items", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let username = req.user ? req.user.username : "Guest";
     const items = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
     metaData.totalValue = convertNumToString(metaData.totalValue);
-    res.render("items", { items: items, metaData: metaData });
+    res.render("items", { user: username, items: items, metaData: metaData });
 }));
 indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('trying');
@@ -351,8 +388,9 @@ indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0,
     yield db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 }));
-indexRouter.get("/activityLog", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.render("activityLog", {});
+indexRouter.get("/activityLog", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let username = req.user ? req.user.username : "Guest";
+    res.render("activityLog", { user: username });
 }));
 indexRouter.get('/api/activityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const rows = yield db.getActivityLog();
