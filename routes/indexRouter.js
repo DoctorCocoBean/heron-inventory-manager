@@ -14,13 +14,20 @@ const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
 const db = require("../pool/queries");
 const passport = require("passport");
+const bcrypt = require("bcryptjs");
 const express_validator_1 = require("express-validator");
 function ensureAuthenticated(req, res, next) {
-    console.log('User is authenticated:', req.isAuthenticated());
-    if (req.isAuthenticated()) {
+    const debugMode = true;
+    if (!debugMode) {
+        console.log('User is authenticated:', req.isAuthenticated());
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        res.redirect("/sign-up");
+    }
+    else {
         return next();
     }
-    res.redirect("/sign-up");
 }
 indexRouter.get("/", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.redirect("/items");
@@ -39,7 +46,9 @@ indexRouter.get('/log-out', (req, res, next) => {
 });
 indexRouter.post("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield db.addUser(req.body.username, req.body.password);
+        const hashedPassword = yield bcrypt.hash(req.body.password, 10);
+        yield db.addUser(req.body.username, hashedPassword);
+        console.log('redreisdlfsdlkf');
         res.redirect("/");
     }
     catch (error) {
@@ -59,15 +68,16 @@ indexRouter.get("/dashboard", ensureAuthenticated, (req, res) => __awaiter(void 
 }));
 indexRouter.get("/lowstock", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
-    const allItems = yield db.getAllItems();
-    var metaData = yield db.calculateItemsMetaData();
-    var lowItems = [];
-    // Calculate low stock here
-    for (let i = 0; i < allItems.length; i++) {
-        if (allItems[i].quantity < allItems[i].minimumLevel) {
-            lowItems.push(allItems[i]);
-        }
-    }
+    // const allItems = await db.getAllItems();
+    // var metaData = await db.calculateItemsMetaData();    
+    // var lowItems = [];
+    // // Calculate low stock here
+    // for (let i=0; i<allItems.length; i++)
+    // {
+    //     if (allItems[i].quantity < allItems[i].minimumLevel) {
+    //         lowItems.push(allItems[i]);
+    //     }
+    // }
     res.render("lowstock", { user: username });
 }));
 indexRouter.get("/transactionReport", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -75,6 +85,7 @@ indexRouter.get("/transactionReport", ensureAuthenticated, (req, res) => __await
     res.render("transactionReport", { user: username });
 }));
 indexRouter.get("/api/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('get low stock');
     const allItems = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
     var lowItems = [];

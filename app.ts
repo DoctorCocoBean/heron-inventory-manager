@@ -5,9 +5,11 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import * as localStrategy from 'passport-local';
 import * as db from './pool/queries';
-const app   = express();
+import * as bcrypt from 'bcryptjs';
 
+const app   = express();
 const assetsPath = path.join(__dirname, "public");
+
 app.use(express.static(assetsPath));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,12 +27,13 @@ passport.use(
         try {
             const user = await db.getUserByUsername(username);
 
-            if (!user) {
-                return done(null, false, { message: "Incorrect username." });
+            const match = await bcrypt.compare(password, user.password);
+            if (!match) {
+                return done(null, false, { message: "Incorrect password." });
             }
 
-            if (user.password !== password) {
-                return done(null, false, { message: "Incorrect password." });
+            if (!user) {
+                return done(null, false, { message: "Incorrect username." });
             }
 
             return done(null, user);

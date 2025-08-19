@@ -3,6 +3,7 @@ const indexRouter = Router();
 import * as papa from 'papaparse';
 import * as db from '../pool/queries';
 import * as passport from 'passport';
+import * as bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 
 interface User {
@@ -24,11 +25,17 @@ declare global {
 
 function ensureAuthenticated(req, res, next) 
 {
-    console.log('User is authenticated:', req.isAuthenticated());
-    if (req.isAuthenticated()) {
+    const debugMode = true;
+
+    if (!debugMode) {
+        console.log('User is authenticated:', req.isAuthenticated());
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        res.redirect("/sign-up");
+    } else {
         return next();
     }
-    res.redirect("/sign-up");
 }
 
 indexRouter.get("/", ensureAuthenticated, async (req, res) => 
@@ -54,7 +61,10 @@ indexRouter.get('/log-out', (req, res, next) => {
 indexRouter.post("/sign-up", async (req, res) => 
 {
     try {
-        await db.addUser(req.body.username, req.body.password);
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        await db.addUser(req.body.username, hashedPassword);
+        console.log('redreisdlfsdlkf');
+        
         res.redirect("/");
     } catch (error) {
         console.error("Error signing up:", error);
@@ -80,17 +90,17 @@ indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) =>
 indexRouter.get("/lowstock", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
-    const allItems = await db.getAllItems();
-    var metaData = await db.calculateItemsMetaData();    
-    var lowItems = [];
+    // const allItems = await db.getAllItems();
+    // var metaData = await db.calculateItemsMetaData();    
+    // var lowItems = [];
 
-    // Calculate low stock here
-    for (let i=0; i<allItems.length; i++)
-    {
-        if (allItems[i].quantity < allItems[i].minimumLevel) {
-            lowItems.push(allItems[i]);
-        }
-    }
+    // // Calculate low stock here
+    // for (let i=0; i<allItems.length; i++)
+    // {
+    //     if (allItems[i].quantity < allItems[i].minimumLevel) {
+    //         lowItems.push(allItems[i]);
+    //     }
+    // }
 
     res.render("lowstock", { user: username });
 });
@@ -103,6 +113,8 @@ indexRouter.get("/transactionReport", ensureAuthenticated, async (req, res) =>
 
 indexRouter.get("/api/lowStockItems", async (req, res) => 
 {
+    console.log('get low stock');
+    
     const allItems = await db.getAllItems();
     var metaData = await db.calculateItemsMetaData();    
     var lowItems = [];
