@@ -331,32 +331,49 @@ function getHTMLInputById(id) {
 }
 function addItem() {
     return __awaiter(this, void 0, void 0, function* () {
-        const name = getHTMLInputById('nameInput').value;
-        const quantity = getHTMLInputById('quantityInput').value;
-        const minimumLevel = getHTMLInputById('minQuantityInput').value;
-        const price = getHTMLInputById('priceInput').value;
-        const barcode = getHTMLInputById('barcodeInput').value;
-        const notes = getHTMLInputById('notesInput').value;
-        const tags = getHTMLInputById('tagsInput').value;
-        const request = new Request(`/api/item`, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: name,
-                quantity: quantity,
-                minimumLevel: minimumLevel,
-                price: price,
-                value: 0,
-                barcode: barcode,
-                notes: notes,
-                tags: tags,
-            }),
-        });
-        const response = yield fetch(request);
-        if (!response.ok) {
-            const errorData = yield response.json();
-            showPopupMessage(`Error adding item: ${errorData.message || 'Unknown error'}`, 5000);
-            console.log(`Error adding item: ${errorData.message || 'Unknown error'}`);
+        try {
+            const name = getHTMLInputById('nameInput').value;
+            const quantity = getHTMLInputById('quantityInput').value;
+            const minimumLevel = getHTMLInputById('minQuantityInput').value;
+            const price = getHTMLInputById('priceInput').value;
+            const barcode = getHTMLInputById('barcodeInput').value;
+            const notes = getHTMLInputById('notesInput').value;
+            const tags = getHTMLInputById('tagsInput').value;
+            // Get userid
+            const userIdRequest = new Request(`/api/userid`, {
+                method: "GET",
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const userIdResponse = yield fetch(userIdRequest);
+            const userIdData = yield userIdResponse.json();
+            const userid = userIdData.userid;
+            console.log(userid);
+            const request = new Request(`/api/item`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userid: userid,
+                    name: name,
+                    quantity: quantity,
+                    minimumLevel: minimumLevel,
+                    price: price,
+                    value: 0,
+                    barcode: barcode,
+                    notes: notes,
+                    tags: tags,
+                }),
+            });
+            const response = yield fetch(request);
+            if (!response.ok) {
+                const errorData = yield response.json();
+                showPopupMessage(`Error adding item: ${errorData.message || 'Unknown error'}`, 5000);
+                console.log(`Error adding item: ${errorData.message || 'Unknown error'}`);
+                return;
+            }
+        }
+        catch (error) {
+            console.error('Error adding item:', error);
+            showPopupMessage(`Error adding item: ${error.message || 'Unknown error'}`, 5000);
             return;
         }
         $('#popupModal').modal('hide');

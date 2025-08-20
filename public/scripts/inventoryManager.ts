@@ -372,35 +372,55 @@ function getHTMLInputById(id: string): HTMLInputElement
 
 async function addItem()
 {
-    const name          = getHTMLInputById('nameInput').value;
-    const quantity      = getHTMLInputById('quantityInput').value;
-    const minimumLevel  = getHTMLInputById('minQuantityInput').value;
-    const price         = getHTMLInputById('priceInput').value;
-    const barcode       = getHTMLInputById('barcodeInput').value;
-    const notes         = getHTMLInputById('notesInput').value;
-    const tags          = getHTMLInputById('tagsInput').value;
+    try 
+    {
+        const name          = getHTMLInputById('nameInput').value;
+        const quantity      = getHTMLInputById('quantityInput').value;
+        const minimumLevel  = getHTMLInputById('minQuantityInput').value;
+        const price         = getHTMLInputById('priceInput').value;
+        const barcode       = getHTMLInputById('barcodeInput').value;
+        const notes         = getHTMLInputById('notesInput').value;
+        const tags          = getHTMLInputById('tagsInput').value;
 
-    const request = new Request(`/api/item`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            name: name,
-            quantity: quantity ,
-            minimumLevel: minimumLevel,
-            price: price,
-            value: 0,
-            barcode: barcode,
-            notes: notes,
-            tags: tags,
-        }),
-    })
+        // Get userid
+        const userIdRequest = new Request(`/api/userid`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        });
 
-    const response = await fetch(request);
+        const userIdResponse = await fetch(userIdRequest);
+        const userIdData = await userIdResponse.json();
+        const userid = userIdData.userid;
+        console.log(userid);
+        
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        showPopupMessage(`Error adding item: ${errorData.message || 'Unknown error'}`, 5000);
-        console.log(`Error adding item: ${errorData.message || 'Unknown error'}`);
+        const request = new Request(`/api/item`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userid: userid,
+                name: name,
+                quantity: quantity ,
+                minimumLevel: minimumLevel,
+                price: price,
+                value: 0,
+                barcode: barcode,
+                notes: notes,
+                tags: tags,
+            }),
+        })
+
+        const response = await fetch(request);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            showPopupMessage(`Error adding item: ${errorData.message || 'Unknown error'}`, 5000);
+            console.log(`Error adding item: ${errorData.message || 'Unknown error'}`);
+            return;
+        }
+    } catch (error) {
+        console.error('Error adding item:', error);
+        showPopupMessage(`Error adding item: ${error.message || 'Unknown error'}`, 5000);
         return;
     }
 
@@ -942,7 +962,6 @@ async function getMetaData()
 
 async function loadItemTable()
 {
-    
     const request = new Request(`/api/itemsByName/all`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }

@@ -50,7 +50,6 @@ async function addItem(userid, name, quantity, minLevel, price, value, barcode, 
 {
     console.log("inserting item: ", barcode);
 
-
     if (!name) {
         name = "null";
         return;
@@ -102,7 +101,6 @@ async function addItem(userid, name, quantity, minLevel, price, value, barcode, 
         await pool.query(SQL);
     }
     catch (err) {
-        next(err);
         throw new Error(`${err}: couldnt add item. SQL: ${SQL}`); 
     }
 }
@@ -173,7 +171,7 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
 
 async function searchForItem(userid, name) 
 {
-    console.log("Server searching for item:", name);
+    console.log("Server searching for item:", name, userid);
     
     if (!name) {
         name = "null";
@@ -189,9 +187,8 @@ async function searchForItem(userid, name)
 
     const SQL = `
             SELECT * FROM items
-            WHERE LOWER(name) LIKE '%${name}%'
-            ORDER BY name
-            WHERE userid = ${userid};
+            WHERE LOWER(name) LIKE '%${name}%' AND userid = ${userid}
+            ORDER BY name;
         `;
 
     const { rows } = await pool.query(SQL);
@@ -345,8 +342,6 @@ async function addUser(username, password)
     } catch (error) {
         console.error("Error signing up:", error);
         throw new Error("Error signing up", error);
-        // res.status(500).send("Internal Server Error");
-        // next(error);
     }
 }
 

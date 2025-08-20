@@ -84,6 +84,15 @@ indexRouter.post("/log-in",
     })
 );
 
+indexRouter.get("/api/userid", ensureAuthenticated, async (req, res) => 
+{
+    if (req.user && req.user.id) {
+        res.json({ userid: req.user.id });
+    } else {
+        res.status(404).json({ message: "User ID not found" });
+    }
+});
+
 indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
@@ -180,6 +189,7 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
         console.log("error getting item by Id: ", req.params.itemId,  error);
     }
 });
+
 
 indexRouter.get("/api/itemsByName/:itemName", async (req, res) => 
 {
@@ -509,8 +519,14 @@ indexRouter.post("/api/item", [
             return res.status(400).send({ message: `Invalid input - ${errors.array()[0].msg}` });
         }
 
+        const userid = req.body.userid;
+        if (userid == undefined) {
+            return res.status(400).send({ message: "User ID is required." });
+        }
+
         const value = Number(req.body.price) * Number(req.body.quantity);
         await db.addItem(
+                            req.body.userid,
                             req.body.name,
                             req.body.quantity,
                             req.body.minimumLevel,
@@ -526,7 +542,7 @@ indexRouter.post("/api/item", [
         console.log(`Error adding item. ${error}`);
         console.log(`Stack. ${error.stack}`);
         next(error);
-        return res.status(400).send({ message: `Error adding item ${error}` });
+        // return res.status(400).send({ message: `Error adding item ${error}` });
     }
 });
 

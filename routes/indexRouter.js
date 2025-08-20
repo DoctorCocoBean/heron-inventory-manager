@@ -62,6 +62,14 @@ indexRouter.post("/log-in", passport.authenticate('local', {
     successRedirect: '/items',
     failureRedirect: '/sign-up'
 }));
+indexRouter.get("/api/userid", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.user && req.user.id) {
+        res.json({ userid: req.user.id });
+    }
+    else {
+        res.status(404).json({ message: "User ID not found" });
+    }
+}));
 indexRouter.get("/dashboard", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
     var metaData = yield db.calculateItemsMetaData();
@@ -317,15 +325,19 @@ indexRouter.post("/api/item", [
         if (!errors.isEmpty()) {
             return res.status(400).send({ message: `Invalid input - ${errors.array()[0].msg}` });
         }
+        const userid = req.body.userid;
+        if (userid == undefined) {
+            return res.status(400).send({ message: "User ID is required." });
+        }
         const value = Number(req.body.price) * Number(req.body.quantity);
-        yield db.addItem(req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags);
+        yield db.addItem(req.body.userid, req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags);
         res.send();
     }
     catch (error) {
         console.log(`Error adding item. ${error}`);
         console.log(`Stack. ${error.stack}`);
         next(error);
-        return res.status(400).send({ message: `Error adding item ${error}` });
+        // return res.status(400).send({ message: `Error adding item ${error}` });
     }
 }));
 indexRouter.delete("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
