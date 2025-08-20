@@ -130,16 +130,18 @@ indexRouter.get("/api/lowStockItems", async (req, res) =>
     res.send(lowItems);
 });
 
-indexRouter.get("/lowStockitem/:itemName", async (req, res) => 
+indexRouter.get("/api/lowStockitem/:itemName", async (req, res) => 
 {
     var nameToSearch = req.params.itemName;
     var items;
 
-    if (nameToSearch == "all") {
-        items = await db.getAllLowStockItems();
+    console.log("Searching for low stock items. Name:", nameToSearch, "User ID:", userId(req));
+
+    if (nameToSearch == undefined || nameToSearch == "all") {
+        items = await db.getAllLowStockItems(userId(req));
     }
     else {
-        items = await db.searchForLowStockItem(req.params.itemName);
+        items = await db.searchForLowStockItem(userId(req), req.params.itemName);
     }
 
     res.send(items);

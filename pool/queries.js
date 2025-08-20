@@ -198,10 +198,10 @@ async function searchForItem(userid, name)
     return rows;
 }
 
-async function searchForLowStockItem(name) 
+async function searchForLowStockItem(userId, name) 
 {
-    console.log("Server searching for item:", name);
-    
+    console.log("Server searching for item:", name, "User ID:", userId);
+
     if (!name) {
         name = "null";
         return;
@@ -216,7 +216,7 @@ async function searchForLowStockItem(name)
 
     const SQL = `
             SELECT * FROM items
-            WHERE LOWER(name) LIKE '%${name}%'
+            WHERE LOWER(name) LIKE '%${name}%' AND userid = ${userId}
             ORDER BY name;
         `;
 

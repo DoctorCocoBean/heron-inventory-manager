@@ -57,7 +57,8 @@ var selectedItems = [];
 // On page load
 document.addEventListener('keydown', (event) => {
     if (event.key == 'Enter') {
-        console.log(popup.style.display == 'none' || popup.style.display == '');
+        if (!popup)
+            return;
         if (popup.style.display == 'block') {
             var saveBtn = document.getElementById('saveButton');
             console.log('saveBtn: ', saveBtn);
@@ -761,7 +762,7 @@ function searchForLowStockItem(name) {
         if (name == "") {
             name = "all";
         }
-        const request = new Request(`api/lowStockitem/${name}`, {
+        const request = new Request(`/api/lowStockitem/${name}`, {
             method: "GET",
             headers: { 'Content-Type': 'application/json' }
         });
@@ -770,7 +771,7 @@ function searchForLowStockItem(name) {
             console.log(data);
             var tableHTML = createLowStockTableHeader();
             for (let i = 0; i < data.length; i++) {
-                tableHTML += createTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value']);
+                tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value'], data[i]['stockOrdered']);
             }
             itemTable.innerHTML = tableHTML;
         });
@@ -859,6 +860,7 @@ function loadLowStockItemTable() {
                 <td style="opacity: 50%; width: 10%;">Stock Ordered</td>
             </thead>
         `;
+            tableHTML = createLowStockTableHeader();
             for (let i = 0; i < data.length; i++) {
                 tableHTML += createLowStockTableRowHTML(data[i]['id'], data[i]['name'], data[i]['quantity'], data[i]['minimumLevel'], data[i]['price'], data[i]['value'], data[i]['stockOrdered']);
             }

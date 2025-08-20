@@ -96,14 +96,15 @@ indexRouter.get("/api/lowStockItems", (req, res) => __awaiter(void 0, void 0, vo
     }
     res.send(lowItems);
 }));
-indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.get("/api/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var nameToSearch = req.params.itemName;
     var items;
-    if (nameToSearch == "all") {
-        items = yield db.getAllLowStockItems();
+    console.log("Searching for low stock items. Name:", nameToSearch, "User ID:", userId(req));
+    if (nameToSearch == undefined || nameToSearch == "all") {
+        items = yield db.getAllLowStockItems(userId(req));
     }
     else {
-        items = yield db.searchForLowStockItem(req.params.itemName);
+        items = yield db.searchForLowStockItem(userId(req), req.params.itemName);
     }
     res.send(items);
 }));
