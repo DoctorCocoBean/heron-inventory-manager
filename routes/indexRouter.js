@@ -68,16 +68,6 @@ indexRouter.get("/dashboard", ensureAuthenticated, (req, res) => __awaiter(void 
 }));
 indexRouter.get("/lowstock", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
-    // const allItems = await db.getAllItems();
-    // var metaData = await db.calculateItemsMetaData();    
-    // var lowItems = [];
-    // // Calculate low stock here
-    // for (let i=0; i<allItems.length; i++)
-    // {
-    //     if (allItems[i].quantity < allItems[i].minimumLevel) {
-    //         lowItems.push(allItems[i]);
-    //     }
-    // }
     res.render("lowstock", { user: username });
 }));
 indexRouter.get("/transactionReport", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -122,6 +112,7 @@ indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0,
 }));
 indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('loading items');
+    console.log('user is ', req.user ? req.user.username : "Guest");
     const items = yield db.getAllItems();
     res.send(items);
 }));

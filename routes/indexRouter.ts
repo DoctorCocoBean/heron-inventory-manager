@@ -90,18 +90,6 @@ indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) =>
 indexRouter.get("/lowstock", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
-    // const allItems = await db.getAllItems();
-    // var metaData = await db.calculateItemsMetaData();    
-    // var lowItems = [];
-
-    // // Calculate low stock here
-    // for (let i=0; i<allItems.length; i++)
-    // {
-    //     if (allItems[i].quantity < allItems[i].minimumLevel) {
-    //         lowItems.push(allItems[i]);
-    //     }
-    // }
-
     res.render("lowstock", { user: username });
 });
 
@@ -167,6 +155,8 @@ indexRouter.delete("/api/items", async (req, res) =>
 indexRouter.get("/api/items", async (req, res) => 
 {
     console.log('loading items');
+    console.log('user is ', req.user ? req.user.username : "Guest");
+
     const items = await db.getAllItems();
 
     res.send(items);
