@@ -942,6 +942,7 @@ async function getMetaData()
 
 async function loadItemTable()
 {
+    
     const request = new Request(`/api/itemsByName/all`, {
         method: "GET",
         headers: { 'Content-Type': 'application/json' }

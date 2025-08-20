@@ -2,14 +2,14 @@
 const pool = require("./pool").default;
 
 
-async function getAllItems() {
-    const { rows } = await pool.query("SELECT * FROM items ORDER BY name ASC");
+async function getAllItems(userid) {
+    const { rows } = await pool.query(`SELECT * FROM items WHERE userid = ${userid} ORDER BY name ASC `);
     return rows;
 }
 
-async function getAllLowStockItems() 
+async function getAllLowStockItems(userid) 
 {
-    const { rows } = await pool.query("SELECT * FROM items ORDER BY id");
+    const { rows } = await pool.query(`SELECT * FROM items WHERE userid = ${userid} ORDER BY id ASC`);
 
     let lowStockItems = [];
     for (let i=0; i<rows.length; i++)
@@ -46,7 +46,7 @@ function sanitizeApostrophe(inputString)
     }
 }
 
-async function addItem(name, quantity, minLevel, price, value, barcode, notes, tags) 
+async function addItem(userid, name, quantity, minLevel, price, value, barcode, notes, tags) 
 {
     console.log("inserting item: ", barcode);
 
@@ -94,8 +94,8 @@ async function addItem(name, quantity, minLevel, price, value, barcode, notes, t
     console.log('item name is', name);
 
     const SQL = `
-    INSERT INTO items (name, quantity, "minimumLevel", price, value, barcode, notes, tags)
-    VALUES ('${name}', '${quantity}', '${minLevel}', '${price}', '${value}', '${barcode}', '${notes}', '${tags}');
+        INSERT INTO items (name, quantity, "minimumLevel", price, value, barcode, notes, tags, userid)
+        VALUES ('${name}', '${quantity}', '${minLevel}', '${price}', '${value}', '${barcode}', '${notes}', '${tags}', '${userid}');
     `;
 
     try {
@@ -171,7 +171,7 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
    await pool.query(SQL);
 }
 
-async function searchForItem(name) 
+async function searchForItem(userid, name) 
 {
     console.log("Server searching for item:", name);
     
@@ -190,7 +190,8 @@ async function searchForItem(name)
     const SQL = `
             SELECT * FROM items
             WHERE LOWER(name) LIKE '%${name}%'
-            ORDER BY name;
+            ORDER BY name
+            WHERE userid = ${userid};
         `;
 
     const { rows } = await pool.query(SQL);
@@ -266,9 +267,9 @@ async function overwriteItemsTableWithBackup()
     await pool.query(SQL);
 }
 
-async function calculateItemsMetaData()
+async function calculateItemsMetaData(userid)
 {
-    const rows = await getAllItems();
+    const rows = await getAllItems(userid);
 
     const metaData = {
         numOfItems: 0,
@@ -338,11 +339,14 @@ async function getActivityLog()
 async function addUser(username, password) 
 {
     try {
+        console.log('adding user: ', username);
+        
         await pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [username, password]);
     } catch (error) {
         console.error("Error signing up:", error);
-        res.status(500).send("Internal Server Error");
-        next(error);
+        throw new Error("Error signing up", error);
+        // res.status(500).send("Internal Server Error");
+        // next(error);
     }
 }
 

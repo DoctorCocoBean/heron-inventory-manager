@@ -12,24 +12,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
-const db = require("../pool/queries");
+const db = require("../pool/queries"); // For typescript
+// import db from '../pool/queries';
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const express_validator_1 = require("express-validator");
 function ensureAuthenticated(req, res, next) {
-    const debugMode = true;
-    if (!debugMode) {
-        console.log('User is authenticated:', req.isAuthenticated());
-        if (req.isAuthenticated()) {
-            return next();
-        }
-        res.redirect("/sign-up");
-    }
-    else {
+    const debugMode = false;
+    // if (!debugMode) {
+    console.log('User is authenticated:', req.isAuthenticated());
+    if (req.isAuthenticated()) {
         return next();
     }
+    res.redirect("/sign-up");
+    // } else {
+    //     return next();
+    // }
 }
 indexRouter.get("/", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('home');
     res.redirect("/items");
 }));
 indexRouter.get("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -49,7 +50,8 @@ indexRouter.post("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, fun
         const hashedPassword = yield bcrypt.hash(req.body.password, 10);
         yield db.addUser(req.body.username, hashedPassword);
         console.log('redreisdlfsdlkf');
-        res.redirect("/");
+        // res.redirect("/");
+        res.json({ message: "User registered successfully" });
     }
     catch (error) {
         console.error("Error signing up:", error);
@@ -100,19 +102,19 @@ indexRouter.get("/lowStockitem/:itemName", (req, res) => __awaiter(void 0, void 
 }));
 indexRouter.get("/items", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
-    const items = yield db.getAllItems();
-    var metaData = yield db.calculateItemsMetaData();
+    const userid = req.user ? req.user.id : 1;
+    var metaData = yield db.calculateItemsMetaData(userid);
     metaData.totalValue = metaData.totalValue;
-    res.render("items", { user: username, items: items, metaData: metaData });
+    res.render("items", { user: username, metaData: metaData });
 }));
 indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('trying');
     yield db.deleteArrayOfItems(req.body.items);
     res.send();
 }));
 indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('loading items');
     console.log('user is ', req.user ? req.user.username : "Guest");
+    console.log('userid ', req.user.id);
     const items = yield db.getAllItems();
     res.send(items);
 }));
@@ -127,13 +129,16 @@ indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('user is ', req.user ? req.user.username : "Guest");
+    console.log('userid ', req.user ? req.user.id : 'no id');
+    const userid = req.user ? req.user.id : 1;
     var nameToSearch = req.params.itemName;
     var items;
     if (nameToSearch == "all") {
-        items = yield db.getAllItems();
+        items = yield db.getAllItems(userid);
     }
     else {
-        items = yield db.searchForItem(req.params.itemName);
+        items = yield db.searchForItem(userid, req.params.itemName);
     }
     res.send(items);
 }));

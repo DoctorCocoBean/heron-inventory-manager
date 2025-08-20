@@ -4,7 +4,8 @@ import * as path from 'node:path';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import * as localStrategy from 'passport-local';
-import * as db from './pool/queries';
+import * as db from './pool/queries'; // For typescript
+// import db from './pool/queries'; // Adjusted import for JavaScript
 import * as bcrypt from 'bcryptjs';
 
 const app   = express();
@@ -36,8 +37,13 @@ passport.use(
                 return done(null, false, { message: "Incorrect username." });
             }
 
+            console.log('am I going here?');
+            console.log('am I going here?');
+
             return done(null, user);
         } catch (error) {
+            console.log('sdlfkj');
+            
             return done(error);
         }
     })

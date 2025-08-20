@@ -1,7 +1,8 @@
 import { Router }  from 'express';
 const indexRouter = Router();
 import * as papa from 'papaparse';
-import * as db from '../pool/queries';
+import * as db from '../pool/queries'; // For typescript
+// import db from '../pool/queries';
 import * as passport from 'passport';
 import * as bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
@@ -16,6 +17,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: User;
+      userid?: number;
     }
     interface Request {
       logout(callback: (err: any) => void): void;
@@ -25,21 +27,23 @@ declare global {
 
 function ensureAuthenticated(req, res, next) 
 {
-    const debugMode = true;
+    const debugMode = false;
 
-    if (!debugMode) {
+    // if (!debugMode) {
         console.log('User is authenticated:', req.isAuthenticated());
         if (req.isAuthenticated()) {
             return next();
         }
         res.redirect("/sign-up");
-    } else {
-        return next();
-    }
+    // } else {
+    //     return next();
+    // }
 }
 
 indexRouter.get("/", ensureAuthenticated, async (req, res) => 
 {
+    console.log('home');
+    
     res.redirect("/items");
 });
 
@@ -65,7 +69,8 @@ indexRouter.post("/sign-up", async (req, res) =>
         await db.addUser(req.body.username, hashedPassword);
         console.log('redreisdlfsdlkf');
         
-        res.redirect("/");
+        // res.redirect("/");
+        res.json({ message: "User registered successfully" });
     } catch (error) {
         console.error("Error signing up:", error);
         res.status(500).send("Internal Server Error");
@@ -136,18 +141,16 @@ indexRouter.get("/lowStockitem/:itemName", async (req, res) =>
 indexRouter.get("/items", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
+    const userid = req.user ? req.user.id : 1;
     
-    const items               = await db.getAllItems();
-    var   metaData            = await db.calculateItemsMetaData();
+    var   metaData            = await db.calculateItemsMetaData(userid);
           metaData.totalValue = metaData.totalValue;
 
-    res.render("items", { user: username, items: items, metaData: metaData });
+    res.render("items", { user: username, metaData: metaData });
 });
 
 indexRouter.delete("/api/items", async (req, res) =>
 {
-    console.log('trying');
-    
     await db.deleteArrayOfItems(req.body.items);
     res.send();
 });
@@ -156,6 +159,8 @@ indexRouter.get("/api/items", async (req, res) =>
 {
     console.log('loading items');
     console.log('user is ', req.user ? req.user.username : "Guest");
+    console.log('userid ', req.user.id);
+    
 
     const items = await db.getAllItems();
 
@@ -178,14 +183,18 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
 
 indexRouter.get("/api/itemsByName/:itemName", async (req, res) => 
 {
+    console.log('user is ', req.user ? req.user.username : "Guest");
+    console.log('userid ', req.user ? req.user.id : 'no id');
+    const userid = req.user ? req.user.id : 1;
+
     var nameToSearch = req.params.itemName;
     var items;
 
     if (nameToSearch == "all") {
-        items = await db.getAllItems();
+        items = await db.getAllItems(userid);
     }
     else {
-        items = await db.searchForItem(req.params.itemName);
+        items = await db.searchForItem(userid, req.params.itemName);
     }
 
     res.send(items);

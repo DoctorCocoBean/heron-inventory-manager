@@ -14,7 +14,8 @@ const path = require("node:path");
 const session = require("express-session");
 const passport = require("passport");
 const localStrategy = require("passport-local");
-const db = require("./pool/queries");
+const db = require("./pool/queries"); // For typescript
+// import db from './pool/queries'; // Adjusted import for JavaScript
 const bcrypt = require("bcryptjs");
 const app = express();
 const assetsPath = path.join(__dirname, "public");
@@ -37,9 +38,12 @@ passport.use(new localStrategy((username, password, done) => __awaiter(void 0, v
         if (!user) {
             return done(null, false, { message: "Incorrect username." });
         }
+        console.log('am I going here?');
+        console.log('am I going here?');
         return done(null, user);
     }
     catch (error) {
+        console.log('sdlfkj');
         return done(error);
     }
 })));
