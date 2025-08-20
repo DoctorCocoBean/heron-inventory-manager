@@ -83,7 +83,7 @@ indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) =>
 {
     let username = req.user ? req.user.username : "Guest";
     var metaData            = await db.calculateItemsMetaData();
-        metaData.totalValue = convertNumToString(metaData.totalValue);
+        metaData.totalValue = metaData.totalValue;
     res.render("dashboard", { metaData, user: username });
 });
 
@@ -151,7 +151,7 @@ indexRouter.get("/items", ensureAuthenticated, async (req, res) =>
     
     const items               = await db.getAllItems();
     var   metaData            = await db.calculateItemsMetaData();
-          metaData.totalValue = convertNumToString(metaData.totalValue);
+          metaData.totalValue = metaData.totalValue;
 
     res.render("items", { user: username, items: items, metaData: metaData });
 });
@@ -176,7 +176,7 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
 {
     try
     {
-        const item = await db.getItemById(req.params.itemId);
+        const item = await db.getItemById(Number(req.params.itemId));
         res.send(item);
     } 
     catch (error) 
@@ -630,7 +630,7 @@ indexRouter.delete('/allItems', async (req, res) =>
 
 indexRouter.post('/logActivity', async (req, res) =>
 {
-    await db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
+    await db.logActivity(req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 });
 

@@ -63,7 +63,7 @@ indexRouter.post("/log-in", passport.authenticate('local', {
 indexRouter.get("/dashboard", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
     var metaData = yield db.calculateItemsMetaData();
-    metaData.totalValue = convertNumToString(metaData.totalValue);
+    metaData.totalValue = metaData.totalValue;
     res.render("dashboard", { metaData, user: username });
 }));
 indexRouter.get("/lowstock", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -112,7 +112,7 @@ indexRouter.get("/items", ensureAuthenticated, (req, res) => __awaiter(void 0, v
     let username = req.user ? req.user.username : "Guest";
     const items = yield db.getAllItems();
     var metaData = yield db.calculateItemsMetaData();
-    metaData.totalValue = convertNumToString(metaData.totalValue);
+    metaData.totalValue = metaData.totalValue;
     res.render("items", { user: username, items: items, metaData: metaData });
 }));
 indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -127,7 +127,7 @@ indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, fu
 }));
 indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const item = yield db.getItemById(req.params.itemId);
+        const item = yield db.getItemById(Number(req.params.itemId));
         res.send(item);
     }
     catch (error) {
@@ -396,7 +396,7 @@ indexRouter.delete('/allItems', (req, res) => __awaiter(void 0, void 0, void 0, 
     res.redirect("/");
 }));
 indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.logActivity(req.body.type, req.body.itemId, req.body.oldValue, req.body.newValue);
+    yield db.logActivity(req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 }));
 indexRouter.get("/activityLog", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {

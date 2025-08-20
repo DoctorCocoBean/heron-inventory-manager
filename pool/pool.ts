@@ -1,12 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const pg_1 = require("pg");
+import { Pool } from 'pg';
+
 const connectionString = "postgresql://postgres.aqvjlyigrkfikzkfomza:wCBrkihVgfbs9PGV@aws-0-us-east-2.pooler.supabase.com:5432/postgres";
-const userPool = new pg_1.Pool({
-    connectionString,
+const userPool = new Pool({
+   connectionString,
 });
-const guestPool = new pg_1.Pool({
+
+const guestPool = new Pool({
     connectionString: "postgresql://postgres.jfwwkjxxzrucksryojyg:kerm7pig@aws-1-us-east-2.pooler.supabase.com:5432/postgres",
 });
-exports.default = userPool;
-//# sourceMappingURL=pool.js.map
+
+export default userPool;

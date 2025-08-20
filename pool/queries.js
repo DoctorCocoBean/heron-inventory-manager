@@ -1,4 +1,5 @@
-const pool = require("./pool");
+// const pool = require("./pool");
+const pool = require("./pool").default;
 
 
 async function getAllItems() {
