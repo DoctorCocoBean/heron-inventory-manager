@@ -339,20 +339,11 @@ function addItem() {
             const barcode = getHTMLInputById('barcodeInput').value;
             const notes = getHTMLInputById('notesInput').value;
             const tags = getHTMLInputById('tagsInput').value;
-            // Get userid
-            const userIdRequest = new Request(`/api/userid`, {
-                method: "GET",
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const userIdResponse = yield fetch(userIdRequest);
-            const userIdData = yield userIdResponse.json();
-            const userid = userIdData.userid;
-            console.log(userid);
             const request = new Request(`/api/item`, {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    userid: userid,
+                    userid: yield getUserId(),
                     name: name,
                     quantity: quantity,
                     minimumLevel: minimumLevel,
@@ -387,6 +378,7 @@ function deleteItem(itemId) {
             method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                userid: yield getUserId(),
                 itemId: itemId,
             }),
         });
@@ -403,10 +395,11 @@ function deleteItem(itemId) {
 }
 function deleteSelectedItems() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`/items`, {
+        const request = new Request(`/api/items`, {
             method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                userid: yield getUserId(),
                 items: selectedItems,
             }),
         });
@@ -474,7 +467,7 @@ function getItemById(itemId) {
 }
 function updateItem(itemData) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('upate item');
+        console.log('update item');
         const item = yield getItemById(itemData.itemId);
         const request = new Request(`/api/item`, {
             method: "PUT",
@@ -1355,6 +1348,23 @@ function undoCommand() {
             }, 100);
             showPopupMessage(data);
         });
+    });
+}
+function getUserId() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const request = new Request(`/api/userid`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const response = yield fetch(request);
+        if (response.ok) {
+            const data = yield response.json();
+            return data.userid;
+        }
+        else {
+            console.error('Failed to get user ID');
+            return null;
+        }
     });
 }
 //# sourceMappingURL=inventoryManager.js.map

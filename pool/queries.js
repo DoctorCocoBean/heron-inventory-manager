@@ -23,8 +23,13 @@ async function getAllLowStockItems(userid)
     return lowStockItems;
 }
 
-async function getItemById(id) {
-    const { rows } = await pool.query(`SELECT * FROM items WHERE "id" = ${id}`);
+async function getItemByRowId(userId, rowId) {
+    const { rows } = await pool.query(
+        `SELECT * FROM items
+         WHERE "id" = $1
+         AND "userid" = $2`,
+        [rowId, userId]
+    );
     return rows;
 }
 
@@ -90,8 +95,6 @@ async function addItem(userid, name, quantity, minLevel, price, value, barcode, 
         tags = "";
     }
 
-    console.log('item name is', name);
-
     const SQL = `
         INSERT INTO items (name, quantity, "minimumLevel", price, value, barcode, notes, tags, userid)
         VALUES ('${name}', '${quantity}', '${minLevel}', '${price}', '${value}', '${barcode}', '${notes}', '${tags}', '${userid}');
@@ -105,37 +108,37 @@ async function addItem(userid, name, quantity, minLevel, price, value, barcode, 
     }
 }
 
-async function deleteItem(itemId) 
+async function deleteItem(userId,itemId) 
 {
     const SQL = `
-    DELETE FROM items WHERE id = ${itemId};
+        DELETE FROM items WHERE id = ${itemId} AND userid = ${userId};
     `;
 
     await pool.query(SQL);
 }
 
-async function deleteArrayOfItems(items)
+async function deleteArrayOfItems(userId, items)
 {
     let SQL;
     for (i=0; i<items.length; i++) 
     {
         console.log('deleting', items[i]);
         
-        const SQL = `
+        const SQL                      = `
             DELETE FROM items WHERE id = ${items[i]};
         `;
         await pool.query(SQL);
     }
 }
 
-async function updateItemOrderedStatus(itemId, stockOrdered)
+async function updateItemOrderedStatus(userid, itemId, stockOrdered)
 {
     try 
     {
         const SQL = `
             UPDATE items
-            SET "stockOrdered" = ${stockOrdered} 
-            WHERE id = ${ itemId };
+            SET "stockOrdered" = ${stockOrdered}
+            WHERE id = ${itemId} AND userid = ${userid};
         `;
 
         await pool.query(SQL);
@@ -145,14 +148,14 @@ async function updateItemOrderedStatus(itemId, stockOrdered)
     }
 }
 
-async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
+async function updateItem(userId, rowId, name, itemQuantity, itemMinQuantity, itemPrice, itemValue, itemBarcode, 
                           itemNotes, itemTags, stockOrdered)
 {
     if (itemQuantity < 0) {
         itemQuantity = 0;
     }
 
-    const SQL = `
+    const SQL              = `
         UPDATE items
         SET name           = '${ name }', 
         quantity           = '${ itemQuantity }',
@@ -163,7 +166,7 @@ async function updateItem(itemIndex, name, itemQuantity, itemMinQuantity, itemPr
         "notes"            = '${ itemNotes }',
         "tags"             = '${ itemTags }',
         "stockOrdered"     =  ${stockOrdered}
-        WHERE id = ${ itemIndex };
+        WHERE id           =  ${ rowId } AND userid = ${ userId };
    `;
 
    await pool.query(SQL);
@@ -365,7 +368,7 @@ module.exports = {
     updateItemOrderedStatus,
     searchForItem,
     searchForLowStockItem,
-    getItemById,
+    getItemByRowId,
     deleteAllItems,
     backupItemsTable,
     overwriteItemsTableWithBackup,

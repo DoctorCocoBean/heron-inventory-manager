@@ -85,9 +85,8 @@ indexRouter.get("/transactionReport", ensureAuthenticated, (req, res) => __await
     res.render("transactionReport", { user: username });
 }));
 indexRouter.get("/api/lowStockItems", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('get low stock');
-    const allItems = yield db.getAllItems();
-    var metaData = yield db.calculateItemsMetaData();
+    const allItems = yield db.getAllItems(userId(req));
+    var metaData = yield db.calculateItemsMetaData(userId(req));
     var lowItems = [];
     // Calculate low stock here
     for (let i = 0; i < allItems.length; i++) {
@@ -116,7 +115,7 @@ indexRouter.get("/items", ensureAuthenticated, (req, res) => __awaiter(void 0, v
     res.render("items", { user: username, metaData: metaData });
 }));
 indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.deleteArrayOfItems(req.body.items);
+    yield db.deleteArrayOfItems(userId(req), req.body.items);
     res.send();
 }));
 indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -128,7 +127,7 @@ indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, fu
 }));
 indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const item = yield db.getItemById(Number(req.params.itemId));
+        const item = yield db.getItemByRowId(userId(req), Number(req.params.itemId));
         res.send(item);
     }
     catch (error) {
@@ -154,7 +153,7 @@ indexRouter.put("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, fun
     console.log('updating item 2');
     const itemId = Number(req.body.id);
     const value = Number(req.body.quantity) * Number(req.body.price);
-    const oldItem = yield db.getItemById(itemId);
+    const oldItem = yield db.getItemByRowId(userId(req), itemId);
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null)
         stockOrdered = false;
@@ -188,20 +187,20 @@ indexRouter.put("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.status(500).json({ message: "Barcode already exists for another item." });
         return;
     }
-    yield db.updateItem(itemId, req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags, stockOrdered);
+    yield db.updateItem(userId(req), itemId, req.body.name, req.body.quantity, req.body.minimumLevel, req.body.price, value, req.body.barcode, req.body.notes, req.body.tags, stockOrdered);
     res.send();
 }));
 indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const itemId = Number(req.body.itemId);
-        const item = yield db.getItemById(itemId);
+        const item = yield db.getItemByRowId(userId(req), itemId);
         const oldName = String(item[0].name);
         const newName = String(req.body.name);
         console.log(`Editing is name from ${oldName} to ${newName}`);
         if (oldName != newName) {
             yield db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
         }
-        yield db.updateItem(itemId, newName, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        yield db.updateItem(itemId, userId(req), newName, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
     }
     catch (error) {
@@ -214,7 +213,7 @@ indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, vo
     console.log('changing quantity');
     try {
         const itemId = Number(req.body.itemId);
-        const oldItem = yield db.getItemById(itemId);
+        const oldItem = yield db.getItemByRowId(userId(req), itemId);
         const newQuantity = Number(oldItem[0].quantity) + Number(req.body.quantityChange);
         const value = Number(oldItem[0].price) * newQuantity;
         let stockOrdered = oldItem[0].stockOrdered;
@@ -230,7 +229,7 @@ indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, vo
         if (req.body.itemQuantity > req.body.itemMinQuantity) {
             stockOrdered = false;
         }
-        yield db.updateItem(itemId, oldItem[0].name, String(newQuantity), oldItem[0].minimumLevel, oldItem[0].price, value, oldItem[0].barcode, oldItem[0].notes, oldItem[0].tags, stockOrdered);
+        yield db.updateItem(userId(req), itemId, oldItem[0].name, String(newQuantity), oldItem[0].minimumLevel, oldItem[0].price, value, oldItem[0].barcode, oldItem[0].notes, oldItem[0].tags, stockOrdered);
         res.send();
     }
     catch (error) {
@@ -241,14 +240,14 @@ indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, vo
 indexRouter.put("/api/item/minimumLevel", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const itemId = Number(req.body.itemId);
-        const item = yield db.getItemById(itemId);
+        const item = yield db.getItemByRowId(userId(req), itemId);
         const oldMinLevel = item[0].minimumLevel;
         const newMinLevel = req.body.minimumLevel;
         console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
         if (oldMinLevel != newMinLevel) {
             yield db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
         }
-        yield db.updateItem(itemId, item[0].name, item[0].quantity, newMinLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, newMinLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
     }
     catch (error) {
@@ -260,7 +259,7 @@ indexRouter.put("/api/item/minimumLevel", (req, res) => __awaiter(void 0, void 0
 indexRouter.put("/api/item/price", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const itemId = Number(req.body.itemId);
-        const item = yield db.getItemById(itemId);
+        const item = yield db.getItemByRowId(userId(req), itemId);
         const oldPrice = item[0].price;
         const newPrice = req.body.price;
         const value = Number(newPrice) * Number(item[0].quantity);
@@ -268,7 +267,7 @@ indexRouter.put("/api/item/price", (req, res) => __awaiter(void 0, void 0, void 
         if (oldPrice != newPrice) {
             yield db.logActivity('price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
         }
-        yield db.updateItem(itemId, item[0].name, item[0].quantity, item[0].minimumLevel, newPrice, value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, item[0].minimumLevel, newPrice, value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
     }
     catch (error) {
@@ -280,14 +279,14 @@ indexRouter.put("/api/item/price", (req, res) => __awaiter(void 0, void 0, void 
 indexRouter.put("/api/item/barcode", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const itemId = Number(req.body.itemId);
-        const item = yield db.getItemById(itemId);
+        const item = yield db.getItemByRowId(userId(req), itemId);
         const oldBarcode = item[0].barcode;
         const newBarcode = req.body.barcode;
         console.log(`Editing barcode from ${oldBarcode} to ${newBarcode}`);
         if (oldBarcode != newBarcode) {
             yield db.logActivity('barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
         }
-        yield db.updateItem(itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, newBarcode, item[0].notes, item[0].tags, item[0].stockOrdered);
+        yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, newBarcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
     }
     catch (error) {
@@ -299,14 +298,14 @@ indexRouter.put("/api/item/barcode", (req, res) => __awaiter(void 0, void 0, voi
 indexRouter.put("/api/item/notes", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const itemId = Number(req.body.itemId);
-        const item = yield db.getItemById(itemId);
+        const item = yield db.getItemByRowId(userId(req), itemId);
         const oldNotes = item[0].notes;
         const newNotes = req.body.notes;
         console.log(`Editing notes from ${oldNotes} to ${newNotes}`);
         if (oldNotes != newNotes) {
             yield db.logActivity('notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
         }
-        yield db.updateItem(itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, newNotes, item[0].tags, item[0].stockOrdered);
+        yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, newNotes, item[0].tags, item[0].stockOrdered);
         res.send();
     }
     catch (error) {
@@ -342,11 +341,11 @@ indexRouter.post("/api/item", [
 }));
 indexRouter.delete("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('deleting', req.body.items);
-    yield db.deleteItem(req.body.itemId);
+    yield db.deleteItem(userId(req), req.body.itemId);
     res.send();
 }));
 indexRouter.put("/api/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
+    yield db.updateItemOrderedStatus(userId(req), req.body.itemId, req.body.stockOrdered);
     res.send();
 }));
 indexRouter.post("/uploadCSV", (req, res) => {
@@ -421,7 +420,7 @@ indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, 
         const log = activtyLog[0];
         switch (log.type) {
             case 'quantity':
-                undoQuantityChange(log.itemId, log.oldValue, log.newValue);
+                yield undoQuantityChange(userId(req), log.itemId, log.oldValue, log.newValue);
                 break;
             case 'delete all':
                 console.log('undo delete all');
@@ -435,10 +434,10 @@ indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, 
     }
     res.send('Undo successful');
 }));
-function undoQuantityChange(itemId, oldQuantity, newQuantity) {
+function undoQuantityChange(userId, itemId, oldQuantity, newQuantity) {
     return __awaiter(this, void 0, void 0, function* () {
         // Get item
-        const item = (yield db.getItemById(itemId))[0];
+        const item = (yield db.getItemByRowId(userId, itemId))[0];
         const value = Number(oldQuantity) * Number(item.price);
         const quantityChange = newQuantity - oldQuantity;
         const newValue = Number(item.quantity) - quantityChange;
@@ -449,7 +448,7 @@ function undoQuantityChange(itemId, oldQuantity, newQuantity) {
         if (item.quantity > item.minimumLevel) {
             stockOrdered = false;
         }
-        yield db.updateItem(itemId, item.name, newValue, item.minimumLevel, item.price, value, item.barcode, item.notes, item.tags, stockOrdered);
+        yield db.updateItem(userId, itemId, item.name, newValue, item.minimumLevel, item.price, value, item.barcode, item.notes, item.tags, stockOrdered);
     });
 }
 indexRouter.get("/api/itemsMetaData", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -476,6 +475,9 @@ function convertNumToString(num) {
     }
     var result = numWithCommas + afterDecimalStr;
     return result;
+}
+function userId(req) {
+    return req.user ? req.user.id : 1;
 }
 exports.default = indexRouter;
 //# sourceMappingURL=indexRouter.js.map

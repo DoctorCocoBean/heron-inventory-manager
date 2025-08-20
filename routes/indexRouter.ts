@@ -115,10 +115,8 @@ indexRouter.get("/transactionReport", ensureAuthenticated, async (req, res) =>
 
 indexRouter.get("/api/lowStockItems", async (req, res) => 
 {
-    console.log('get low stock');
-    
-    const allItems = await db.getAllItems();
-    var metaData = await db.calculateItemsMetaData();    
+    const allItems = await db.getAllItems(userId(req));
+    var metaData = await db.calculateItemsMetaData(userId(req));
     var lowItems = [];
 
     // Calculate low stock here
@@ -160,7 +158,7 @@ indexRouter.get("/items", ensureAuthenticated, async (req, res) =>
 
 indexRouter.delete("/api/items", async (req, res) =>
 {
-    await db.deleteArrayOfItems(req.body.items);
+    await db.deleteArrayOfItems(userId(req), req.body.items);
     res.send();
 });
 
@@ -180,7 +178,7 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
 {
     try
     {
-        const item = await db.getItemById(Number(req.params.itemId));
+        const item = await db.getItemByRowId(userId(req), Number(req.params.itemId));
         res.send(item);
     } 
     catch (error) 
@@ -216,7 +214,7 @@ indexRouter.put("/api/item", async (req, res) =>
     
     const itemId  = Number(req.body.id);
     const value   = Number(req.body.quantity) * Number(req.body.price);
-    const oldItem = await db.getItemById(itemId);
+    const oldItem = await db.getItemByRowId(userId(req), itemId);
 
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null) 
@@ -259,7 +257,9 @@ indexRouter.put("/api/item", async (req, res) =>
         return;
     }
 
-    await db.updateItem(itemId,
+    await db.updateItem(
+                        userId(req),
+                        itemId,
                         req.body.name,
                         req.body.quantity,
                         req.body.minimumLevel,
@@ -277,7 +277,7 @@ indexRouter.put("/api/item/name", async (req, res) =>
 {
     try {
         const itemId  = Number(req.body.itemId);
-        const item = await db.getItemById(itemId);
+        const item = await db.getItemByRowId(userId(req), itemId);
         const oldName = String(item[0].name);
         const newName = String(req.body.name);
 
@@ -289,6 +289,7 @@ indexRouter.put("/api/item/name", async (req, res) =>
         }
 
         await db.updateItem(itemId,
+                            userId(req),
                             newName,
                             item[0].quantity,
                             item[0].minimumLevel,
@@ -315,7 +316,7 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
     console.log('changing quantity');
     try {
         const itemId  = Number(req.body.itemId);
-        const oldItem = await db.getItemById(itemId);
+        const oldItem = await db.getItemByRowId(userId(req), itemId);
         const newQuantity = Number(oldItem[0].quantity) + Number(req.body.quantityChange);
         const value   = Number(oldItem[0].price) * newQuantity;
 
@@ -337,7 +338,9 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
             stockOrdered = false;    
         }
 
-        await db.updateItem(itemId,
+        await db.updateItem(
+                            userId(req),    
+                            itemId,
                             oldItem[0].name,
                             String(newQuantity),
                             oldItem[0].minimumLevel,
@@ -362,7 +365,7 @@ indexRouter.put("/api/item/minimumLevel", async (req, res) =>
 {
     try {
         const itemId  = Number(req.body.itemId);
-        const item = await db.getItemById(itemId);
+        const item = await db.getItemByRowId(userId(req), itemId);
         const oldMinLevel = item[0].minimumLevel;
         const newMinLevel = req.body.minimumLevel;
 
@@ -373,7 +376,9 @@ indexRouter.put("/api/item/minimumLevel", async (req, res) =>
             await db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
         }
 
-        await db.updateItem(itemId,
+        await db.updateItem(
+                            userId(req),
+                            itemId,
                             item[0].name,
                             item[0].quantity,
                             newMinLevel,
@@ -399,7 +404,7 @@ indexRouter.put("/api/item/price", async (req, res) =>
 {
     try {
         const itemId  = Number(req.body.itemId);
-        const item = await db.getItemById(itemId);
+        const item = await db.getItemByRowId(userId(req), itemId);
         const oldPrice = item[0].price;
         const newPrice = req.body.price;
         const value = Number(newPrice) * Number(item[0].quantity);
@@ -411,7 +416,9 @@ indexRouter.put("/api/item/price", async (req, res) =>
             await db.logActivity('price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
         }
 
-        await db.updateItem(itemId,
+        await db.updateItem(
+                            userId(req),
+                            itemId,
                             item[0].name,
                             item[0].quantity,
                             item[0].minimumLevel,
@@ -437,7 +444,7 @@ indexRouter.put("/api/item/barcode", async (req, res) =>
 {
     try {
         const itemId = Number(req.body.itemId);
-        const item = await db.getItemById(itemId);
+        const item = await db.getItemByRowId(userId(req), itemId);
         const oldBarcode = item[0].barcode;
         const newBarcode = req.body.barcode;
 
@@ -448,7 +455,9 @@ indexRouter.put("/api/item/barcode", async (req, res) =>
             await db.logActivity('barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
         }
 
-        await db.updateItem(itemId,
+        await db.updateItem(
+                            userId(req),
+                            itemId,
                             item[0].name,
                             item[0].quantity,
                             item[0].minimumLevel,
@@ -474,7 +483,7 @@ indexRouter.put("/api/item/notes", async (req, res) =>
 {
     try {
         const itemId = Number(req.body.itemId);
-        const item = await db.getItemById(itemId);
+        const item = await db.getItemByRowId(userId(req), itemId);
         const oldNotes = item[0].notes;
         const newNotes = req.body.notes;
 
@@ -485,7 +494,9 @@ indexRouter.put("/api/item/notes", async (req, res) =>
             await db.logActivity('notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
         }
 
-        await db.updateItem(itemId,
+        await db.updateItem(
+                            userId(req),
+                            itemId,
                             item[0].name,
                             item[0].quantity,
                             item[0].minimumLevel,
@@ -550,13 +561,13 @@ indexRouter.delete("/api/item", async (req, res) =>
 {
 	console.log('deleting', req.body.items);
 
-    await db.deleteItem(req.body.itemId);
+    await db.deleteItem(userId(req), req.body.itemId);
     res.send();
 });
 
 indexRouter.put("/api/itemOrderedStatus", async (req, res) =>
 {
-    await db.updateItemOrderedStatus(req.body.itemId, req.body.stockOrdered);
+    await db.updateItemOrderedStatus(userId(req),req.body.itemId, req.body.stockOrdered);
     res.send();
 });
 
@@ -670,7 +681,7 @@ indexRouter.get("/undoCommand", async (req, res) =>
         switch (log.type) 
         {
             case 'quantity':
-                undoQuantityChange(log.itemId, log.oldValue, log.newValue)
+                await undoQuantityChange(userId(req), log.itemId, log.oldValue, log.newValue);
                 break;
             case 'delete all':
                 console.log('undo delete all');
@@ -686,10 +697,10 @@ indexRouter.get("/undoCommand", async (req, res) =>
      res.send('Undo successful');
 });
 
-async function undoQuantityChange(itemId, oldQuantity, newQuantity)
+async function undoQuantityChange(userId, itemId, oldQuantity, newQuantity)
 {
     // Get item
-    const item = (await db.getItemById(itemId))[0];
+    const item = (await db.getItemByRowId(userId, itemId))[0];
     const value   = Number(oldQuantity) * Number(item.price);
     const quantityChange = newQuantity - oldQuantity;
     const newValue = Number(item.quantity) - quantityChange;
@@ -703,7 +714,9 @@ async function undoQuantityChange(itemId, oldQuantity, newQuantity)
         stockOrdered = false;    
     }
 
-    await db.updateItem(itemId,
+    await db.updateItem(
+                        userId,     
+                        itemId,
                         item.name,
                         newValue,
                         item.minimumLevel,
@@ -748,4 +761,8 @@ function convertNumToString(num)
     return result;
 }
 
+function userId(req: any) : number
+{
+    return req.user ? req.user.id : 1;
+}
 export default indexRouter;

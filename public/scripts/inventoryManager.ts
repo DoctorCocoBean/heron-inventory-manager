@@ -382,23 +382,11 @@ async function addItem()
         const notes         = getHTMLInputById('notesInput').value;
         const tags          = getHTMLInputById('tagsInput').value;
 
-        // Get userid
-        const userIdRequest = new Request(`/api/userid`, {
-            method: "GET",
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        const userIdResponse = await fetch(userIdRequest);
-        const userIdData = await userIdResponse.json();
-        const userid = userIdData.userid;
-        console.log(userid);
-        
-
         const request = new Request(`/api/item`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                userid: userid,
+                userid: await getUserId(),
                 name: name,
                 quantity: quantity ,
                 minimumLevel: minimumLevel,
@@ -436,6 +424,7 @@ async function deleteItem(itemId: number)
         method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+            userid: await getUserId(),
             itemId: itemId,
         }),
     })
@@ -456,10 +445,11 @@ async function deleteItem(itemId: number)
 
 async function deleteSelectedItems()
 {
-    const request = new Request(`/items`, {
+    const request = new Request(`/api/items`, {
         method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+            userid: await getUserId(),
             items: selectedItems,
         }),
     })
@@ -537,7 +527,7 @@ async function getItemById(itemId)
 
 async function updateItem(itemData: Item)
 {
-    console.log('upate item');
+    console.log('update item');
     
     const item    = await getItemById(itemData.itemId);
     const request = new Request(`/api/item`, {
@@ -1582,4 +1572,21 @@ async function undoCommand()
         showPopupMessage(data);
     });
 
+}
+
+async function getUserId() 
+{
+    const request = new Request(`/api/userid`, {
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    const response = await fetch(request);
+    if (response.ok) {
+        const data = await response.json();
+        return data.userid;
+    } else {
+        console.error('Failed to get user ID');
+        return null;
+    }
 }
