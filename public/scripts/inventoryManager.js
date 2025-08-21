@@ -717,14 +717,13 @@ function changeRowStateToEditQuantity(itemId) {
         quantityInput.addEventListener('keydown', function (event) {
             if (event.key == 'Enter') {
                 const input = getHTMLInputById('tempInput');
-                const inputValue = Number(input.value);
-                if (!Number.isInteger(inputValue)) {
+                const result = calculateInputField(input.value);
+                if (!Number.isInteger(result)) {
                     showPopupMessage('Error: text input contains invalid input');
                     console.log('Error: text input contains invalid input');
                     input.value = initialValue;
                     return;
                 }
-                const result = calculateInputField(input.value);
                 isEditingRow = false;
                 if (result == null)
                     input.value = initialValue;

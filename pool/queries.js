@@ -30,7 +30,6 @@ exports.getActivityLog = getActivityLog;
 exports.addUser = addUser;
 exports.getUserByUsername = getUserByUsername;
 exports.getUserById = getUserById;
-// const pool = require("./pool");
 const pool = require("./pool").default;
 function getAllItems(userid) {
     return __awaiter(this, void 0, void 0, function* () {

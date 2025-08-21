@@ -831,16 +831,15 @@ async function changeRowStateToEditQuantity(itemId)
         if (event.key == 'Enter') 
         {
             const input  = getHTMLInputById('tempInput');
-            const inputValue: number = Number(input.value);
+            const result = calculateInputField(input.value);
 
-            if (!Number.isInteger(inputValue)) {
+            if (!Number.isInteger(result)) {
                 showPopupMessage('Error: text input contains invalid input');
                 console.log('Error: text input contains invalid input');
                 input.value = initialValue;
                 return;
             }
 
-            const result = calculateInputField(input.value);
             isEditingRow = false; 
 
             if (result == null)
