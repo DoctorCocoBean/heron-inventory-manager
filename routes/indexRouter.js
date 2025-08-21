@@ -108,23 +108,35 @@ indexRouter.get("/api/lowStockitem/:itemName", (req, res) => __awaiter(void 0, v
     }
     res.send(items);
 }));
-indexRouter.get("/items", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let username = req.user ? req.user.username : "Guest";
-    const userid = req.user ? req.user.id : 1;
-    var metaData = yield db.calculateItemsMetaData(userid);
-    metaData.totalValue = metaData.totalValue;
-    res.render("items", { user: username, metaData: metaData });
+indexRouter.get("/items", ensureAuthenticated, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let username = req.user ? req.user.username : "Guest";
+        const userid = userId(req);
+        var metaData = yield db.calculateItemsMetaData(userid);
+        metaData.totalValue = metaData.totalValue;
+        res.render("items", { user: username, metaData: metaData });
+    }
+    catch (error) {
+        console.error("Error loading items page:", error);
+        next(new Error("Error loading items page: " + error.message));
+    }
 }));
 indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.deleteArrayOfItems(userId(req), req.body.items);
     res.send();
 }));
-indexRouter.get("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('loading items');
-    console.log('user is ', req.user ? req.user.username : "Guest");
-    console.log('userid ', req.user.id);
-    const items = yield db.getAllItems();
-    res.send(items);
+indexRouter.get("/api/items", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('loading items');
+        console.log('user is ', req.user ? req.user.username : "Guest");
+        console.log('userid ', req.user.id);
+        const items = yield db.getAllItems();
+        res.send(items);
+    }
+    catch (error) {
+        console.error('Error fetching items:', error);
+        next(new Error('Error fetching items' + error.message));
+    }
 }));
 indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -160,7 +172,7 @@ indexRouter.put("/api/item", (req, res) => __awaiter(void 0, void 0, void 0, fun
         stockOrdered = false;
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.quantity) {
-        yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
+        yield db.logActivity(userId(req), 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.quantity;
     }
@@ -223,7 +235,7 @@ indexRouter.put("/api/item/quantity", (req, res) => __awaiter(void 0, void 0, vo
         console.log(`edit amount  is: ${req.body.quantityChange}`);
         // Log activity if quantity has changed
         if (oldItem[0].quantity != newQuantity) {
-            yield db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
+            yield db.logActivity(userId(req), 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
             console.log(`logging ${oldItem[0].name}`);
         }
         // Reset stock ordered status if quantity is about minimum level
@@ -246,7 +258,7 @@ indexRouter.put("/api/item/minimumLevel", (req, res) => __awaiter(void 0, void 0
         const newMinLevel = req.body.minimumLevel;
         console.log(`Editing minimum level from ${oldMinLevel} to ${newMinLevel}`);
         if (oldMinLevel != newMinLevel) {
-            yield db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+            yield db.logActivity(userId(req), 'Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
         }
         yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, newMinLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
@@ -266,7 +278,7 @@ indexRouter.put("/api/item/price", (req, res) => __awaiter(void 0, void 0, void 
         const value = Number(newPrice) * Number(item[0].quantity);
         console.log(`Editing price from ${oldPrice} to ${newPrice}`);
         if (oldPrice != newPrice) {
-            yield db.logActivity('price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
+            yield db.logActivity(userId(req), 'price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
         }
         yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, item[0].minimumLevel, newPrice, value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
@@ -285,7 +297,7 @@ indexRouter.put("/api/item/barcode", (req, res) => __awaiter(void 0, void 0, voi
         const newBarcode = req.body.barcode;
         console.log(`Editing barcode from ${oldBarcode} to ${newBarcode}`);
         if (oldBarcode != newBarcode) {
-            yield db.logActivity('barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
+            yield db.logActivity(userId(req), 'barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
         }
         yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, newBarcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
@@ -304,7 +316,7 @@ indexRouter.put("/api/item/notes", (req, res) => __awaiter(void 0, void 0, void 
         const newNotes = req.body.notes;
         console.log(`Editing notes from ${oldNotes} to ${newNotes}`);
         if (oldNotes != newNotes) {
-            yield db.logActivity('notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
+            yield db.logActivity(userId(req), 'notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
         }
         yield db.updateItem(userId(req), itemId, item[0].name, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, newNotes, item[0].tags, item[0].stockOrdered);
         res.send();
@@ -352,14 +364,14 @@ indexRouter.put("/api/itemOrderedStatus", (req, res) => __awaiter(void 0, void 0
 indexRouter.post("/uploadCSV", (req, res) => {
     console.log('Parsing... ');
     try {
+        console.log('adding tiem with userid', userId(req));
         const data = papa.parse(req.body.csvData, {
             header: true,
             dynamicTyping: true,
             complete: function (results) {
                 console.log('Parsed csv data: ');
                 for (let i = 1; i < results.data.length; i++) {
-                    console.log(results.data[i]['Entry Name'], results.data[i]['Quantity'], results.data[i]['Min Level'], results.data[i]['Price'], results.data[i]['Value'], results.data[i]['Notes'], results.data[i]['Tags'], results.data[i]['Barcode/QR2-Data']);
-                    db.addItem(results.data[i]['Entry Name'], results.data[i]['Quantity'], results.data[i]['Min Level'], results.data[i]['Price'], results.data[i]['Value'], results.data[i]['Barcode/QR2-Data'], results.data[i]['Notes'], results.data[i]['Tags']);
+                    db.addItem(userId(req), results.data[i]['Entry Name'], results.data[i]['Quantity'], results.data[i]['Min Level'], results.data[i]['Price'], results.data[i]['Value'], results.data[i]['Barcode/QR2-Data'], results.data[i]['Notes'], results.data[i]['Tags']);
                 }
             }
         });
@@ -397,35 +409,43 @@ indexRouter.get("/downloadCSV", (req, res) => __awaiter(void 0, void 0, void 0, 
     }
     res.redirect("/");
 }));
-indexRouter.delete('/allItems', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.backupItemsTable();
-    yield db.deleteAllItems();
-    yield db.logActivity('delete all', null, null, null, null);
-    res.redirect("/");
+indexRouter.delete('/allItems', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userid = userId(req);
+        yield db.backupItemsTable(userid);
+        yield db.deleteAllItems(userid);
+        yield db.logActivity(userid, 'delete all', null, null, null, null);
+        res.send();
+    }
+    catch (error) {
+        console.log(`Error deleting all items: ${error}`);
+        next(new Error(`Error deleting all items: ${error}`));
+    }
 }));
 indexRouter.post('/logActivity', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield db.logActivity(req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
+    yield db.logActivity(userId(req), req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 }));
 indexRouter.get("/activityLog", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
-    res.render("activityLog", { user: username });
+    res.render("activityLog", { user: username, userid: userId(req) });
 }));
 indexRouter.get('/api/activityLog', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const rows = yield db.getActivityLog();
+    const rows = yield db.getActivityLog(userId(req));
     res.send(rows);
 }));
-indexRouter.get("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.post("/undoCommand", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const activtyLog = yield db.getActivityLog();
+        const activtyLog = yield db.getActivityLog(userId(req));
         const log = activtyLog[0];
+        console.log('Undoing action:', log);
         switch (log.type) {
             case 'quantity':
                 yield undoQuantityChange(userId(req), log.itemId, log.oldValue, log.newValue);
                 break;
             case 'delete all':
                 console.log('undo delete all');
-                undoDeleteAll();
+                yield undoDeleteAll(userId(req));
                 break;
         }
         yield db.removeActivityLogById(log.id);
@@ -457,9 +477,9 @@ indexRouter.get("/api/itemsMetaData", (req, res) => __awaiter(void 0, void 0, vo
     var metaData = yield db.calculateItemsMetaData();
     res.send(metaData);
 }));
-function undoDeleteAll() {
+function undoDeleteAll(userid) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield db.overwriteItemsTableWithBackup();
+        yield db.overwriteItemsTableWithBackup(userid);
     });
 }
 function convertNumToString(num) {

@@ -429,7 +429,7 @@ function showDeleteAllPrompt() {
                     <br>
                     <div class="d-flex flex-row-reverse">
                         <div class="px-2">
-                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModel()" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModal()" data-dismiss="modal">Close</button>
                         </div>
                         <div class="px-2">
                             <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
@@ -445,11 +445,12 @@ function deleteAllItems() {
         const request = new Request(`/allItems`, {
             method: "DELETE",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}),
+            body: JSON.stringify({ userid: yield getUserId() }),
         });
         const response = yield fetch(request).then(() => {
             loadItemTable();
             showPopupMessage('Deleted all items');
+            closePopupModal();
         });
     });
 }
@@ -1122,6 +1123,7 @@ function uploadCSV() {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    userid: yield getUserId(),
                     csvData: fileData
                 }),
             });
@@ -1339,8 +1341,9 @@ function undoCommand() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('trying to undo command.');
         const request = new Request(`/undoCommand`, {
-            method: "GET",
-            headers: { 'Accept': 'text/plain' }
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: yield getUserId() })
         });
         const response = yield fetch(request);
         const data = response.text().then((data) => {

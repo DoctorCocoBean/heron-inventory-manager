@@ -147,15 +147,21 @@ indexRouter.get("/api/lowStockitem/:itemName", async (req, res) =>
     res.send(items);
 });
 
-indexRouter.get("/items", ensureAuthenticated, async (req, res) => 
+indexRouter.get("/items", ensureAuthenticated, async (req, res, next) => 
 {
-    let username = req.user ? req.user.username : "Guest";
-    const userid = req.user ? req.user.id : 1;
-    
-    var   metaData            = await db.calculateItemsMetaData(userid);
-          metaData.totalValue = metaData.totalValue;
+    try 
+    {
+        let username = req.user ? req.user.username : "Guest";
+        const userid = userId(req)
+        
+        var metaData            = await db.calculateItemsMetaData(userid);
+            metaData.totalValue = metaData.totalValue;
 
-    res.render("items", { user: username, metaData: metaData });
+            res.render("items", { user: username, metaData: metaData });
+    } catch (error) {
+        console.error("Error loading items page:", error);
+        next(new Error("Error loading items page: " + error.message));
+    }
 });
 
 indexRouter.delete("/api/items", async (req, res) =>
@@ -164,16 +170,21 @@ indexRouter.delete("/api/items", async (req, res) =>
     res.send();
 });
 
-indexRouter.get("/api/items", async (req, res) => 
+indexRouter.get("/api/items", async (req, res, next) => 
 {
-    console.log('loading items');
-    console.log('user is ', req.user ? req.user.username : "Guest");
-    console.log('userid ', req.user.id);
-    
+    try 
+    {
+        console.log('loading items');
+        console.log('user is ', req.user ? req.user.username : "Guest");
+        console.log('userid ', req.user.id);
+        
+        const items = await db.getAllItems();
 
-    const items = await db.getAllItems();
-
-    res.send(items);
+        res.send(items);
+    } catch (error) {
+        console.error('Error fetching items:', error);
+        next(new Error('Error fetching items' + error.message));
+    }
 });
 
 indexRouter.get("/api/item/:itemId", async (req, res) => 
@@ -225,7 +236,7 @@ indexRouter.put("/api/item", async (req, res) =>
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.quantity) 
     {
-        await db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
+        await db.logActivity(userId(req), 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
 
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.quantity;
@@ -254,7 +265,6 @@ indexRouter.put("/api/item", async (req, res) =>
     // If this items barcode is changing but the new barcode already exists, throw an error
     if (req.body.barcode != oldItem[0].barcode) {
         console.log('ran into error');
-        
         res.status(500).json({message: "Barcode already exists for another item."});
         return;
     }
@@ -331,7 +341,7 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
         // Log activity if quantity has changed
         if (oldItem[0].quantity != newQuantity) 
         {
-            await db.logActivity('quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
+            await db.logActivity(userId(req), 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
             console.log(`logging ${oldItem[0].name}`);
         }
 
@@ -375,7 +385,7 @@ indexRouter.put("/api/item/minimumLevel", async (req, res) =>
         
         if (oldMinLevel != newMinLevel) 
         {
-            await db.logActivity('Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+            await db.logActivity(userId(req), 'Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
         }
 
         await db.updateItem(
@@ -415,7 +425,7 @@ indexRouter.put("/api/item/price", async (req, res) =>
         
         if (oldPrice != newPrice) 
         {
-            await db.logActivity('price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
+            await db.logActivity(userId(req), 'price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
         }
 
         await db.updateItem(
@@ -454,7 +464,7 @@ indexRouter.put("/api/item/barcode", async (req, res) =>
         
         if (oldBarcode != newBarcode) 
         {
-            await db.logActivity('barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
+            await db.logActivity(userId(req), 'barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
         }
 
         await db.updateItem(
@@ -493,7 +503,7 @@ indexRouter.put("/api/item/notes", async (req, res) =>
         
         if (oldNotes != newNotes) 
         {
-            await db.logActivity('notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
+            await db.logActivity(userId(req), 'notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
         }
 
         await db.updateItem(
@@ -577,33 +587,32 @@ indexRouter.post("/uploadCSV", (req, res) =>
 {
     console.log('Parsing... ');
     
-    try {
-    const data = papa.parse(req.body.csvData, 
-    { 
-        header: true,
-        dynamicTyping: true,
-        complete: function(results) 
-        {
-            console.log('Parsed csv data: ');
-            for (let i = 1; i<results.data.length; i++) {
-                console.log(results.data[i]['Entry Name'], results.data[i]['Quantity'],
-                            results.data[i]['Min Level'], results.data[i]['Price'],
-                            results.data[i]['Value'], results.data[i]['Notes'], results.data[i]['Tags'],
-                            results.data[i]['Barcode/QR2-Data']
-                );
-
-                    db.addItem(results.data[i]['Entry Name'],
-                                    results.data[i]['Quantity'],
-                                    results.data[i]['Min Level'],
-                                    results.data[i]['Price'],
-                                    results.data[i]['Value'],
-                                    results.data[i]['Barcode/QR2-Data'],
-                                    results.data[i]['Notes'],
-                                    results.data[i]['Tags'],
-                                );
+    try 
+    {
+        console.log('adding tiem with userid', userId(req));
+        const data = papa.parse(req.body.csvData, 
+        { 
+            
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) 
+            {
+                console.log('Parsed csv data: ');
+                for (let i = 1; i<results.data.length; i++) {
+                        db.addItem(
+                                        userId(req),
+                                        results.data[i]['Entry Name'],
+                                        results.data[i]['Quantity'],
+                                        results.data[i]['Min Level'],
+                                        results.data[i]['Price'],
+                                        results.data[i]['Value'],
+                                        results.data[i]['Barcode/QR2-Data'],
+                                        results.data[i]['Notes'],
+                                        results.data[i]['Tags'],
+                                    );
+                }
             }
-        }
-    });
+        });
     }
     catch {
         console.log('Failed to upload csv');
@@ -648,38 +657,47 @@ indexRouter.get("/downloadCSV", async (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.delete('/allItems', async (req, res) =>
+indexRouter.delete('/allItems', async (req, res, next) =>
 {
-    await db.backupItemsTable();
-    await db.deleteAllItems();
-    await db.logActivity('delete all', null, null, null, null);
-    res.redirect("/");
+    try 
+    {
+        const userid = userId(req);
+        await db.backupItemsTable(userid);
+        await db.deleteAllItems(userid);
+        await db.logActivity(userid, 'delete all', null, null, null, null);
+        res.send();
+    } catch (error) {
+        console.log(`Error deleting all items: ${error}`);
+        next(new Error(`Error deleting all items: ${error}`));
+    }
 });
 
 indexRouter.post('/logActivity', async (req, res) =>
 {
-    await db.logActivity(req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
+    await db.logActivity(userId(req), req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
     res.redirect("/");
 });
 
 indexRouter.get("/activityLog", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
-    res.render("activityLog", { user: username});
+    res.render("activityLog", { user: username, userid: userId(req) });
 });
 
 indexRouter.get('/api/activityLog', async (req, res) =>
 {
-    const rows = await db.getActivityLog();
+    const rows = await db.getActivityLog(userId(req));
     res.send(rows)
 });
 
-indexRouter.get("/undoCommand", async (req, res) =>
+indexRouter.post("/undoCommand", async (req, res) =>
 {
     try {
-        const activtyLog = await db.getActivityLog();
+        const activtyLog = await db.getActivityLog(userId(req));
         const log = activtyLog[0];
 
+        console.log('Undoing action:', log);
+        
         switch (log.type) 
         {
             case 'quantity':
@@ -687,7 +705,7 @@ indexRouter.get("/undoCommand", async (req, res) =>
                 break;
             case 'delete all':
                 console.log('undo delete all');
-                undoDeleteAll();
+                await undoDeleteAll(userId(req));
                 break;
         }
 
@@ -738,9 +756,9 @@ indexRouter.get("/api/itemsMetaData", async (req, res) =>
     res.send(metaData);
 });
 
-async function undoDeleteAll()
+async function undoDeleteAll(userid)
 {
-    await db.overwriteItemsTableWithBackup();
+    await db.overwriteItemsTableWithBackup(userid);
 }
 
 function convertNumToString(num) 

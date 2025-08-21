@@ -483,7 +483,7 @@ function showDeleteAllPrompt()
                     <br>
                     <div class="d-flex flex-row-reverse">
                         <div class="px-2">
-                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModel()" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary inventoryBtn" onclick="closePopupModal()" data-dismiss="modal">Close</button>
                         </div>
                         <div class="px-2">
                             <button type="button" class="btn btn-primary inventoryBtn" onclick="deleteAllItems()">Confirm</button>
@@ -500,12 +500,13 @@ async function deleteAllItems()
     const request = new Request(`/allItems`, {
         method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ }),
+        body: JSON.stringify({ userid: await getUserId() }),
     })
 
     const response = await fetch(request).then(() => {
         loadItemTable();
         showPopupMessage('Deleted all items')
+        closePopupModal();
     });
 }
 
@@ -1310,6 +1311,7 @@ async function uploadCSV()
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
+                userid: await getUserId(),
                 csvData: fileData
             }),
         })
@@ -1560,8 +1562,9 @@ async function undoCommand()
     console.log('trying to undo command.');
     
     const request = new Request(`/undoCommand`, {
-        method: "GET",
-        headers: { 'Accept': 'text/plain' }
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: await getUserId() })
     })
 
     const response = await fetch(request);

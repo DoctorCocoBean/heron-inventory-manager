@@ -53,7 +53,7 @@ function sanitizeApostrophe(inputString)
 
 async function addItem(userid, name, quantity, minLevel, price, value, barcode, notes, tags) 
 {
-    console.log("inserting item: ", barcode);
+    console.log("inserting item: ", name, "for user:", userid);
 
     if (!name) {
         name = "null";
@@ -234,34 +234,35 @@ async function searchForLowStockItem(userId, name)
     return lowStockItems;
 }
 
-async function deleteAllItems()
+async function deleteAllItems(userid)
 {
     const SQL = `
-            DELETE FROM items;
+            DELETE FROM items
+            WHERE userid = ${userid};
         `;
 
     await pool.query(SQL);
 }
 
-async function backupItemsTable()
+async function backupItemsTable(userid)
 {
-    await pool.query(`DELETE FROM "items-backup";`)
+    await pool.query(`DELETE FROM "items-backup" WHERE userid = ${userid};`)
 
     const SQL = `
-            INSERT INTO "items-backup" (id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered")
-            select id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered"
+            INSERT INTO "items-backup" (id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered", userid)
+            select id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered", userid
             FROM "items";
         `;
 
     await pool.query(SQL);
 }
 
-async function overwriteItemsTableWithBackup()
+async function overwriteItemsTableWithBackup(userid)
 {
     const SQL = `
-            INSERT INTO "items" (id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered")
-            select id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered"
-            FROM "items-backup";
+            INSERT INTO "items" (id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered", userid)
+            select id, name, quantity, "minimumLevel", price, value, barcode, notes, tags, "stockOrdered", userid
+            FROM "items-backup"
         `;
 
     await pool.query(SQL);
@@ -304,7 +305,7 @@ async function calculateItemsMetaData(userid)
     return metaData;
 }
 
-async function logActivity(type, itemId, itemName, oldValue, newValue)
+async function logActivity(userid, type, itemId, itemName, oldValue, newValue)
 {
     const now = new Date();
     const time = now.toTimeString();
@@ -314,8 +315,8 @@ async function logActivity(type, itemId, itemName, oldValue, newValue)
     console.log('logging item name', itemName, 'timestamp:', timestamp);
 
     const SQL = `
-        INSERT INTO "activity-log" (type, "itemId", "itemName", "oldValue", "newValue", "timestamp")
-        VALUES ('${type}', '${itemId}', '${itemName}', '${oldValue}', '${newValue}', '${timestamp}');
+        INSERT INTO "activity-log" (userid, type, "itemId", "itemName", "oldValue", "newValue", "timestamp")
+        VALUES (${userid}, '${type}', '${itemId}', '${itemName}', '${oldValue}', '${newValue}', '${timestamp}');
    `;
 
     await pool.query(SQL);
@@ -330,9 +331,11 @@ async function removeActivityLogById(dbRowId)
     await pool.query(SQL);
 }
 
-async function getActivityLog()
+async function getActivityLog(userid)
 {
-    const { rows } = await pool.query(`SELECT * FROM "activity-log" ORDER BY "timestamp" DESC;`);
+    const { rows } = await pool.query(`
+        SELECT * FROM "activity-log" 
+        WHERE userid = ${userid} ORDER BY "timestamp" DESC;`);
     return rows;
 }
 
