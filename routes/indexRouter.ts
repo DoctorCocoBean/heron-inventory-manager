@@ -100,7 +100,7 @@ indexRouter.get("/api/userid", ensureAuthenticated, async (req, res) =>
 indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
-    var metaData            = await db.calculateItemsMetaData();
+    var metaData            = await db.calculateItemsMetaData(userId(req));
         metaData.totalValue = metaData.totalValue;
     res.render("dashboard", { metaData, user: username });
 });
@@ -178,12 +178,7 @@ indexRouter.get("/api/items", async (req, res, next) =>
 {
     try 
     {
-        console.log('loading items');
-        console.log('user is ', req.user ? req.user.username : "Guest");
-        console.log('userid ', req.user.id);
-        
-        const items = await db.getAllItems();
-
+        const items = await db.getAllItems(userId(req));
         res.send(items);
     } catch (error) {
         console.error('Error fetching items:', error);
@@ -301,7 +296,7 @@ indexRouter.put("/api/item/name", async (req, res) =>
         
         if (oldName != newName) 
         {
-            await db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
+            await db.logActivity(userId(req),'name', String(itemId), oldName, String(oldName), String(newName));
         }
 
         await db.updateItem(itemId,
@@ -633,7 +628,7 @@ indexRouter.get("/downloadCSV", async (req, res) =>
     
     try {
         const config = { delelimiter: "," }
-        const rows = await db.getAllItems();
+        const rows = await db.getAllItems(userId(req));
         let data: string = papa.unparse(rows, config);
 
         // Convert column names to be the same as Sortly
@@ -756,7 +751,7 @@ async function undoQuantityChange(userId, itemId, oldQuantity, newQuantity)
 indexRouter.get("/api/itemsMetaData", async (req, res) => 
 {
     console.log('getting meta data');
-    var metaData = await db.calculateItemsMetaData();
+    var metaData = await db.calculateItemsMetaData(userId(req));
     res.send(metaData);
 });
 

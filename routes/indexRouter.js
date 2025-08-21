@@ -78,7 +78,7 @@ indexRouter.get("/api/userid", ensureAuthenticated, (req, res) => __awaiter(void
 }));
 indexRouter.get("/dashboard", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let username = req.user ? req.user.username : "Guest";
-    var metaData = yield db.calculateItemsMetaData();
+    var metaData = yield db.calculateItemsMetaData(userId(req));
     metaData.totalValue = metaData.totalValue;
     res.render("dashboard", { metaData, user: username });
 }));
@@ -133,10 +133,7 @@ indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0,
 }));
 indexRouter.get("/api/items", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('loading items');
-        console.log('user is ', req.user ? req.user.username : "Guest");
-        console.log('userid ', req.user.id);
-        const items = yield db.getAllItems();
+        const items = yield db.getAllItems(userId(req));
         res.send(items);
     }
     catch (error) {
@@ -217,7 +214,7 @@ indexRouter.put("/api/item/name", (req, res) => __awaiter(void 0, void 0, void 0
         const newName = String(req.body.name);
         console.log(`Editing is name from ${oldName} to ${newName}`);
         if (oldName != newName) {
-            yield db.logActivity('name', String(itemId), oldName, String(oldName), String(newName));
+            yield db.logActivity(userId(req), 'name', String(itemId), oldName, String(oldName), String(newName));
         }
         yield db.updateItem(itemId, userId(req), newName, item[0].quantity, item[0].minimumLevel, item[0].price, item[0].value, item[0].barcode, item[0].notes, item[0].tags, item[0].stockOrdered);
         res.send();
@@ -392,7 +389,7 @@ indexRouter.get("/downloadCSV", (req, res) => __awaiter(void 0, void 0, void 0, 
     console.log('Parsing... ');
     try {
         const config = { delelimiter: "," };
-        const rows = yield db.getAllItems();
+        const rows = yield db.getAllItems(userId(req));
         let data = papa.unparse(rows, config);
         // Convert column names to be the same as Sortly
         let newlineCharIndex = data.indexOf('\n');
@@ -480,7 +477,7 @@ function undoQuantityChange(userId, itemId, oldQuantity, newQuantity) {
 }
 indexRouter.get("/api/itemsMetaData", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('getting meta data');
-    var metaData = yield db.calculateItemsMetaData();
+    var metaData = yield db.calculateItemsMetaData(userId(req));
     res.send(metaData);
 }));
 function undoDeleteAll(userid) {
