@@ -15,8 +15,10 @@ const session = require("express-session");
 const passport = require("passport");
 const localStrategy = require("passport-local");
 const db = require("./pool/queries"); // For typescript
-// import db from './pool/queries'; // Adjusted import for JavaScript
 const bcrypt = require("bcryptjs");
+const passportJwt = require("passport-jwt");
+const JwtStrategy = passportJwt.Strategy;
+const ExtractJwt = passportJwt.ExtractJwt;
 const app = express();
 const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath));
@@ -38,14 +40,34 @@ passport.use(new localStrategy((username, password, done) => __awaiter(void 0, v
         if (!user) {
             return done(null, false, { message: "Incorrect username." });
         }
-        console.log('am I going here?');
-        console.log('am I going here?');
         return done(null, user);
     }
     catch (error) {
         return done(error);
     }
 })));
+var options = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: 'secret'
+};
+// passport.use(
+//     new JwtStrategy(options, (jwt_payload, done) => {
+//         try {
+//             // const user = await db.getUserByUsername(username);
+//             // const match = await bcrypt.compare(password, user.password);
+//             // if (!match) {
+//             //     return done(null, false, { message: "Incorrect password." });
+//             // }
+//             // if (!user) {
+//             //     return done(null, false, { message: "Incorrect username." });
+//             // }
+//             return done(null, user);
+//         } catch (error) {
+//             return done(error);
+//         }
+//     })
+//     })
+// )
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });

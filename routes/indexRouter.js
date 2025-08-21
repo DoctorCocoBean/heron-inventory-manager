@@ -12,11 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
 const papa = require("papaparse");
-const db = require("../pool/queries"); // For typescript
-// import db from '../pool/queries';
+const db = require("../pool/queries");
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const express_validator_1 = require("express-validator");
+const jwt = require("jsonwebtoken");
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -52,6 +52,28 @@ indexRouter.post("/login", passport.authenticate('local', {
     successRedirect: '/items',
     failureRedirect: '/login'
 }));
+function verifyToken(req, res, next) {
+    console.log('trying to verify token');
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+        const bearer = bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    }
+    else {
+        res.status(403).json({ message: "No token provided" });
+    }
+}
+indexRouter.post("/api/login", passport.authenticate('local', {
+    session: false
+}), (req, res) => {
+    console.log('attempting api login');
+    const user = req.user;
+    console.log(`id ${user.id} username: ${user.username}`);
+    const token = jwt.sign({ id: user.id, username: user.username }, 'secret', { expiresIn: '1h' });
+    res.json({ token });
+});
 indexRouter.get("/guest-login", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('hi');
@@ -114,6 +136,7 @@ indexRouter.get("/api/lowStockitem/:itemName", (req, res) => __awaiter(void 0, v
     }
     res.send(items);
 }));
+// Get items page
 indexRouter.get("/items", ensureAuthenticated, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let username = req.user ? req.user.username : "Guest";
@@ -127,13 +150,39 @@ indexRouter.get("/items", ensureAuthenticated, (req, res, next) => __awaiter(voi
         next(new Error("Error loading items page: " + error.message));
     }
 }));
+// Delete multiple items
 indexRouter.delete("/api/items", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield db.deleteArrayOfItems(userId(req), req.body.items);
     res.send();
 }));
-indexRouter.get("/api/items", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+function getUserIdFromToken(token) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, 'secret', (error, authData) => {
+                if (error) {
+                    reject(new Error('Could not get user id from token'));
+                }
+                else {
+                    resolve(authData.id);
+                }
+            });
+        });
+    });
+}
+// Get all items
+indexRouter.get("/api/items", verifyToken, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let userid;
+    yield getUserIdFromToken(req.token).then((value) => {
+        userid = value;
+    }).catch((error) => {
+        console.error('Error getting user id from token:', error);
+        next(new Error('Error getting user id from token'));
+        return;
+    });
+    console.log('user id is ', userid);
+    // TODO: use then catch for promise below
     try {
-        const items = yield db.getAllItems(userId(req));
+        const items = yield db.getAllItems(userid);
         res.send(items);
     }
     catch (error) {
@@ -141,6 +190,7 @@ indexRouter.get("/api/items", (req, res, next) => __awaiter(void 0, void 0, void
         next(new Error('Error fetching items' + error.message));
     }
 }));
+// Get item by row id
 indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const item = yield db.getItemByRowId(userId(req), Number(req.params.itemId));
@@ -151,10 +201,20 @@ indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, voi
         console.log("error getting item by Id: ", req.params.itemId, error);
     }
 }));
-indexRouter.get("/api/itemsByName/:itemName", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Get items by name
+indexRouter.get("/api/itemsByName/:itemName", verifyToken, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let userid;
+    yield getUserIdFromToken(req.token).then((value) => {
+        userid = value;
+    }).catch((error) => {
+        console.error('Error getting user id from token:', error);
+        next(new Error('Error getting user id from token'));
+        return;
+    });
+    console.log('user id is ', userid);
     console.log('user is ', req.user ? req.user.username : "Guest");
     console.log('userid ', req.user ? req.user.id : 'no id');
-    const userid = req.user ? req.user.id : 1;
+    // const userid = req.user ? req.user.id : 1;
     var nameToSearch = req.params.itemName;
     var items;
     if (nameToSearch == "all") {

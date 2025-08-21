@@ -1,23 +1,26 @@
 import { Router }  from 'express';
 const indexRouter = Router();
 import * as papa from 'papaparse';
-import * as db from '../pool/queries'; // For typescript
-// import db from '../pool/queries';
+import * as db from '../pool/queries';
 import * as passport from 'passport';
 import * as bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 
-interface User {
-  id: number;
-  username: string;
-  password: string;
-}
+import * as jwt from 'jsonwebtoken';
+
 
 declare global {
-  namespace Express {
+  namespace Express 
+  {
+    interface User {
+        id: number;
+        username: string;
+        password: string;
+    }
     interface Request {
       user?: User;
       userid?: number;
+      token: string;
     }
     interface Request {
       logout(callback: (err: any) => void): void;
@@ -71,6 +74,34 @@ indexRouter.post("/login",
         failureRedirect: '/login'
     })
 );
+
+function verifyToken(req, res, next) 
+{
+    console.log('trying to verify token');
+    
+    const bearerHeader  = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+        const bearer = bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    } else {
+        res.status(403).json({ message: "No token provided" });
+    }
+}
+
+indexRouter.post("/api/login", passport.authenticate('local', {
+    session: false
+}), (req, res) => {
+    console.log('attempting api login');
+
+    const user = req.user as Express.User;
+    console.log(`id ${user.id} username: ${user.username}`);
+    
+    const token = jwt.sign({ id: user.id, username: user.username }, 'secret', { expiresIn: '1h' });
+    res.json({ token });
+});
+
 indexRouter.get("/guest-login", async (req, res, next) => 
 {
     try {
@@ -151,6 +182,7 @@ indexRouter.get("/api/lowStockitem/:itemName", async (req, res) =>
     res.send(items);
 });
 
+// Get items page
 indexRouter.get("/items", ensureAuthenticated, async (req, res, next) => 
 {
     try 
@@ -168,17 +200,44 @@ indexRouter.get("/items", ensureAuthenticated, async (req, res, next) =>
     }
 });
 
-indexRouter.delete("/api/items", async (req, res) =>
+// Delete multiple items
+indexRouter.delete("/api/items",  async (req, res) =>
 {
+
     await db.deleteArrayOfItems(userId(req), req.body.items);
     res.send();
 });
 
-indexRouter.get("/api/items", async (req, res, next) => 
+async function getUserIdFromToken(token: string)
 {
-    try 
-    {
-        const items = await db.getAllItems(userId(req));
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, 'secret', (error, authData) => {
+            if (error) {
+                reject(new Error('Could not get user id from token'));
+            } else {
+                resolve(authData.id);
+            }
+        });
+    });
+}
+
+// Get all items
+indexRouter.get("/api/items", verifyToken, async (req, res, next) => 
+{
+    let userid: number ;
+    await getUserIdFromToken(req.token).then((value: number) => {
+        userid = value;
+    }).catch((error) => {
+        console.error('Error getting user id from token:', error);
+        next(new Error('Error getting user id from token'));
+        return;
+    });
+
+    console.log('user id is ', userid);
+
+    // TODO: use then catch for promise below
+    try {
+        const items = await db.getAllItems(userid);
         res.send(items);
     } catch (error) {
         console.error('Error fetching items:', error);
@@ -186,6 +245,7 @@ indexRouter.get("/api/items", async (req, res, next) =>
     }
 });
 
+// Get item by row id
 indexRouter.get("/api/item/:itemId", async (req, res) => 
 {
     try
@@ -200,12 +260,23 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
     }
 });
 
-
-indexRouter.get("/api/itemsByName/:itemName", async (req, res) => 
+// Get items by name
+indexRouter.get("/api/itemsByName/:itemName", verifyToken, async (req, res, next) => 
 {
+    let userid: number ;
+    await getUserIdFromToken(req.token).then((value: number) => {
+        userid = value;
+    }).catch((error) => {
+        console.error('Error getting user id from token:', error);
+        next(new Error('Error getting user id from token'));
+        return;
+    });
+
+    console.log('user id is ', userid);
+
     console.log('user is ', req.user ? req.user.username : "Guest");
     console.log('userid ', req.user ? req.user.id : 'no id');
-    const userid = req.user ? req.user.id : 1;
+    // const userid = req.user ? req.user.id : 1;
 
     var nameToSearch = req.params.itemName;
     var items;
