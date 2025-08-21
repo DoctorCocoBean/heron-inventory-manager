@@ -19,6 +19,8 @@
                         <button class="btn btn-primary" id="logInBtn" style="width: 49%;" onclick="login()">Log In</button>
                         <button class="btn btn-primary" id="signUpBtn" style="width: 49%;" onclick="signup()">Sign Up</button>
                     </div>
+
+                    <a href="/guest-login" class="d-inline" title="Sign in as guest">Sign in as guest</a>
                 </div>
             </div>
         </div>
@@ -40,7 +42,7 @@
                 const password = document.getElementById("password").value;
 
                 if (username && password) {
-                    const request = new Request("/log-in", {
+                    const request = new Request("/login", {
                         method: "POST",
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
@@ -67,7 +69,7 @@
                 const password = document.getElementById("password").value;
 
                 if (username && password) {
-                    const request = new Request("/sign-up", {
+                    const request = new Request("/signup", {
                         method: "POST",
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

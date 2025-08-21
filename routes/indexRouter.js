@@ -18,39 +18,29 @@ const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const express_validator_1 = require("express-validator");
 function ensureAuthenticated(req, res, next) {
-    const debugMode = false;
-    // if (!debugMode) {
-    console.log('User is authenticated:', req.isAuthenticated());
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect("/sign-up");
-    // } else {
-    //     return next();
-    // }
+    res.redirect("/login");
 }
 indexRouter.get("/", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('home');
     res.redirect("/items");
 }));
-indexRouter.get("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('sign up page loading');
-    res.render("signupForm");
+indexRouter.get("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.render("loginForm");
 }));
-indexRouter.get('/log-out', (req, res, next) => {
+indexRouter.get('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) {
             return next(err);
         }
-        res.redirect("/sign-up");
+        res.redirect("/login");
     });
 });
-indexRouter.post("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+indexRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const hashedPassword = yield bcrypt.hash(req.body.password, 10);
         yield db.addUser(req.body.username, hashedPassword);
-        console.log('redreisdlfsdlkf');
-        // res.redirect("/");
         res.json({ message: "User registered successfully" });
     }
     catch (error) {
@@ -58,9 +48,25 @@ indexRouter.post("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.status(500).send("Internal Server Error");
     }
 }));
-indexRouter.post("/log-in", passport.authenticate('local', {
+indexRouter.post("/login", passport.authenticate('local', {
     successRedirect: '/items',
-    failureRedirect: '/sign-up'
+    failureRedirect: '/login'
+}));
+indexRouter.get("/guest-login", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('hi');
+        const guestUser = { id: 27 }; // 27 is the id guest user in db
+        req.login(guestUser, (err) => {
+            if (err) {
+                return next(err);
+            }
+            res.redirect('/');
+        });
+    }
+    catch (error) {
+        console.error("Error during guest login:", error);
+        res.status(500).send("Internal Server Error");
+    }
 }));
 indexRouter.get("/api/userid", ensureAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.user && req.user.id) {

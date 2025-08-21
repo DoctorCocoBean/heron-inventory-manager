@@ -43,7 +43,6 @@ passport.use(new localStrategy((username, password, done) => __awaiter(void 0, v
         return done(null, user);
     }
     catch (error) {
-        console.log('sdlfkj');
         return done(error);
     }
 })));

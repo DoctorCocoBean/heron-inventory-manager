@@ -21,55 +21,43 @@ declare global {
     }
     interface Request {
       logout(callback: (err: any) => void): void;
+      login(user: any, callback?: (err: any) => void): void;
     }
   }
 }
 
 function ensureAuthenticated(req, res, next) 
 {
-    const debugMode = false;
-
-    // if (!debugMode) {
-        console.log('User is authenticated:', req.isAuthenticated());
-        if (req.isAuthenticated()) {
-            return next();
-        }
-        res.redirect("/sign-up");
-    // } else {
-    //     return next();
-    // }
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/login");
 }
 
 indexRouter.get("/", ensureAuthenticated, async (req, res) => 
 {
-    console.log('home');
-    
     res.redirect("/items");
 });
 
-indexRouter.get("/sign-up", async (req, res) => 
+indexRouter.get("/login", async (req, res) => 
 {
-    console.log('sign up page loading');
-    res.render("signupForm");
+    res.render("loginForm");
 });
 
-indexRouter.get('/log-out', (req, res, next) => {
+indexRouter.get('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) {
             return next(err);
         }
-        res.redirect("/sign-up");
+        res.redirect("/login");
     });
 });
 
-indexRouter.post("/sign-up", async (req, res) => 
+indexRouter.post("/signup", async (req, res) => 
 {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         await db.addUser(req.body.username, hashedPassword);
-        console.log('redreisdlfsdlkf');
-        
-        // res.redirect("/");
         res.json({ message: "User registered successfully" });
     } catch (error) {
         console.error("Error signing up:", error);
@@ -77,12 +65,28 @@ indexRouter.post("/sign-up", async (req, res) =>
     }
 });
 
-indexRouter.post("/log-in", 
+indexRouter.post("/login", 
     passport.authenticate('local', {
         successRedirect: '/items',
-        failureRedirect: '/sign-up'
+        failureRedirect: '/login'
     })
 );
+indexRouter.get("/guest-login", async (req, res, next) => 
+{
+    try {
+        console.log('hi');
+
+        const guestUser = { id: 27 }; // 27 is the id guest user in db
+        req.login(guestUser, (err) => {
+            if (err) { return next(err); }
+            res.redirect('/');
+        });
+
+    } catch (error) {
+        console.error("Error during guest login:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 indexRouter.get("/api/userid", ensureAuthenticated, async (req, res) => 
 {
