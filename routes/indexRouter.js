@@ -194,6 +194,8 @@ indexRouter.get("/api/items", verifyToken, (req, res, next) => __awaiter(void 0,
 indexRouter.get("/api/item/:itemId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const item = yield db.getItemByRowId(userIdFromRequest(req), Number(req.params.itemId));
+        console.log('getting item with ID:', req.params.itemId);
+        console.log('item found:', item);
         res.send(item);
     }
     catch (error) {

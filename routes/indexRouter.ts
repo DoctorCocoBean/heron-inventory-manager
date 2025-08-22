@@ -51,6 +51,7 @@ indexRouter.get("/login", async (req, res) =>
 
 // Logout page
 indexRouter.get('/logout', (req, res, next) => {
+
     req.logout((err) => {
         if (err) {
             return next(err);
@@ -249,6 +250,8 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
     try
     {
         const item = await db.getItemByRowId(userIdFromRequest(req), Number(req.params.itemId));
+        console.log('getting item with ID:', req.params.itemId );
+        console.log('item found:', item);
         res.send(item);
     } 
     catch (error) 
