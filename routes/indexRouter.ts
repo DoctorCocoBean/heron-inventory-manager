@@ -249,7 +249,7 @@ indexRouter.get("/api/item/:itemId", verifyToken, async (req, res) =>
 {
     try
     {
-        let userid = getUserIdFromToken(req.token);
+        let userid = await getUserIdFromToken(req.token);
         const item = await db.getItemByRowId(userid, Number(req.params.itemId));
         console.log('getting item with ID:', req.params.itemId );
         console.log('item found:', item);
