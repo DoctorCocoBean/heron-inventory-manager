@@ -451,8 +451,7 @@ function deleteAllItems() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/allItems`, {
             method: "DELETE",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userid: yield getUserId() }),
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
         });
         const response = yield fetch(request).then(() => {
             loadItemTable();

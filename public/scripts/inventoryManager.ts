@@ -508,8 +508,7 @@ async function deleteAllItems()
 {
     const request = new Request(`/allItems`, {
         method: "DELETE",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userid: await getUserId() }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
     })
 
     const response = await fetch(request).then(() => {
