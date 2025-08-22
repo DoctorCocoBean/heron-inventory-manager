@@ -5,7 +5,6 @@ import * as db from '../pool/queries';
 import * as passport from 'passport';
 import * as bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
-
 import * as jwt from 'jsonwebtoken';
 
 
@@ -29,6 +28,7 @@ declare global {
   }
 }
 
+// Middleware to ensure user is authenticated via session
 function ensureAuthenticated(req, res, next) 
 {
     if (req.isAuthenticated()) {
@@ -37,16 +37,19 @@ function ensureAuthenticated(req, res, next)
     res.redirect("/login");
 }
 
+// Home page
 indexRouter.get("/", ensureAuthenticated, async (req, res) => 
 {
     res.redirect("/items");
 });
 
+// Login page
 indexRouter.get("/login", async (req, res) => 
 {
     res.render("loginForm");
 });
 
+// Logout page
 indexRouter.get('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) {
@@ -56,6 +59,7 @@ indexRouter.get('/logout', (req, res, next) => {
     });
 });
 
+// Sign up endpoint
 indexRouter.post("/signup", async (req, res) => 
 {
     try {
@@ -68,6 +72,7 @@ indexRouter.post("/signup", async (req, res) =>
     }
 });
 
+// Login endpoint
 indexRouter.post("/login", 
     passport.authenticate('local', {
         successRedirect: '/items',
@@ -75,10 +80,9 @@ indexRouter.post("/login",
     })
 );
 
+// Middleware to extract and verify JWT token from authorization header
 function verifyToken(req, res, next) 
 {
-    console.log('trying to verify token');
-    
     const bearerHeader  = req.headers['authorization'];
     if (typeof bearerHeader !== 'undefined') {
         const bearer = bearerHeader.split(' ');
@@ -90,6 +94,7 @@ function verifyToken(req, res, next)
     }
 }
 
+// API Login endpoint
 indexRouter.post("/api/login", passport.authenticate('local', {
     session: false
 }), (req, res) => {
@@ -102,11 +107,10 @@ indexRouter.post("/api/login", passport.authenticate('local', {
     res.json({ token });
 });
 
+// Get guest login
 indexRouter.get("/guest-login", async (req, res, next) => 
 {
     try {
-        console.log('hi');
-
         const guestUser = { id: 27 }; // 27 is the id guest user in db
         req.login(guestUser, (err) => {
             if (err) { return next(err); }
@@ -119,6 +123,7 @@ indexRouter.get("/guest-login", async (req, res, next) =>
     }
 });
 
+// Get user ID
 indexRouter.get("/api/userid", ensureAuthenticated, async (req, res) => 
 {
     if (req.user && req.user.id) {
@@ -128,30 +133,35 @@ indexRouter.get("/api/userid", ensureAuthenticated, async (req, res) =>
     }
 });
 
+// Dashboard page
 indexRouter.get("/dashboard", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
-    var metaData            = await db.calculateItemsMetaData(userId(req));
+    var metaData            = await db.calculateItemsMetaData(userIdFromRequest(req));
         metaData.totalValue = metaData.totalValue;
     res.render("dashboard", { metaData, user: username });
 });
 
+// Low stock page
 indexRouter.get("/lowstock", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
     res.render("lowstock", { user: username });
 });
 
+// Transaction report page
 indexRouter.get("/transactionReport", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
     res.render("transactionReport", { user: username });
 });
 
-indexRouter.get("/api/lowStockItems", async (req, res) => 
+// Get low stock items
+indexRouter.get("/api/lowStockItems", verifyToken, async (req, res) => 
 {
-    const allItems = await db.getAllItems(userId(req));
-    var metaData = await db.calculateItemsMetaData(userId(req));
+    let userid = await getUserIdFromToken(req.token);
+    const allItems = await db.getAllItems(userid);
+    var metaData = await db.calculateItemsMetaData(userid);
     var lowItems = [];
 
     // Calculate low stock here
@@ -165,18 +175,20 @@ indexRouter.get("/api/lowStockItems", async (req, res) =>
     res.send(lowItems);
 });
 
-indexRouter.get("/api/lowStockitem/:itemName", async (req, res) => 
+// Get low stock items by name
+indexRouter.get("/api/lowStockItems/:itemName", verifyToken, async (req, res) => 
 {
+    let userid = await getUserIdFromToken(req.token);
     var nameToSearch = req.params.itemName;
     var items;
 
-    console.log("Searching for low stock items. Name:", nameToSearch, "User ID:", userId(req));
+    console.log("Searching for low stock items. Name:", nameToSearch, "User ID:", userid);
 
     if (nameToSearch == undefined || nameToSearch == "all") {
-        items = await db.getAllLowStockItems(userId(req));
+        items = await db.getAllLowStockItems(userid);
     }
     else {
-        items = await db.searchForLowStockItem(userId(req), req.params.itemName);
+        items = await db.searchForLowStockItem(userid, req.params.itemName);
     }
 
     res.send(items);
@@ -188,7 +200,7 @@ indexRouter.get("/items", ensureAuthenticated, async (req, res, next) =>
     try 
     {
         let username = req.user ? req.user.username : "Guest";
-        const userid = userId(req)
+        const userid = userIdFromRequest(req)
         
         var metaData            = await db.calculateItemsMetaData(userid);
             metaData.totalValue = metaData.totalValue;
@@ -201,42 +213,26 @@ indexRouter.get("/items", ensureAuthenticated, async (req, res, next) =>
 });
 
 // Delete multiple items
-indexRouter.delete("/api/items",  async (req, res) =>
+indexRouter.delete("/api/items", verifyToken,  async (req, res) =>
 {
-
-    await db.deleteArrayOfItems(userId(req), req.body.items);
+    let userid = await getUserIdFromToken(req.token);
+    await db.deleteArrayOfItems(userid, req.body.items);
     res.send();
 });
-
-async function getUserIdFromToken(token: string)
-{
-    return new Promise((resolve, reject) => {
-        jwt.verify(token, 'secret', (error, authData) => {
-            if (error) {
-                reject(new Error('Could not get user id from token'));
-            } else {
-                resolve(authData.id);
-            }
-        });
-    });
-}
 
 // Get all items
 indexRouter.get("/api/items", verifyToken, async (req, res, next) => 
 {
-    let userid: number ;
-    await getUserIdFromToken(req.token).then((value: number) => {
-        userid = value;
-    }).catch((error) => {
-        console.error('Error getting user id from token:', error);
-        next(new Error('Error getting user id from token'));
-        return;
-    });
-
+    let userid;
+    userid = await getUserIdFromToken(req.token);
+    console.log('user id is ', userid);
+    // await getUserIdFromToken(req.token).then((id: number) => {
+    //     userid = id;
+    // });
     console.log('user id is ', userid);
 
-    // TODO: use then catch for promise below
     try {
+
         const items = await db.getAllItems(userid);
         res.send(items);
     } catch (error) {
@@ -250,7 +246,7 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
 {
     try
     {
-        const item = await db.getItemByRowId(userId(req), Number(req.params.itemId));
+        const item = await db.getItemByRowId(userIdFromRequest(req), Number(req.params.itemId));
         res.send(item);
     } 
     catch (error) 
@@ -263,21 +259,7 @@ indexRouter.get("/api/item/:itemId", async (req, res) =>
 // Get items by name
 indexRouter.get("/api/itemsByName/:itemName", verifyToken, async (req, res, next) => 
 {
-    let userid: number ;
-    await getUserIdFromToken(req.token).then((value: number) => {
-        userid = value;
-    }).catch((error) => {
-        console.error('Error getting user id from token:', error);
-        next(new Error('Error getting user id from token'));
-        return;
-    });
-
-    console.log('user id is ', userid);
-
-    console.log('user is ', req.user ? req.user.username : "Guest");
-    console.log('userid ', req.user ? req.user.id : 'no id');
-    // const userid = req.user ? req.user.id : 1;
-
+    let userid = await getUserIdFromToken(req.token);
     var nameToSearch = req.params.itemName;
     var items;
 
@@ -291,13 +273,12 @@ indexRouter.get("/api/itemsByName/:itemName", verifyToken, async (req, res, next
     res.send(items);
 });
 
-indexRouter.put("/api/item", async (req, res) =>
+indexRouter.put("/api/item", verifyToken, async (req, res) =>
 {
-    console.log('updating item 2');
-    
+    let userid = await getUserIdFromToken(req.token);
     const itemId  = Number(req.body.id);
     const value   = Number(req.body.quantity) * Number(req.body.price);
-    const oldItem = await db.getItemByRowId(userId(req), itemId);
+    const oldItem = await db.getItemByRowId(userid, itemId);
 
     let stockOrdered = oldItem[0].stockOrdered;
     if (stockOrdered == null) 
@@ -306,7 +287,7 @@ indexRouter.put("/api/item", async (req, res) =>
     // Log activity if quantity has changed
     if (oldItem[0].quantity != req.body.quantity) 
     {
-        await db.logActivity(userId(req), 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
+        await db.logActivity(userid, 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(req.body.quantity));
 
         const oldQuantity = oldItem[0].quantity;
         const newQuantity = req.body.quantity;
@@ -340,7 +321,7 @@ indexRouter.put("/api/item", async (req, res) =>
     }
 
     await db.updateItem(
-                        userId(req),
+                        userid,
                         itemId,
                         req.body.name,
                         req.body.quantity,
@@ -355,11 +336,13 @@ indexRouter.put("/api/item", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/api/item/name", async (req, res) =>
+// Update item name
+indexRouter.put("/api/item/name", verifyToken, async (req, res) =>
 {
     try {
+        let userid = await getUserIdFromToken(req.token);
         const itemId  = Number(req.body.itemId);
-        const item = await db.getItemByRowId(userId(req), itemId);
+        const item = await db.getItemByRowId(userid, itemId);
         const oldName = String(item[0].name);
         const newName = String(req.body.name);
 
@@ -367,11 +350,11 @@ indexRouter.put("/api/item/name", async (req, res) =>
         
         if (oldName != newName) 
         {
-            await db.logActivity(userId(req),'name', String(itemId), oldName, String(oldName), String(newName));
+            await db.logActivity(userid, 'name', String(itemId), oldName, String(oldName), String(newName));
         }
 
         await db.updateItem(itemId,
-                            userId(req),
+                            userid,
                             newName,
                             item[0].quantity,
                             item[0].minimumLevel,
@@ -393,12 +376,14 @@ indexRouter.put("/api/item/name", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/api/item/quantity", async (req, res) =>
+// Update item quantity
+indexRouter.put("/api/item/quantity", verifyToken, async (req, res) =>
 {
     console.log('changing quantity');
     try {
+        let userid = await getUserIdFromToken(req.token);
         const itemId  = Number(req.body.itemId);
-        const oldItem = await db.getItemByRowId(userId(req), itemId);
+        const oldItem = await db.getItemByRowId(userid, itemId);
         const newQuantity = Number(oldItem[0].quantity) + Number(req.body.quantityChange);
         const value   = Number(oldItem[0].price) * newQuantity;
 
@@ -411,7 +396,7 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
         // Log activity if quantity has changed
         if (oldItem[0].quantity != newQuantity) 
         {
-            await db.logActivity(userId(req), 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
+            await db.logActivity(userid, 'quantity', String(itemId), oldItem[0].name, String(oldItem[0].quantity), String(newQuantity));
             console.log(`logging ${oldItem[0].name}`);
         }
 
@@ -421,7 +406,7 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
         }
 
         await db.updateItem(
-                            userId(req),    
+                            userid,    
                             itemId,
                             oldItem[0].name,
                             String(newQuantity),
@@ -443,11 +428,13 @@ indexRouter.put("/api/item/quantity", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/api/item/minimumLevel", async (req, res) =>
+// Update item minimum level
+indexRouter.put("/api/item/minimumLevel", verifyToken, async (req, res) =>
 {
     try {
+        let userid = await getUserIdFromToken(req.token);
         const itemId  = Number(req.body.itemId);
-        const item = await db.getItemByRowId(userId(req), itemId);
+        const item = await db.getItemByRowId(userid, itemId);
         const oldMinLevel = item[0].minimumLevel;
         const newMinLevel = req.body.minimumLevel;
 
@@ -455,11 +442,11 @@ indexRouter.put("/api/item/minimumLevel", async (req, res) =>
         
         if (oldMinLevel != newMinLevel) 
         {
-            await db.logActivity(userId(req), 'Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
+            await db.logActivity(userid, 'Minimum Level', String(itemId), item[0].name, String(oldMinLevel), String(newMinLevel));
         }
 
         await db.updateItem(
-                            userId(req),
+                            userid,
                             itemId,
                             item[0].name,
                             item[0].quantity,
@@ -482,11 +469,13 @@ indexRouter.put("/api/item/minimumLevel", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/api/item/price", async (req, res) =>
+// Update item price
+indexRouter.put("/api/item/price", verifyToken, async (req, res) =>
 {
     try {
+        let userid = await getUserIdFromToken(req.token);
         const itemId  = Number(req.body.itemId);
-        const item = await db.getItemByRowId(userId(req), itemId);
+        const item = await db.getItemByRowId(userid, itemId);
         const oldPrice = item[0].price;
         const newPrice = req.body.price;
         const value = Number(newPrice) * Number(item[0].quantity);
@@ -495,11 +484,11 @@ indexRouter.put("/api/item/price", async (req, res) =>
         
         if (oldPrice != newPrice) 
         {
-            await db.logActivity(userId(req), 'price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
+            await db.logActivity(userid, 'price', String(itemId), item[0].name, String(oldPrice), String(newPrice));
         }
 
         await db.updateItem(
-                            userId(req),
+                            userid,
                             itemId,
                             item[0].name,
                             item[0].quantity,
@@ -522,11 +511,13 @@ indexRouter.put("/api/item/price", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/api/item/barcode", async (req, res) =>
+// Update item barcode
+indexRouter.put("/api/item/barcode", verifyToken, async (req, res) =>
 {
     try {
+        let userid = await getUserIdFromToken(req.token);
         const itemId = Number(req.body.itemId);
-        const item = await db.getItemByRowId(userId(req), itemId);
+        const item = await db.getItemByRowId(userid, itemId);
         const oldBarcode = item[0].barcode;
         const newBarcode = req.body.barcode;
 
@@ -534,11 +525,11 @@ indexRouter.put("/api/item/barcode", async (req, res) =>
         
         if (oldBarcode != newBarcode) 
         {
-            await db.logActivity(userId(req), 'barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
+            await db.logActivity(userid, 'barcode', String(itemId), item[0].name, String(oldBarcode), String(newBarcode));
         }
 
         await db.updateItem(
-                            userId(req),
+                            userid,
                             itemId,
                             item[0].name,
                             item[0].quantity,
@@ -561,11 +552,13 @@ indexRouter.put("/api/item/barcode", async (req, res) =>
     res.send();
 });
 
-indexRouter.put("/api/item/notes", async (req, res) =>
+// Update item notes
+indexRouter.put("/api/item/notes", verifyToken, async (req, res) =>
 {
     try {
+        let userid = await getUserIdFromToken(req.token);
         const itemId = Number(req.body.itemId);
-        const item = await db.getItemByRowId(userId(req), itemId);
+        const item = await db.getItemByRowId(userid, itemId);
         const oldNotes = item[0].notes;
         const newNotes = req.body.notes;
 
@@ -573,11 +566,11 @@ indexRouter.put("/api/item/notes", async (req, res) =>
         
         if (oldNotes != newNotes) 
         {
-            await db.logActivity(userId(req), 'notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
+            await db.logActivity(userid, 'notes', String(itemId), item[0].name, String(oldNotes), String(newNotes));
         }
 
         await db.updateItem(
-                            userId(req),
+                            userid,
                             itemId,
                             item[0].name,
                             item[0].quantity,
@@ -600,26 +593,27 @@ indexRouter.put("/api/item/notes", async (req, res) =>
     res.send();
 });
 
+// Add new item
 indexRouter.post("/api/item", [
         body('quantity').isInt().withMessage("Quantity must be an integer."),
         body('minimumLevel').isInt().withMessage("Minimum level must be an integer."),
         body('price').isFloat().withMessage("Price must be a number."),
-], async (req, res, next) =>
+], verifyToken, async (req, res, next) =>
 {
     try {
+        let userid = await getUserIdFromToken(req.token);
         const errors = validationResult(req);   
         if (!errors.isEmpty()) {
             return res.status(400).send({ message: `Invalid input - ${errors.array()[0].msg}` });
         }
 
-        const userid = req.body.userid;
         if (userid == undefined) {
             return res.status(400).send({ message: "User ID is required." });
         }
 
         const value = Number(req.body.price) * Number(req.body.quantity);
         await db.addItem(
-                            req.body.userid,
+                            userid,
                             req.body.name,
                             req.body.quantity,
                             req.body.minimumLevel,
@@ -635,34 +629,39 @@ indexRouter.post("/api/item", [
         console.log(`Error adding item. ${error}`);
         console.log(`Stack. ${error.stack}`);
         next(error);
-        // return res.status(400).send({ message: `Error adding item ${error}` });
     }
 });
 
-indexRouter.delete("/api/item", async (req, res) =>
+// Delete single item
+indexRouter.delete("/api/item", verifyToken, async (req, res) =>
 {
 	console.log('deleting', req.body.items);
-
-    await db.deleteItem(userId(req), req.body.itemId);
+    let userid = await getUserIdFromToken(req.token);
+    await db.deleteItem(userid, req.body.itemId);
     res.send();
 });
 
-indexRouter.put("/api/itemOrderedStatus", async (req, res) =>
+// Update item status
+indexRouter.put("/api/itemOrderedStatus", verifyToken, async (req, res) =>
 {
-    await db.updateItemOrderedStatus(userId(req),req.body.itemId, req.body.stockOrdered);
+    let userid = await getUserIdFromToken(req.token);
+    await db.updateItemOrderedStatus(userid, req.body.itemId, req.body.stockOrdered);
     res.send();
 });
 
-indexRouter.post("/uploadCSV", (req, res) => 
+// Upload CSV file and add items. Format is the same as Sortly export.
+indexRouter.post("/uploadCSV", verifyToken, async (req, res) => 
 {
     console.log('Parsing... ');
-    
     try 
     {
-        console.log('adding tiem with userid', userId(req));
+        if (!req.body.csvData) {
+            throw new Error('Missing required parameter: csvData');
+        }
+        
+        let userid = await getUserIdFromToken(req.token);
         const data = papa.parse(req.body.csvData, 
         { 
-            
             header: true,
             dynamicTyping: true,
             complete: function(results) 
@@ -670,7 +669,7 @@ indexRouter.post("/uploadCSV", (req, res) =>
                 console.log('Parsed csv data: ');
                 for (let i = 1; i<results.data.length; i++) {
                         db.addItem(
-                                        userId(req),
+                                        userid,
                                         results.data[i]['Entry Name'],
                                         results.data[i]['Quantity'],
                                         results.data[i]['Min Level'],
@@ -693,13 +692,15 @@ indexRouter.post("/uploadCSV", (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.get("/downloadCSV", async (req, res) => 
+// Dowload items as csv
+indexRouter.get("/downloadCSV", verifyToken, async (req, res) => 
 {
     console.log('Parsing... ');
     
     try {
-        const config = { delelimiter: "," }
-        const rows = await db.getAllItems(userId(req));
+        const config = { delimiter: "," }
+        let userid = await getUserIdFromToken(req.token);
+        const rows = await db.getAllItems(userid);
         let data: string = papa.unparse(rows, config);
 
         // Convert column names to be the same as Sortly
@@ -727,11 +728,12 @@ indexRouter.get("/downloadCSV", async (req, res) =>
     res.redirect("/");
 });
 
-indexRouter.delete('/allItems', async (req, res, next) =>
+// Delete all items
+indexRouter.delete('/allItems', verifyToken, async (req, res, next) =>
 {
     try 
     {
-        const userid = userId(req);
+        const userid = await getUserIdFromToken(req.token);
         await db.backupItemsTable(userid);
         await db.deleteAllItems(userid);
         await db.logActivity(userid, 'delete all', null, null, null, null);
@@ -742,28 +744,34 @@ indexRouter.delete('/allItems', async (req, res, next) =>
     }
 });
 
-indexRouter.post('/logActivity', async (req, res) =>
+// Add new activity log
+indexRouter.post('/logActivity', verifyToken, async (req, res) =>
 {
-    await db.logActivity(userId(req), req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
-    res.redirect("/");
+    const userid = await getUserIdFromToken(req.token);
+    await db.logActivity(userid, req.body.type, req.body.itemId, req.body.name, req.body.oldValue, req.body.newValue);
+    res.send();
 });
 
+// Get activity log page
 indexRouter.get("/activityLog", ensureAuthenticated, async (req, res) => 
 {
     let username = req.user ? req.user.username : "Guest";
-    res.render("activityLog", { user: username, userid: userId(req) });
+    res.render("activityLog", { user: username, userid: userIdFromRequest(req) });
 });
 
-indexRouter.get('/api/activityLog', async (req, res) =>
+// Get activity log for the authenticated user
+indexRouter.get('/api/activityLog', verifyToken, async (req, res) =>
 {
-    const rows = await db.getActivityLog(userId(req));
+    const userid = await getUserIdFromToken(req.token);
+    const rows = await db.getActivityLog(userid);
     res.send(rows)
 });
 
+// Undo the last activity command
 indexRouter.post("/undoCommand", async (req, res) =>
 {
     try {
-        const activtyLog = await db.getActivityLog(userId(req));
+        const activtyLog = await db.getActivityLog(userIdFromRequest(req));
         const log = activtyLog[0];
 
         console.log('Undoing action:', log);
@@ -771,11 +779,11 @@ indexRouter.post("/undoCommand", async (req, res) =>
         switch (log.type) 
         {
             case 'quantity':
-                await undoQuantityChange(userId(req), log.itemId, log.oldValue, log.newValue);
+                await undoQuantityChange(userIdFromRequest(req), log.itemId, log.oldValue, log.newValue);
                 break;
             case 'delete all':
                 console.log('undo delete all');
-                await undoDeleteAll(userId(req));
+                await undoDeleteAll(userIdFromRequest(req));
                 break;
         }
 
@@ -787,6 +795,7 @@ indexRouter.post("/undoCommand", async (req, res) =>
      res.send('Undo successful');
 });
 
+// Undo a quantity change operation
 async function undoQuantityChange(userId, itemId, oldQuantity, newQuantity)
 {
     // Get item
@@ -822,15 +831,17 @@ async function undoQuantityChange(userId, itemId, oldQuantity, newQuantity)
 indexRouter.get("/api/itemsMetaData", async (req, res) => 
 {
     console.log('getting meta data');
-    var metaData = await db.calculateItemsMetaData(userId(req));
+    var metaData = await db.calculateItemsMetaData(userIdFromRequest(req));
     res.send(metaData);
 });
 
+// Restore all items from backup table
 async function undoDeleteAll(userid)
 {
     await db.overwriteItemsTableWithBackup(userid);
 }
 
+// Convert a number string to a formatted string with commas
 function convertNumToString(num) 
 {
     const decimalIndex   = num.indexOf('.');
@@ -851,8 +862,25 @@ function convertNumToString(num)
     return result;
 }
 
-function userId(req: any) : number
+// Get user ID from request object, defaulting to 1 if not authenticated
+function userIdFromRequest(req: any) : number
 {
     return req.user ? req.user.id : 1;
 }
+
+async function getUserIdFromToken(token: string)
+{
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, 'secret', (error, authData) => {
+            if (error) {
+                reject(new Error('Could not get user id from token'));
+            } else if (typeof authData !== 'string' && authData.id) {
+                resolve(authData.id);
+            } else {
+                reject(new Error('Invalid token payload'));
+            }
+        });
+    });
+}
+
 export default indexRouter;

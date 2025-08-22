@@ -45,9 +45,19 @@ const itemTable = document.getElementById("itemTable");
 const popup             = document.getElementById("popupModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems       = [];
+var apiToken            = '';
 
+
+function getApiToken(): string {
+    return localStorage.getItem('authToken') || '';
+}
 
 // On page load
+window.addEventListener('load', () => {
+    apiToken = localStorage.getItem('authToken') || '';
+    console.log('API Token:', apiToken);
+});
+
 document.addEventListener('keydown', (event) => {
     if (event.key == 'Enter') 
     {
@@ -222,7 +232,7 @@ async function showEditItemDialog(itemId: number): Promise<void>
     itemId = itemId;
     const request = new Request(`/api/item/${itemId}`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() }
     })
 
     const response = await fetch(request);
@@ -384,7 +394,7 @@ async function addItem()
 
         const request = new Request(`/api/item`, {
             method: "POST",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
             body: JSON.stringify({ 
                 userid: await getUserId(),
                 name: name,
@@ -422,7 +432,7 @@ async function deleteItem(itemId: number)
 
     const request = new Request(`/api/item`, {
         method: "DELETE",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
         body: JSON.stringify({ 
             userid: await getUserId(),
             itemId: itemId,
@@ -447,7 +457,7 @@ async function deleteSelectedItems()
 {
     const request = new Request(`/api/items`, {
         method: "DELETE",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
         body: JSON.stringify({ 
             userid: await getUserId(),
             items: selectedItems,
@@ -514,7 +524,7 @@ async function getItemById(itemId)
 {
     const request = new Request(`api/item/${itemId}`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() }
     })
 
     const response = await fetch(request);
@@ -533,7 +543,7 @@ async function updateItem(itemData: Item)
     const item    = await getItemById(itemData.itemId);
     const request = new Request(`/api/item`, {
         method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
         body: JSON.stringify({ 
             id: itemData.itemId,
             name: itemData.name,
@@ -568,7 +578,7 @@ async function editItemDialogUpdate(itemId)
 
     const request = new Request(`/api/item`, {
         method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
         body: JSON.stringify({ 
             id: itemId,
             name: name,
@@ -684,7 +694,10 @@ function sendQuantityChangeToTimer(itemId: number, newQuantity: number)
         const item    = await getItemById(quantityChangeTimer.itemId);
         const request = new Request(`/api/item`, {
             method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            },
             body: JSON.stringify({ 
                 id: quantityChangeTimer.itemId,
                 name: item[0]['name'],
@@ -757,7 +770,10 @@ async function onRowLoseFocus(itemId)
 
     const request = new Request(`/api/item/${itemId}`, {
         method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        },
         body: JSON.stringify({ 
             name: name,
             quantity: quantity,
@@ -887,9 +903,12 @@ async function searchForLowStockItem(name: string)
         name = "all";
     }
 
-    const request = new Request(`/api/lowStockitem/${name}`, {
+    const request = new Request(`/api/lowStockitems/${name}`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        }
     })
 
     const response = await fetch(request);
@@ -913,9 +932,12 @@ async function searchForItem(name: string)
         name = "all";
     }
 
-    const request = new Request(`api/itemsByName/${name}`, {
+    const request = new Request(`/api/itemsByName/${name}`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        }
     })
 
     const response = await fetch(request);
@@ -938,7 +960,10 @@ async function getMetaData()
 {
     const request = new Request(`/api/itemsMetaData`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        },
 
     })
     
@@ -954,7 +979,7 @@ async function loadItemTable()
 {
     const request = new Request(`/api/itemsByName/all`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() }
     })
 
     const response = await fetch(request);
@@ -986,9 +1011,12 @@ async function loadItemTable()
 
 async function loadLowStockItemTable()
 {
-    const request = new Request(`api/lowStockItems`, {
+    const request = new Request(`/api/lowStockItems`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        }
     })
 
     const response = await fetch(request);
@@ -1067,7 +1095,7 @@ async function updateItemOrderedStatus(itemId: number, stockOrdered: boolean)
 {
     const request = new Request(`/api/itemOrderedStatus`, {
         method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
         body: JSON.stringify({ 
             itemId: itemId,
             stockOrdered: stockOrdered,
@@ -1354,7 +1382,10 @@ async function loadTransactionLog(startDate?: Date, endDate?: Date)
     try {
         const request = new Request(`/api/activityLog`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            }
         })
 
         const response = await fetch(request);
@@ -1475,7 +1506,10 @@ async function loadActivityLog(startDate?: Date, endDate?: Date)
 {
     const request = new Request(`/api/activityLog`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        }
     })
 
     const response = await fetch(request);
@@ -1582,7 +1616,10 @@ async function getUserId()
 {
     const request = new Request(`/api/userid`, {
         method: "GET",
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getApiToken()
+        }
     });
 
     const response = await fetch(request);

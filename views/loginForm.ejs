@@ -21,8 +21,6 @@
                     </div>
 
                     <a href="/guest-login" class="d-inline" title="Sign in as guest">Sign in as guest</a>
-                    <button class="btn btn-primary" id="apiLoginBtn" style="width: 49%;" onclick="apiLogin()">API Login</button>
-                    <button class="btn btn-primary" id="apiLoginBtn" style="width: 49%;" onclick="testAPI()">Test API</button>
                 </div>
             </div>
         </div>
@@ -57,6 +55,9 @@
                     if (response.status >= 400) {
                         alert("login failed: " + response.statusText);
                     } else {
+                        await apiLogin();
+                        console.log('about to try to load home page');
+                        
                         window.location.href = "/";
                     }
                     const data = response.text().then((data) => {
@@ -116,34 +117,6 @@
                 }
             }
 
-            async function testAPI() {
-                console.log('Testing API with stored token');
-                let token = localStorage.getItem('authToken');
-                console.log(token);
-                token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjIsInVzZXJuYW1lIjoicHJpbnRzaG9wIiwiaWF0IjoxNzU1ODE0MzQyLCJleHAiOjE3NTU4MTc5NDJ9.eOwuH5egf4avVasP50OkcDQTPs3TB37AD6sJ-_dSbL0';
-                
-                if (!token) {
-                    alert('No auth token found. Please log in first.');
-                    return;
-                }
-
-                const request = new Request("/api/itemsByName/all", {
-                    method: "GET",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token,
-                    },
-                });
-
-                const response = await fetch(request);
-                if (response.status >= 400) {
-                    alert("API request failed: " + response.statusText);
-                } else {
-                    const data = await response.json();
-                    console.log('API request successful, data:', data);
-                    // alert('API request successful. Check console for data.');
-                }
-            }
         </script>
 
     </body>

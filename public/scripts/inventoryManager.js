@@ -54,7 +54,15 @@ const itemTable = document.getElementById("itemTable");
 const popup = document.getElementById("popupModal");
 var quantityChangeTimer = new QuantityChangeTimer();
 var selectedItems = [];
+var apiToken = '';
+function getApiToken() {
+    return localStorage.getItem('authToken') || '';
+}
 // On page load
+window.addEventListener('load', () => {
+    apiToken = localStorage.getItem('authToken') || '';
+    console.log('API Token:', apiToken);
+});
 document.addEventListener('keydown', (event) => {
     if (event.key == 'Enter') {
         if (!popup)
@@ -202,7 +210,7 @@ function showEditItemDialog(itemId) {
         itemId = itemId;
         const request = new Request(`/api/item/${itemId}`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() }
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -342,7 +350,7 @@ function addItem() {
             const tags = getHTMLInputById('tagsInput').value;
             const request = new Request(`/api/item`, {
                 method: "POST",
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
                 body: JSON.stringify({
                     userid: yield getUserId(),
                     name: name,
@@ -377,7 +385,7 @@ function deleteItem(itemId) {
         const name = item[0].name;
         const request = new Request(`/api/item`, {
             method: "DELETE",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
             body: JSON.stringify({
                 userid: yield getUserId(),
                 itemId: itemId,
@@ -398,7 +406,7 @@ function deleteSelectedItems() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/items`, {
             method: "DELETE",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
             body: JSON.stringify({
                 userid: yield getUserId(),
                 items: selectedItems,
@@ -458,7 +466,7 @@ function getItemById(itemId) {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`api/item/${itemId}`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() }
         });
         const response = yield fetch(request);
         const data = yield response.json().then((data) => {
@@ -473,7 +481,7 @@ function updateItem(itemData) {
         const item = yield getItemById(itemData.itemId);
         const request = new Request(`/api/item`, {
             method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
             body: JSON.stringify({
                 id: itemData.itemId,
                 name: itemData.name,
@@ -505,7 +513,7 @@ function editItemDialogUpdate(itemId) {
         const tags = getHTMLInputById('tagsInput').value;
         const request = new Request(`/api/item`, {
             method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
             body: JSON.stringify({
                 id: itemId,
                 name: name,
@@ -596,7 +604,10 @@ function sendQuantityChangeToTimer(itemId, newQuantity) {
         const item = yield getItemById(quantityChangeTimer.itemId);
         const request = new Request(`/api/item`, {
             method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            },
             body: JSON.stringify({
                 id: quantityChangeTimer.itemId,
                 name: item[0]['name'],
@@ -654,7 +665,10 @@ function onRowLoseFocus(itemId) {
         const value = tableRow.getElementsByClassName("valueRow")[0].innerHTML;
         const request = new Request(`/api/item/${itemId}`, {
             method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            },
             body: JSON.stringify({
                 name: name,
                 quantity: quantity,
@@ -762,9 +776,12 @@ function searchForLowStockItem(name) {
         if (name == "") {
             name = "all";
         }
-        const request = new Request(`/api/lowStockitem/${name}`, {
+        const request = new Request(`/api/lowStockitems/${name}`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            }
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -782,9 +799,12 @@ function searchForItem(name) {
         if (name == "") {
             name = "all";
         }
-        const request = new Request(`api/itemsByName/${name}`, {
+        const request = new Request(`/api/itemsByName/${name}`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            }
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -801,7 +821,10 @@ function getMetaData() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/itemsMetaData`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            },
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -813,7 +836,7 @@ function loadItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/itemsByName/all`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() }
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -839,9 +862,12 @@ function loadItemTable() {
 }
 function loadLowStockItemTable() {
     return __awaiter(this, void 0, void 0, function* () {
-        const request = new Request(`api/lowStockItems`, {
+        const request = new Request(`/api/lowStockItems`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            }
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -907,7 +933,7 @@ function updateItemOrderedStatus(itemId, stockOrdered) {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/itemOrderedStatus`, {
             method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getApiToken() },
             body: JSON.stringify({
                 itemId: itemId,
                 stockOrdered: stockOrdered,
@@ -1162,7 +1188,10 @@ function loadTransactionLog(startDate, endDate) {
         try {
             const request = new Request(`/api/activityLog`, {
                 method: "GET",
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getApiToken()
+                }
             });
             const response = yield fetch(request);
             const data = response.json().then((data) => {
@@ -1266,7 +1295,10 @@ function loadActivityLog(startDate, endDate) {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/activityLog`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            }
         });
         const response = yield fetch(request);
         const data = response.json().then((data) => {
@@ -1358,7 +1390,10 @@ function getUserId() {
     return __awaiter(this, void 0, void 0, function* () {
         const request = new Request(`/api/userid`, {
             method: "GET",
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getApiToken()
+            }
         });
         const response = yield fetch(request);
         if (response.ok) {
