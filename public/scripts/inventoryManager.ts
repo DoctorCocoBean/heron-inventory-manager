@@ -1416,6 +1416,12 @@ async function loadTransactionLog(startDate?: Date, endDate?: Date)
             {
                 const date = new Date(Number(data[i]['timestamp']));
                 
+                // Check activity type make sure it is a quantity change
+                if (data[i]['type'] !== 'quantity') {
+                    continue;
+                } 
+
+                // Check date
                 if (date > startDate && date < endDate) {
                     filteredData.push(data[i]);
                 } else {
