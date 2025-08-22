@@ -1,12 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const pg_1 = require("pg");
-const connectionString = "postgresql://postgres.aqvjlyigrkfikzkfomza:wCBrkihVgfbs9PGV@aws-0-us-east-2.pooler.supabase.com:5432/postgres";
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const userPool = new pg_1.Pool({
-    connectionString,
+    connectionString: process.env.DATABASE_URL
 });
 const guestPool = new pg_1.Pool({
-    connectionString: "postgresql://postgres.jfwwkjxxzrucksryojyg:kerm7pig@aws-1-us-east-2.pooler.supabase.com:5432/postgres",
+    connectionString: process.env.GUEST_DATABASE_URL,
 });
 exports.default = userPool;
 //# sourceMappingURL=pool.js.map

@@ -1,19 +1,16 @@
-
-import * as express from 'express';
-import * as path from 'node:path';
-import * as session from 'express-session';
-import * as passport from 'passport';
-import * as localStrategy from 'passport-local';
+import express from 'express';
+import session from 'express-session';
+import path from 'node:path';
+import passport from 'passport';
+import localStrategy from 'passport-local';
 import * as db from './pool/queries'; // For typescript
-import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
-
-import * as passportJwt from 'passport-jwt';
+import bcrypt from 'bcryptjs';
+import passportJwt from 'passport-jwt';
 import { StrategyOptionsWithoutRequest } from 'passport-jwt';
-const JwtStrategy = passportJwt.Strategy;
+
 const ExtractJwt = passportJwt.ExtractJwt;
 
-const app   = express();
+const app = express();
 const assetsPath = path.join(__dirname, "public");
 
 app.use(express.static(assetsPath));
@@ -25,7 +22,7 @@ app.use(express.static('public'));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
-app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use((session as any)({ secret: "cats", resave: false, saveUninitialized: true }));
 app.use(passport.session());
 
 passport.use(
@@ -53,28 +50,6 @@ var options: StrategyOptionsWithoutRequest = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: 'secret'
 };
-
-// passport.use(
-//     new JwtStrategy(options, (jwt_payload, done) => {
-//         try {
-//             // const user = await db.getUserByUsername(username);
-
-//             // const match = await bcrypt.compare(password, user.password);
-//             // if (!match) {
-//             //     return done(null, false, { message: "Incorrect password." });
-//             // }
-
-//             // if (!user) {
-//             //     return done(null, false, { message: "Incorrect username." });
-//             // }
-
-//             return done(null, user);
-//         } catch (error) {
-//             return done(error);
-//         }
-//     })
-//     })
-// )
 
 passport.serializeUser((user, done) => {
     done(null, user.id);

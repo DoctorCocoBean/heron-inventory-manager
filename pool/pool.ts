@@ -1,12 +1,14 @@
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
-const connectionString = "postgresql://postgres.aqvjlyigrkfikzkfomza:wCBrkihVgfbs9PGV@aws-0-us-east-2.pooler.supabase.com:5432/postgres";
+dotenv.config();
+
 const userPool = new Pool({
-   connectionString,
+   connectionString: process.env.DATABASE_URL
 });
 
 const guestPool = new Pool({
-    connectionString: "postgresql://postgres.jfwwkjxxzrucksryojyg:kerm7pig@aws-1-us-east-2.pooler.supabase.com:5432/postgres",
+    connectionString: process.env.GUEST_DATABASE_URL,
 });
 
 export default userPool;

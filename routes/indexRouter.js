@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,15 +41,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const indexRouter = (0, express_1.Router)();
-const papa = require("papaparse");
-const db = require("../pool/queries");
-const passport = require("passport");
-const bcrypt = require("bcryptjs");
+const papaparse_1 = __importDefault(require("papaparse"));
+const db = __importStar(require("../pool/queries"));
+const passport_1 = __importDefault(require("passport"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_validator_1 = require("express-validator");
-const jwt = require("jsonwebtoken");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // Middleware to ensure user is authenticated via session
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -44,7 +80,7 @@ indexRouter.get('/logout', (req, res, next) => {
 // Sign up endpoint
 indexRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const hashedPassword = yield bcrypt.hash(req.body.password, 10);
+        const hashedPassword = yield bcryptjs_1.default.hash(req.body.password, 10);
         yield db.addUser(req.body.username, hashedPassword);
         res.json({ message: "User registered successfully" });
     }
@@ -54,7 +90,7 @@ indexRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 }));
 // Login endpoint
-indexRouter.post("/login", passport.authenticate('local', {
+indexRouter.post("/login", passport_1.default.authenticate('local', {
     successRedirect: '/items',
     failureRedirect: '/login'
 }));
@@ -72,13 +108,13 @@ function verifyToken(req, res, next) {
     }
 }
 // API Login endpoint
-indexRouter.post("/api/login", passport.authenticate('local', {
+indexRouter.post("/api/login", passport_1.default.authenticate('local', {
     session: false
 }), (req, res) => {
     console.log('attempting api login');
     const user = req.user;
     console.log(`id ${user.id} username: ${user.username}`);
-    const token = jwt.sign({ id: user.id, username: user.username }, 'secret', { expiresIn: '1h' });
+    const token = jsonwebtoken_1.default.sign({ id: user.id, username: user.username }, 'secret', { expiresIn: '1h' });
     res.json({ token });
 });
 // Get guest login
@@ -440,7 +476,7 @@ indexRouter.post("/uploadCSV", verifyToken, (req, res) => __awaiter(void 0, void
             throw new Error('Missing required parameter: csvData');
         }
         let userid = yield getUserIdFromToken(req.token);
-        const data = papa.parse(req.body.csvData, {
+        const data = papaparse_1.default.parse(req.body.csvData, {
             header: true,
             dynamicTyping: true,
             complete: function (results) {
@@ -464,7 +500,7 @@ indexRouter.get("/downloadCSV", verifyToken, (req, res) => __awaiter(void 0, voi
         const config = { delimiter: "," };
         let userid = yield getUserIdFromToken(req.token);
         const rows = yield db.getAllItems(userid);
-        let data = papa.unparse(rows, config);
+        let data = papaparse_1.default.unparse(rows, config);
         // Convert column names to be the same as Sortly
         let newlineCharIndex = data.indexOf('\n');
         let columnNames = data.substring(0, newlineCharIndex);
@@ -592,7 +628,7 @@ function userIdFromRequest(req) {
 function getUserIdFromToken(token) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
-            jwt.verify(token, 'secret', (error, authData) => {
+            jsonwebtoken_1.default.verify(token, 'secret', (error, authData) => {
                 if (error) {
                     reject(new Error('Could not get user id from token'));
                 }

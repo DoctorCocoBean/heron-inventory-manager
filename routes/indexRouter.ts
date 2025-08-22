@@ -1,13 +1,11 @@
 import { Router }  from 'express';
 const indexRouter = Router();
-import * as papa from 'papaparse';
+import papa from 'papaparse';
 import * as db from '../pool/queries';
-import * as passport from 'passport';
-import * as bcrypt from 'bcryptjs';
+import passport from 'passport';
+import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
-import * as jwt from 'jsonwebtoken';
-import { verify } from 'crypto';
-
+import jwt from 'jsonwebtoken';
 
 declare global {
   namespace Express 
