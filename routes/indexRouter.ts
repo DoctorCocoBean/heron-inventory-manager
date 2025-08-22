@@ -6,6 +6,7 @@ import * as passport from 'passport';
 import * as bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
 import * as jwt from 'jsonwebtoken';
+import { verify } from 'crypto';
 
 
 declare global {
@@ -834,10 +835,11 @@ async function undoQuantityChange(userId, itemId, oldQuantity, newQuantity)
                     );
 }
 
-indexRouter.get("/api/itemsMetaData", async (req, res) => 
+indexRouter.get("/api/itemsMetaData", verifyToken, async (req, res) => 
 {
     console.log('getting meta data');
-    var metaData = await db.calculateItemsMetaData(userIdFromRequest(req));
+    let userid = await getUserIdFromToken(req.token);
+    var metaData = await db.calculateItemsMetaData(userid);
     res.send(metaData);
 });
 
