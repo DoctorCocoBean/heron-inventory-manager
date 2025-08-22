@@ -1194,6 +1194,7 @@ function loadTransactionLog(startDate, endDate) {
             });
             const response = yield fetch(request);
             const data = response.json().then((data) => {
+                console.log(startDate, endDate);
                 if (startDate === undefined || endDate === undefined) {
                     startDate = new Date();
                     startDate.setDate(1);
@@ -1271,6 +1272,16 @@ function loadTransactionLog(startDate, endDate) {
                     }
                 };
                 quantityChangeSummaries.sort(sortItems);
+                if (quantityChangeSummaries.length === 0) {
+                    const html = `
+                        <tr style="vertical-align: middle" id="tableRow_">
+                            <td colspan="3" style="text-align: center; color: grey;">No quantity change activities found in the specified date range.</td>
+                        </tr>
+                `;
+                    tableHTML += html;
+                    itemTable.innerHTML = tableHTML;
+                    return;
+                }
                 // Add merged quantity change summaries
                 for (let j = 0; j < quantityChangeSummaries.length; j++) // Merge two tranctions if same item
                  {

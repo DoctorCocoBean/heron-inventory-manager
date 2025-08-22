@@ -111,6 +111,8 @@ function setDateToday(datePickerId)
 {
     const todayStart: Date = new Date();
     todayStart.setHours(0, 0, 0, 0); // Reset time to midnight
+    console.log('Today\'s start date is', todayStart);
+
     const todayEnd: Date = new Date();
     todayEnd.setHours(24, 60, 60, 60); // Reset time to midnight
 

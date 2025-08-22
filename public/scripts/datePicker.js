@@ -81,6 +81,7 @@ function showCustomDatePicker(datePickerId) {
 function setDateToday(datePickerId) {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0); // Reset time to midnight
+    console.log('Today\'s start date is', todayStart);
     const todayEnd = new Date();
     todayEnd.setHours(24, 60, 60, 60); // Reset time to midnight
     const picker = pickers.find(p => p.id === datePickerId);
