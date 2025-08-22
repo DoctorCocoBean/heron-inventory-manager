@@ -20,7 +20,7 @@
                         <button class="btn btn-primary" id="signUpBtn" style="width: 49%;" onclick="signup()">Sign Up</button>
                     </div>
 
-                    <a href="/guest-login" class="d-inline" title="Sign in as guest">Sign in as guest</a>
+                    <a href="#" onclick="loginAsGuest()" class="d-inline" title="Sign in as guest">Sign in as guest</a>
                 </div>
             </div>
         </div>
@@ -35,9 +35,8 @@
         <script src="../scripts/inventoryManager.js"></script>
 
         <script>
-            async function login() {
-                console.log('logging in');
-
+            async function login() 
+            {
                 const username = document.getElementById("username").value;
                 const password = document.getElementById("password").value;
 
@@ -55,9 +54,7 @@
                     if (response.status >= 400) {
                         alert("login failed: " + response.statusText);
                     } else {
-                        await apiLogin();
-                        console.log('about to try to load home page');
-                        
+                        await apiLogin(username, password);
                         window.location.href = "/";
                     }
                     const data = response.text().then((data) => {
@@ -65,9 +62,35 @@
                 }
             }
 
-            async function signup() {
-                console.log('signing up');
+            async function loginAsGuest()
+            {
+                const username = 'guest';
+                const password = 'guest';
 
+                if (username && password) {
+                    const request = new Request("/login", {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            username: username,
+                            password: password
+                        }),
+                    })
+
+                    const response = await fetch(request);
+                    if (response.status >= 400) {
+                        alert("login failed: " + response.statusText);
+                    } else {
+                        await apiLogin(username, password);
+                        window.location.href = "/";
+                    }
+                    const data = response.text().then((data) => {
+                    });
+                }
+            }
+
+            async function signup() 
+            {
                 const username = document.getElementById("username").value;
                 const password = document.getElementById("password").value;
 
@@ -86,23 +109,18 @@
                         alert("Sign up failed: " + response.statusText);
                     } else {
                         window.location.href = "/";
-                        console.log('Sign up successful');
                     }
                 }
             }
 
-            async function apiLogin() {
-                console.log('API logging in');
-
-                const username = document.getElementById("username").value;
-                const password = document.getElementById("password").value;
-
+            async function apiLogin(username, password) 
+            {
                 const request = new Request("/api/login", {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        username: 'printshop',
-                        password: 'blue'
+                        username: username,
+                        password: password
                     }),
                 });
 
@@ -111,7 +129,6 @@
                     alert("API login failed: " + response.statusText);
                 } else {
                     const data = await response.json();
-                    console.log('API login successful, token:', data.token);
                     // Store the token in localStorage or a cookie
                     localStorage.setItem('authToken', data.token);
                 }

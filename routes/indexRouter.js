@@ -84,6 +84,7 @@ indexRouter.post("/api/login", passport.authenticate('local', {
 // Get guest login
 indexRouter.get("/guest-login", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('logging guest');
         const guestUser = { id: 27 }; // 27 is the id guest user in db
         req.login(guestUser, (err) => {
             if (err) {

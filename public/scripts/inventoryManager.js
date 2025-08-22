@@ -61,7 +61,6 @@ function getApiToken() {
 // On page load
 window.addEventListener('load', () => {
     apiToken = localStorage.getItem('authToken') || '';
-    console.log('API Token:', apiToken);
 });
 document.addEventListener('keydown', (event) => {
     if (event.key == 'Enter') {
@@ -1405,5 +1404,9 @@ function getUserId() {
             return null;
         }
     });
+}
+function logout() {
+    localStorage.removeItem('authToken');
+    window.location.href = '/login';
 }
 //# sourceMappingURL=inventoryManager.js.map

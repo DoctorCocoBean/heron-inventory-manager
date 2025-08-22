@@ -55,7 +55,6 @@ function getApiToken(): string {
 // On page load
 window.addEventListener('load', () => {
     apiToken = localStorage.getItem('authToken') || '';
-    console.log('API Token:', apiToken);
 });
 
 document.addEventListener('keydown', (event) => {
@@ -1630,4 +1629,9 @@ async function getUserId()
         console.error('Failed to get user ID');
         return null;
     }
+}
+
+function logout() {
+    localStorage.removeItem('authToken');
+    window.location.href = '/login';
 }
